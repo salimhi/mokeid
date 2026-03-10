@@ -1456,6 +1456,221 @@ body.pip-mode #exam-popup {
   .admin-tab { padding: 10px 14px; font-size: 12px; }
 }
 
+/* ══════════════════════════════════════════════════════════
+   REAL MOCK SYSTEM
+══════════════════════════════════════════════════════════ */
+#real-mock-screen {
+  display: none; position: fixed; inset: 0; z-index: 9980;
+  background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeUp 0.2s ease;
+}
+#real-mock-screen.active { display: block; }
+
+.rm-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10; gap: 12px;
+}
+.rm-mock-label { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text); }
+.rm-timers { display: flex; gap: 12px; align-items: center; }
+.rm-q-timer {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 700;
+  color: var(--accent); min-width: 44px; text-align: center;
+  background: var(--accent-glow); border-radius: 6px; padding: 4px 10px;
+  transition: color 0.3s, background 0.3s;
+}
+.rm-q-timer.danger { color: var(--red); background: var(--red-dim); }
+.rm-total-timer { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.rm-paused-badge { font-size: 11px; font-weight: 700; color: var(--amber); background: var(--amber-dim); padding: 3px 10px; border-radius: 99px; display: none; }
+.rm-paused-badge.show { display: inline-block; }
+.rm-progress-bar { height: 3px; background: var(--surface-2); }
+.rm-progress-fill { height: 3px; background: var(--accent); transition: width 0.3s ease; }
+
+.rm-body { max-width: 760px; margin: 0 auto; padding: 24px 20px 100px; }
+
+.rm-q-counter { font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+.rm-question-text {
+  font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.7;
+  margin-bottom: 20px; padding: 16px 18px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+
+.rm-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.rm-option {
+  display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; user-select: none;
+  min-height: 48px;
+}
+.rm-option:hover { border-color: var(--border-active); background: var(--surface-2); }
+.rm-option.selected { border-color: var(--accent); background: var(--accent-glow); }
+.rm-option.correct { border-color: var(--green); background: var(--green-dim) !important; }
+.rm-option.wrong   { border-color: var(--red);   background: var(--red-dim) !important; }
+.rm-option.reveal  { border-color: var(--green); background: var(--green-dim); }
+.rm-option-letter {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+  color: var(--accent); background: var(--accent-glow);
+  border-radius: 5px; padding: 3px 8px; flex-shrink: 0; margin-top: 1px;
+}
+.rm-option.correct .rm-option-letter { color: var(--green); background: var(--green-dim); }
+.rm-option.wrong   .rm-option-letter { color: var(--red);   background: var(--red-dim); }
+.rm-option.reveal  .rm-option-letter { color: var(--green); background: var(--green-dim); }
+.rm-option-text { font-size: 13px; color: var(--text); line-height: 1.55; flex: 1; }
+.rm-option-icon { font-size: 16px; flex-shrink: 0; align-self: center; }
+
+.rm-explanation {
+  margin-top: 8px; padding: 10px 14px;
+  background: rgba(91,138,240,0.06); border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0; font-size: 12px; color: var(--text-dim);
+  line-height: 1.6; display: none;
+}
+.rm-explanation.show { display: block; }
+
+.rm-feedback-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; display: none;
+}
+.rm-feedback-row.show { display: flex; }
+.rm-feedback-row.correct { background: var(--green-dim); color: var(--green); }
+.rm-feedback-row.wrong   { background: var(--red-dim);   color: var(--red); }
+.rm-feedback-row.skipped { background: var(--amber-dim); color: var(--amber); }
+
+.rm-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rm-nav-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+
+.rm-review-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--text-muted); font-size: 12px;
+  font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font-body);
+}
+.rm-review-btn.marked { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+.rm-review-btn:hover { background: var(--surface-3); }
+
+/* Real Mock — Mode picker modal */
+#rm-mode-modal {
+  display: none; position: fixed; inset: 0; z-index: 99990;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+#rm-mode-modal.active { display: flex; }
+.rm-modal-box {
+  background: var(--surface); border: 1px solid var(--border-active);
+  border-radius: var(--radius); padding: 28px; width: 100%; max-width: 460px;
+  box-shadow: var(--shadow-lg); animation: loginPop 0.25s cubic-bezier(0.34,1.4,0.64,1);
+}
+.rm-modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.rm-modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+.rm-mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.rm-mode-card {
+  padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.rm-mode-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+.rm-mode-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+.rm-mode-card.selected2 { border-color: #a78bfa; background: rgba(124,58,237,0.1); }
+.rm-mode-icon { font-size: 28px; margin-bottom: 8px; }
+.rm-mode-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rm-mode-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+.rm-unit-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.rm-unit-chip {
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 99px;
+  font-size: 11px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+  transition: all 0.15s; background: var(--surface-2);
+}
+.rm-unit-chip.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.rm-q-count-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.rm-q-count-row label { font-size: 12px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.rm-q-count-row input {
+  flex: 1; padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body);
+  font-size: 14px; outline: none; max-width: 100px;
+}
+.rm-q-count-row input:focus { border-color: var(--accent); }
+.rm-q-avail { font-size: 11px; color: var(--text-muted); }
+.rm-q-avail.warn { color: var(--amber); }
+.rm-q-avail.error { color: var(--red); font-weight: 600; }
+.rm-modal-actions { display: flex; gap: 8px; }
+
+/* Results screen for real mock */
+.rm-result-hero {
+  text-align: center; padding: 28px 20px 20px;
+  background: linear-gradient(135deg, rgba(91,138,240,0.1), rgba(124,58,237,0.08));
+  border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 18px;
+}
+.rm-result-score { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1; }
+.rm-result-score.pass { color: var(--green); }
+.rm-result-score.fail { color: var(--red); }
+.rm-result-sub { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+.rm-result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+.rm-result-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+.rm-result-stat-val { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--text); display: block; }
+.rm-result-stat-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+
+/* Review Questions Screen */
+#review-screen {
+  display: none; position: fixed; inset: 0; z-index: 9975;
+  background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeUp 0.2s ease;
+}
+#review-screen.active { display: block; }
+.review-topbar {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.review-q-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 14px; overflow: hidden;
+}
+.review-q-header {
+  padding: 12px 16px; background: var(--surface-2);
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.review-q-num { font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  color: var(--accent); background: var(--accent-glow); padding: 3px 8px; border-radius: 4px; }
+.review-q-preview { flex: 1; font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.review-q-body { display: none; padding: 16px; border-top: 1px solid var(--border); }
+.review-q-body.open { display: block; }
+.review-q-text { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 12px; }
+.review-opt { padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 6px;
+  border: 1px solid var(--border); color: var(--text-dim); }
+.review-opt.correct { background: var(--green-dim); border-color: var(--green); color: var(--green); font-weight: 600; }
+.review-opt.your-wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.review-explanation { margin-top: 10px; padding: 10px 14px; background: rgba(91,138,240,0.06);
+  border-left: 3px solid var(--accent); font-size: 12px; color: var(--text-dim); line-height: 1.6; border-radius: 0 6px 6px 0; }
+.review-unit-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  background: var(--accent-glow); color: var(--accent); }
+
+/* History tag badges */
+.history-tag {
+  display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 99px; text-transform: uppercase; letter-spacing: 0.07em; margin-left: 6px;
+}
+.history-tag.real  { background: rgba(91,138,240,0.15); color: var(--accent); }
+.history-tag.pip   { background: rgba(124,58,237,0.15); color: #a78bfa; }
+.history-tag.other { background: var(--surface-3); color: var(--text-muted); }
+
+/* Real mock card on homepage */
+.real-mock-card {
+  background: linear-gradient(135deg, rgba(91,138,240,0.08), rgba(124,58,237,0.06));
+  border: 1.5px solid rgba(91,138,240,0.25);
+}
+.real-mock-card .card-title-lg { color: var(--accent); }
+
+@media (max-width: 720px) {
+  .rm-result-stats { grid-template-columns: repeat(2, 1fr); }
+  .rm-mode-cards { grid-template-columns: 1fr; }
+  .rm-body { padding: 16px 12px 80px; }
+}
+@media (max-width: 480px) {
+  .rm-result-score { font-size: 40px; }
+  .rm-result-stats { grid-template-columns: 1fr 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -1491,6 +1706,7 @@ body.pip-mode #exam-popup {
       <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">🌙 Theme</button>
       <button id="pip-btn" class="icon-btn">⊞ PiP Mode</button>
       <button id="history-toggle-btn" class="icon-btn">🗃 History</button>
+      <button id="review-btn" class="icon-btn" style="color:#f59e0b;">🔖 Review</button>
       <button id="admin-btn" class="icon-btn">⚙ Admin</button>
       <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:2px;">
         <button id="export-btn" class="icon-btn green">↓ Export JSON</button>
@@ -1505,75 +1721,27 @@ body.pip-mode #exam-popup {
   </header>
 
   <!-- HOME WRAPPER -->
-  <div id="home-wrapper" style="display:flex;">
+  <div id="home-wrapper" style="display:flex; flex-direction:column;">
 
-    <!-- ROW 1: Unit Analytics + Setup -->
+    <!-- ROW 1: Real Mock + Setup (top grid) -->
     <div class="grid-2">
 
-      <!-- Unit Analytics Card -->
-      <div id="unit-stats-window" class="card" style="display:block;">
-        <div class="card-header">
-          <span class="card-title">Unit Analytics</span>
+      <!-- Real Mock Card (top-left) -->
+      <div class="card real-mock-card" id="real-mock-setup-card" style="display:block;">
+        <div class="card-header" style="margin-bottom:14px;">
+          <span class="card-title">🧪 Real Mock Test</span>
         </div>
-
-        <div id="unit-stats-list-container">
-          <div class="unit-table">
-            <div class="unit-table-head">
-              <span>Unit</span>
-              <span style="text-align:center;">Solo</span>
-              <span style="text-align:center;">Total</span>
-              <span style="text-align:center;">Avg</span>
-              <span style="text-align:center;">Acc %</span>
-            </div>
-            <div id="unit-stats-list" class="unit-table-body"></div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">Auto-scored from Question Bank · +1 correct · −0.33 wrong · Final score /100</div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+          <div style="text-align:center; padding:12px 18px; background:var(--surface-2); border-radius:var(--radius-sm); flex:1;">
+            <div id="rm-qb-total" style="font-family:var(--font-mono); font-size:28px; font-weight:700; color:#a78bfa; line-height:1;">0</div>
+            <div style="font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; margin-top:4px;">Questions in Bank</div>
           </div>
-          <p class="table-hint">Click any unit to view trends & insights</p>
         </div>
-
-        <div id="trend-graph-wrapper" style="display:none; width:100%;">
-          <div class="trend-nav">
-            <button id="slide-left-btn" class="nav-pill">&lt;</button>
-            <span class="trend-title" id="trend-unit-title"></span>
-            <button id="slide-right-btn" class="nav-pill">&gt;</button>
-          </div>
-
-          <div id="view-chart" class="chart-area">
-            <canvas id="trendCanvas"></canvas>
-          </div>
-
-          <div id="view-metrics" class="metrics-grid" style="display:none;">
-            <div class="metric-card full">
-              <div class="metric-label">Behavior Profile</div>
-              <div class="metric-value" id="metric-profile">—</div>
-              <div class="metric-sub" id="metric-profile-desc">—</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Concept Mastery</div>
-              <div class="metric-value" id="metric-mastery">—</div>
-              <div class="metric-sub">Accuracy × Attempt Rate</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Improvement Trend</div>
-              <div class="metric-value" id="metric-improvement">—</div>
-              <div class="metric-sub">Latest vs First Score</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Stability Index</div>
-              <div class="metric-value" id="metric-stability">—</div>
-              <div class="metric-sub">Standard Deviation</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Risk Index</div>
-              <div class="metric-value" id="metric-risk">—</div>
-              <div class="metric-sub">Incorrect / Attempted</div>
-            </div>
-          </div>
-
-          <button onclick="closeTrendGraph()" class="btn btn-ghost" style="width:100%; margin-top:14px;">← Back to Unit List</button>
-        </div>
+        <button id="start-real-mock-btn" class="btn btn-primary" style="width:100%; font-size:14px; padding:13px;">Start Real Mock →</button>
       </div>
 
-      <!-- Setup Card -->
+      <!-- Setup Card (top-right, existing PiP mock) -->
       <div id="setup-window" class="card" style="display:block;">
         <div class="card-header">
           <span class="card-title">Mock Test Setup</span>
@@ -1588,20 +1756,85 @@ body.pip-mode #exam-popup {
             <label class="unit-option"><input type="checkbox" value="Unit 5"><span>Unit 5 — Fish Preservation</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 6"><span>Unit 6 — Quality Standards</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 7"><span>Unit 7 — Aquatic Environment Management</span></label>
-            <label class="unit-option"><input type="checkbox" value="Unit 8"><span>Unit 8 — Farming of Food Fishes & Shell Fishes</span></label>
+            <label class="unit-option"><input type="checkbox" value="Unit 8"><span>Unit 8 — Farming of Food Fishes &amp; Shell Fishes</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 9"><span>Unit 9 — Ornamental Fish Culture</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 10"><span>Unit 10 — Aquatic Animal Health Management</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 11"><span>Unit 11 — Fisheries Statistics</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 12"><span>Unit 12 — Fisheries Extension</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 13"><span>Unit 13 — Fishery Economics</span></label>
-            <label class="unit-option"><input type="checkbox" value="Unit 14"><span>Unit 14 — Administration & Legislation</span></label>
+            <label class="unit-option"><input type="checkbox" value="Unit 14"><span>Unit 14 — Administration &amp; Legislation</span></label>
           </div>
         </div>
         <button id="start-mock-btn" class="btn btn-primary">Start Exam →</button>
       </div>
-    </div>
+    </div><!-- /grid-2 top row -->
 
-    <!-- ROW 2: Overall Dashboard -->
+    <!-- ROW 2: Unit Analytics (full-width, below) -->
+    <div id="unit-stats-window" class="card full-card" style="display:block;">
+      <div class="card-header">
+        <span class="card-title">Unit Analytics</span>
+      </div>
+
+      <div id="unit-stats-list-container">
+        <div class="unit-table">
+          <div class="unit-table-head">
+            <span>Unit</span>
+            <span style="text-align:center;">Solo</span>
+            <span style="text-align:center;">Total</span>
+            <span style="text-align:center;">Avg</span>
+            <span style="text-align:center;">Acc %</span>
+          </div>
+          <div id="unit-stats-list" class="unit-table-body"></div>
+        </div>
+        <p class="table-hint">Click any unit to view trends &amp; insights</p>
+      </div>
+
+      <div id="trend-graph-wrapper" style="display:none; width:100%;">
+        <div class="trend-nav">
+          <button id="slide-left-btn" class="nav-pill">&lt;</button>
+          <span class="trend-title" id="trend-unit-title"></span>
+          <button id="slide-right-btn" class="nav-pill">&gt;</button>
+        </div>
+
+        <div id="view-chart" class="chart-area">
+          <canvas id="trendCanvas"></canvas>
+        </div>
+
+        <div id="view-metrics" class="metrics-grid" style="display:none;">
+          <div class="metric-card full">
+            <div class="metric-label">Behavior Profile</div>
+            <div class="metric-value" id="metric-profile">—</div>
+            <div class="metric-sub" id="metric-profile-desc">—</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Concept Mastery</div>
+            <div class="metric-value" id="metric-mastery">—</div>
+            <div class="metric-sub">Accuracy × Attempt Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Improvement Trend</div>
+            <div class="metric-value" id="metric-improvement">—</div>
+            <div class="metric-sub">Latest vs First Score</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Stability Index</div>
+            <div class="metric-value" id="metric-stability">—</div>
+            <div class="metric-sub">Standard Deviation</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Risk Index</div>
+            <div class="metric-value" id="metric-risk">—</div>
+            <div class="metric-sub">Incorrect / Attempted</div>
+          </div>
+        </div>
+
+        <button onclick="closeTrendGraph()" class="btn btn-ghost" style="width:100%; margin-top:14px;">← Back to Unit List</button>
+      </div>
+    </div><!-- /unit-stats-window -->
+
+
+
+
     <div class="card full-card" id="overall-dashboard-window" style="display:block;">
       <div class="card-header">
         <span class="card-title-lg">Overall Performance Dashboard</span>
@@ -1780,7 +2013,112 @@ body.pip-mode #exam-popup {
     <button id="clear-history-btn" class="btn btn-danger" style="width:100%; margin-top:10px; display:none;">Clear All History</button>
   </div>
 
+
 </div><!-- /app-container -->
+
+<!-- REAL MOCK SCREEN -->
+  <div id="real-mock-screen">
+    <div class="rm-topbar">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="rm-mock-label" id="rm-mock-label">Real Mock 1</div>
+        <div id="rm-q-counter" style="font-size:11px;color:var(--text-muted);">Q 1 / 10</div>
+      </div>
+      <div class="rm-timers">
+        <div class="rm-paused-badge" id="rm-paused-badge">⏸ Paused</div>
+        <div class="rm-total-timer" id="rm-total-timer">00:00</div>
+        <div class="rm-q-timer" id="rm-q-timer">01:00</div>
+        <button class="btn btn-amber" id="rm-pause-btn" style="padding:6px 14px;font-size:12px;">⏸</button>
+        <button class="btn" id="rm-save-btn" style="padding:6px 12px;font-size:12px;background:var(--surface-2);border:1px solid var(--border);">💾 Save</button>
+        <button class="popup-tb-btn close" id="rm-close-btn" style="padding:6px 10px;">✕</button>
+      </div>
+    </div>
+    <div class="rm-progress-bar"><div class="rm-progress-fill" id="rm-progress-fill" style="width:0%"></div></div>
+
+    <div class="rm-body" id="rm-body">
+      <!-- Question injected here by JS -->
+    </div>
+  </div>
+
+  <!-- REAL MOCK RESULT SCREEN -->
+  <div id="real-mock-result-screen" style="display:none; position:fixed; inset:0; z-index:9981; background:var(--bg); overflow-y:auto; animation:fadeUp 0.2s ease;">
+    <div id="rm-result-inner" style="max-width:680px; margin:0 auto; padding:28px 20px 100px;">
+      <div class="rm-result-hero">
+        <div class="rm-result-score" id="rm-final-score-display">—</div>
+        <div class="rm-result-sub" id="rm-result-sub">Real Mock · —</div>
+      </div>
+      <div class="rm-result-stats">
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-total">—</span><span class="rm-result-stat-lbl">Questions</span></div>
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-att">—</span><span class="rm-result-stat-lbl">Attempted</span></div>
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-correct" style="color:var(--green)">—</span><span class="rm-result-stat-lbl">Correct</span></div>
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-wrong" style="color:var(--red)">—</span><span class="rm-result-stat-lbl">Wrong</span></div>
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-skip" style="color:var(--amber)">—</span><span class="rm-result-stat-lbl">Skipped</span></div>
+        <div class="rm-result-stat"><span class="rm-result-stat-val" id="rm-res-time">—</span><span class="rm-result-stat-lbl">Time</span></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;text-align:center;" id="rm-score-formula"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn btn-teal" id="rm-review-after-btn" style="flex:1;max-width:220px;">🔖 Review Questions</button>
+        <button class="btn btn-primary" id="rm-new-mock-btn" style="flex:1;max-width:220px;margin-top:0;">New Mock →</button>
+        <button class="btn" id="rm-home-btn" style="flex:1;max-width:220px;background:var(--surface-2);border:1px solid var(--border);">🏠 Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW QUESTIONS SCREEN -->
+  <div id="review-screen">
+    <div class="review-topbar">
+      <button class="btn" id="review-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">← Back</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);">🔖 Review Questions</div>
+        <div id="review-count-label" style="font-size:11px;color:var(--text-muted);">0 questions marked</div>
+      </div>
+      <button class="btn btn-danger" id="review-clear-btn" style="font-size:12px;padding:6px 12px;">Clear All</button>
+    </div>
+    <div style="max-width:760px;margin:0 auto;padding:20px 16px 80px;" id="review-list-container">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+
+
+<!-- ─── REAL MOCK MODE MODAL ────────────────────────────────── -->
+<div id="rm-mode-modal">
+  <div class="rm-modal-box">
+    <div class="rm-modal-title">🧪 Real Mock Test</div>
+    <div class="rm-modal-sub">Configure your exam before starting</div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Select Units (min. 1)</div>
+    <div class="rm-unit-grid" id="rm-unit-chips"></div>
+    <div id="rm-unit-error" style="font-size:11px;color:var(--red);margin-bottom:10px;display:none;">⚠ Select at least one unit</div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Exam Mode</div>
+    <div class="rm-mode-cards">
+      <div class="rm-mode-card selected" id="rm-mode-stretch" onclick="rmSelectMode('stretch')">
+        <div class="rm-mode-icon">📋</div>
+        <div class="rm-mode-name">Single Stretch</div>
+        <div class="rm-mode-desc">Take full mock first, review answers only at the end</div>
+      </div>
+      <div class="rm-mode-card selected2" id="rm-mode-instant" onclick="rmSelectMode('instant')">
+        <div class="rm-mode-icon">⚡</div>
+        <div class="rm-mode-name">Instant Feedback</div>
+        <div class="rm-mode-desc">See correct answer immediately after each selection</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Number of Questions</div>
+    <div class="rm-q-count-row">
+      <label>Questions:</label>
+      <input type="number" id="rm-q-count-input" min="1" value="10" placeholder="10">
+      <div id="rm-q-avail-label" class="rm-q-avail">Available: 0</div>
+    </div>
+    <div id="rm-q-warn" style="font-size:11px;color:var(--amber);margin-bottom:8px;display:none;"></div>
+
+    <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+    <div class="rm-modal-actions">
+      <button class="btn btn-ghost" id="rm-modal-cancel-btn" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" id="rm-modal-start-btn" style="flex:1;margin-top:0;">Start Exam →</button>
+    </div>
+  </div>
+</div>
 
 <!-- ─── EXAM POPUP ─────────────────────────────────────────── -->
 <div id="exam-popup-backdrop"></div>
@@ -2609,7 +2947,7 @@ function migrateLegacyDates() {
   if (changed) localStorage.setItem('quizHistory', JSON.stringify(history));
 }
 
-window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); };
+window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); };
 
 // ─── IMPORT / EXPORT ───────────────────────────────────────
 function exportJSON() {
@@ -2652,6 +2990,9 @@ function hideAllWindows() {
   appContainer.querySelector('#scoring-window').style.display = 'none';
   appContainer.querySelector('#results-window').style.display = 'none';
   appContainer.querySelector('#history-window').style.display = 'none';
+  document.getElementById('real-mock-screen').classList.remove('active');
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  document.getElementById('review-screen').classList.remove('active');
 }
 function showHome() {
   hideAllWindows();
@@ -3130,17 +3471,16 @@ function saveAndShowResults() {
   appContainer.querySelector('#results-window').style.display = 'block';
 }
 
-function saveSessionToHistory(name, unit, time, score, details) {
+function saveSessionToHistory(name, unit, time, score, details, mockType) {
   let history = JSON.parse(localStorage.getItem('quizHistory')) || [];
   let _now = new Date();
   let _isoDate = toDateKey(_now);
   let _timeStr = _now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   let _displayDate = _now.toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'});
-  history.unshift({ date: _isoDate + " " + _timeStr + " (" + _displayDate + ")", name, unit, time, score, details });
+  history.unshift({ date: _isoDate + " " + _timeStr + " (" + _displayDate + ")", name, unit, time, score, details, mockType: mockType || 'pip' });
   localStorage.setItem('quizHistory', JSON.stringify(history));
   localStorage.setItem('exportNeeded', 'true');
   renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
-  // Show reminder toast after a short delay
   setTimeout(showAfterMockReminder, 800);
 }
 
@@ -3181,11 +3521,16 @@ function loadHistoryUI() {
     } else if (session.wrong) {
       detHtml = `<div style="font-size:11px; color:var(--text-muted);">Wrong: ${session.wrong}</div>`;
     }
+    let typeTag = '';
+    if (session.mockType === 'real') typeTag = '<span class="history-tag real">Real Mock</span>';
+    else if (session.mockType === 'pip')  typeTag = '<span class="history-tag pip">PiP Mock</span>';
+    else typeTag = '<span class="history-tag other">Mock</span>';
+
     let card = document.createElement('div');
     card.className = 'history-entry';
     card.innerHTML = `
       <button class="history-delete-btn" title="Delete this mock" onclick="deleteMock(${idx})">✕</button>
-      <div class="history-name">${session.name}</div>
+      <div class="history-name">${session.name}${typeTag}</div>
       <div class="history-meta">${session.unit}<br>${session.date}</div>
       <div class="history-stats">
         <div class="history-score">${session.score} <span style="font-size:13px; color:var(--text-muted); font-weight:400;">/ 100</span></div>
@@ -3639,7 +3984,7 @@ let parsedQuestions = [];
 
 // ── QB Storage helpers ──────────────────────────────────────
 function getQB() { return JSON.parse(localStorage.getItem(QB_KEY)) || []; }
-function saveQB(bank) { localStorage.setItem(QB_KEY, JSON.stringify(bank)); }
+function saveQB(bank) { localStorage.setItem(QB_KEY, JSON.stringify(bank)); if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount(); }
 function genQBId() { return 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
 
 // ── Open admin (show login gate) ─────────────────────────────
@@ -3765,7 +4110,7 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
     function(_, pre, letter) { return pre + '\n' + letter + '. '; });
   // Normalize Answer Key section
   raw = raw.replace(/(Answer Key)/g, '\n\n$1');
-  raw = raw.replace(/(?<=[^\n])(\d+\. Answer:)/g, '\n$1');
+  raw = raw.replace(/(?<=[^\d\n])(\d+\. Answer:)/g, '\n$1');
   raw = raw.replace(/(?<=[^\n])(Justification:)/g, '\nJustification:');
 
   const questions = [];
@@ -4207,7 +4552,652 @@ document.getElementById('admin-clear-qb-btn').addEventListener('click', () => {
   alert('Question bank cleared.');
 });
 
-// ── Load questionbank.json from GitHub on startup ─────────────
+
+// ══════════════════════════════════════════════════════════════
+// REVIEW BUTTON IN TOPBAR
+// ══════════════════════════════════════════════════════════════
+document.getElementById('review-btn').addEventListener('click', openReviewScreen);
+
+function renderReviewBtn() {
+  const marked = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
+  const btn = document.getElementById('review-btn');
+  if (btn) btn.innerHTML = `🔖 Review${marked.length ? ' <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>' : ''}`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// REAL MOCK ENGINE
+// ══════════════════════════════════════════════════════════════
+const RM_SAVED_KEY = 'rm_saved_mock';
+const RM_REVIEW_KEY = 'rm_review_questions';
+const RM_HISTORY_KEY = 'quizHistory'; // shared with pip mock
+
+let rmState = {
+  mode: 'stretch',           // 'stretch' or 'instant'
+  questions: [],             // shuffled subset from QB
+  currentIdx: 0,
+  answers: [],               // {selected, correct, skipped, reviewed}
+  timeLeft: 60,
+  totalTime: 0,
+  paused: false,
+  pauseTime: 0,
+  mockName: '',
+  mockUnit: '',
+  finished: false,
+};
+let rmQTimer = null, rmTotalTimer = null, rmPauseTimer = null;
+
+// ── Update QB count display on homepage ──────────────────────
+function rmUpdateQBCount() {
+  const bank = getQB();
+  const el = document.getElementById('rm-qb-total');
+  if (el) el.textContent = bank.length;
+}
+
+// ── Open mode modal ──────────────────────────────────────────
+document.getElementById('start-real-mock-btn').addEventListener('click', openRMModal);
+
+function openRMModal() {
+  // Build unit chips
+  const bank = getQB();
+  rmUpdateQBCount();
+  const chipContainer = document.getElementById('rm-unit-chips');
+  chipContainer.innerHTML = '';
+  UNIT_DATA.forEach(u => {
+    const count = bank.filter(q => q.unit === u.id).length;
+    if (count === 0) return;
+    const chip = document.createElement('div');
+    chip.className = 'rm-unit-chip';
+    chip.dataset.unit = u.id;
+    chip.innerHTML = `${u.id} <span style="opacity:0.6;">(${count})</span>`;
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      rmUpdateAvailable();
+    });
+    chipContainer.appendChild(chip);
+  });
+
+  // default: select all units with questions
+  chipContainer.querySelectorAll('.rm-unit-chip').forEach(c => c.classList.add('selected'));
+
+  // Mode selection state
+  rmSelectMode('stretch');
+  rmUpdateAvailable();
+
+  document.getElementById('rm-unit-error').style.display = 'none';
+  document.getElementById('rm-q-warn').style.display = 'none';
+  document.getElementById('rm-mode-modal').classList.add('active');
+}
+
+function rmSelectMode(mode) {
+  rmState.mode = mode;
+  document.getElementById('rm-mode-stretch').style.border = mode === 'stretch' ? '2px solid var(--accent)' : '2px solid var(--border)';
+  document.getElementById('rm-mode-stretch').style.background = mode === 'stretch' ? 'var(--accent-glow)' : '';
+  document.getElementById('rm-mode-instant').style.border = mode === 'instant' ? '2px solid #a78bfa' : '2px solid var(--border)';
+  document.getElementById('rm-mode-instant').style.background = mode === 'instant' ? 'rgba(124,58,237,0.1)' : '';
+}
+
+function rmGetSelectedUnits() {
+  return Array.from(document.querySelectorAll('#rm-unit-chips .rm-unit-chip.selected'))
+    .map(c => c.dataset.unit);
+}
+
+function rmUpdateAvailable() {
+  const units = rmGetSelectedUnits();
+  const bank = getQB();
+  const avail = bank.filter(q => units.includes(q.unit)).length;
+  const el = document.getElementById('rm-q-avail-label');
+  const warn = document.getElementById('rm-q-warn');
+  const inp = document.getElementById('rm-q-count-input');
+  el.textContent = `Available: ${avail}`;
+  el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
+  const requested = parseInt(inp.value) || 10;
+  if (avail === 0) {
+    warn.textContent = '⚠ No questions in bank for selected units. Add via Admin → Paste & Parse.';
+    warn.style.display = 'block';
+  } else if (requested > avail) {
+    warn.textContent = `⚠ Only ${avail} questions available. Mock will use all ${avail}.`;
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+document.getElementById('rm-q-count-input').addEventListener('input', rmUpdateAvailable);
+document.getElementById('rm-modal-cancel-btn').addEventListener('click', () => {
+  document.getElementById('rm-mode-modal').classList.remove('active');
+});
+
+document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
+  const units = rmGetSelectedUnits();
+  if (!units.length) {
+    document.getElementById('rm-unit-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('rm-unit-error').style.display = 'none';
+  const bank = getQB();
+  const pool = bank.filter(q => units.includes(q.unit));
+  if (!pool.length) {
+    alert('No questions found for selected units. Add questions via Admin panel first.');
+    return;
+  }
+  const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
+  const count = Math.min(requested, pool.length);
+  // Shuffle and pick
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+  document.getElementById('rm-mode-modal').classList.remove('active');
+  rmLaunch(shuffled, units, count);
+});
+
+// ── Launch real mock ─────────────────────────────────────────
+function rmLaunch(questions, units, count) {
+  const history = JSON.parse(localStorage.getItem(RM_HISTORY_KEY)) || [];
+  const realMockCount = history.filter(h => h.mockType === 'real').length;
+  rmState = {
+    mode: rmState.mode,
+    questions,
+    currentIdx: 0,
+    answers: new Array(questions.length).fill(null).map(() => ({ selected: null, skipped: false, reviewed: false })),
+    timeLeft: 60,
+    totalTime: 0,
+    paused: false,
+    pauseTime: 0,
+    mockName: `Real Mock ${realMockCount + 1}`,
+    mockUnit: units.join(', '),
+    finished: false,
+  };
+  hideAllWindows();
+  document.getElementById('real-mock-screen').classList.add('active');
+  document.getElementById('rm-mock-label').textContent = rmState.mockName;
+  rmRenderQuestion();
+  rmStartTimers();
+}
+
+// ── Render current question ───────────────────────────────────
+function rmRenderQuestion() {
+  const q = rmState.questions[rmState.currentIdx];
+  const ans = rmState.answers[rmState.currentIdx];
+  const total = rmState.questions.length;
+  const idx = rmState.currentIdx;
+  const mode = rmState.mode;
+  const revealed = mode === 'instant' && ans.selected !== null;
+
+  document.getElementById('rm-q-counter').textContent = `Q ${idx + 1} / ${total}`;
+  document.getElementById('rm-progress-fill').style.width = `${((idx) / total) * 100}%`;
+
+  const reviewMarked = ans.reviewed;
+
+  const body = document.getElementById('rm-body');
+  const optLetters = ['A','B','C','D'];
+
+  let optionsHtml = optLetters.map(letter => {
+    const text = q.options[letter];
+    if (!text) return '';
+    let cls = 'rm-option';
+    let icon = '';
+    if (ans.selected === letter) cls += ' selected';
+    if (revealed) {
+      if (letter === q.correct) { cls = 'rm-option correct'; icon = '<span class="rm-option-icon">✓</span>'; }
+      else if (ans.selected === letter && letter !== q.correct) { cls = 'rm-option wrong'; icon = '<span class="rm-option-icon">✗</span>'; }
+    }
+    const expHtml = (revealed && letter === q.correct && q.justification)
+      ? `<div class="rm-explanation show">${q.justification}</div>` : '';
+    return `<div class="${cls}" data-letter="${letter}" onclick="rmSelectOption('${letter}')">
+      <span class="rm-option-letter">${letter}</span>
+      <div style="flex:1;">
+        <div class="rm-option-text">${text}</div>
+        ${expHtml}
+      </div>
+      ${icon}
+    </div>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if (revealed) {
+    if (ans.selected === q.correct) {
+      feedbackHtml = `<div class="rm-feedback-row show correct">✓ Correct! +1 mark</div>`;
+    } else if (ans.selected) {
+      feedbackHtml = `<div class="rm-feedback-row show wrong">✗ Wrong. −0.33 marks. Correct: ${q.correct}</div>`;
+    } else {
+      feedbackHtml = `<div class="rm-feedback-row show skipped">— Skipped. No marks deducted.</div>`;
+    }
+  }
+
+  const isLast = idx === total - 1;
+  const nextLabel = isLast ? '✓ Finish' : 'Next →';
+  const canGoBack = idx > 0;
+
+  body.innerHTML = `
+    <div class="rm-q-counter">Question ${idx + 1} of ${total} · ${q.unit}</div>
+    <div class="rm-question-text">${q.question}</div>
+    ${feedbackHtml}
+    <div class="rm-options">${optionsHtml}</div>
+    <div class="rm-nav-row">
+      ${canGoBack ? `<button class="btn" onclick="rmPrevQ()" style="background:var(--surface-2);border:1px solid var(--border);padding:9px 16px;font-size:13px;">← Prev</button>` : ''}
+      <button class="rm-review-btn${reviewMarked ? ' marked' : ''}" onclick="rmToggleReview()" id="rm-review-flag-btn">
+        ${reviewMarked ? '🔖 Marked' : '🔖 Mark for Review'}
+      </button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-ghost" onclick="rmSkipQ()" style="padding:9px 16px;">Skip</button>
+      <button class="btn btn-primary" onclick="rmNextQ()" style="margin-top:0;padding:9px 20px;">${nextLabel}</button>
+    </div>
+  `;
+}
+
+function rmSelectOption(letter) {
+  const ans = rmState.answers[rmState.currentIdx];
+  if (rmState.mode === 'instant' && ans.selected !== null) return; // locked after selection in instant mode
+  if (rmState.paused) return;
+  ans.selected = letter;
+  ans.skipped = false;
+  rmRenderQuestion();
+  // In instant mode, stop the per-question timer after answering
+  if (rmState.mode === 'instant') {
+    clearInterval(rmQTimer); rmQTimer = null;
+  }
+}
+
+function rmToggleReview() {
+  rmState.answers[rmState.currentIdx].reviewed = !rmState.answers[rmState.currentIdx].reviewed;
+  rmRenderQuestion();
+}
+
+function rmSkipQ() {
+  if (rmState.paused) return;
+  const ans = rmState.answers[rmState.currentIdx];
+  ans.selected = null; ans.skipped = true;
+  rmNextQ();
+}
+
+function rmNextQ() {
+  if (rmState.paused) return;
+  const isLast = rmState.currentIdx === rmState.questions.length - 1;
+  if (isLast) { rmFinish(); return; }
+  rmState.currentIdx++;
+  rmResetQTimer();
+  rmRenderQuestion();
+}
+
+function rmPrevQ() {
+  if (rmState.currentIdx === 0) return;
+  rmState.currentIdx--;
+  rmResetQTimer();
+  rmRenderQuestion();
+}
+
+// ── Timers ────────────────────────────────────────────────────
+function rmStartTimers() {
+  rmState.timeLeft = 60;
+  rmState.totalTime = 0;
+  document.getElementById('rm-q-timer').textContent = '01:00';
+  document.getElementById('rm-q-timer').classList.remove('danger');
+
+  rmQTimer = setInterval(() => {
+    if (rmState.paused) return;
+    rmState.timeLeft--;
+    rmUpdateQTimerDisplay();
+    if (rmState.timeLeft <= 0) { rmAutoAdvance(); }
+  }, 1000);
+
+  rmTotalTimer = setInterval(() => {
+    if (rmState.paused) return;
+    rmState.totalTime++;
+    const m = String(Math.floor(rmState.totalTime / 60)).padStart(2,'0');
+    const s = String(rmState.totalTime % 60).padStart(2,'0');
+    document.getElementById('rm-total-timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function rmUpdateQTimerDisplay() {
+  const el = document.getElementById('rm-q-timer');
+  if (!el) return;
+  const t = rmState.timeLeft;
+  el.textContent = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+  el.classList.toggle('danger', t <= 10);
+}
+
+function rmResetQTimer() {
+  rmState.timeLeft = 60;
+  rmUpdateQTimerDisplay();
+}
+
+function rmAutoAdvance() {
+  // Time up for this question — mark as skipped and move on
+  const ans = rmState.answers[rmState.currentIdx];
+  if (ans.selected === null) ans.skipped = true;
+  rmNextQ();
+}
+
+// ── Pause / Resume ────────────────────────────────────────────
+document.getElementById('rm-pause-btn').addEventListener('click', rmTogglePause);
+function rmTogglePause() {
+  rmState.paused = !rmState.paused;
+  const btn = document.getElementById('rm-pause-btn');
+  const badge = document.getElementById('rm-paused-badge');
+  if (rmState.paused) {
+    btn.textContent = '▶ Resume';
+    btn.className = 'btn btn-green';
+    badge.classList.add('show');
+    // blur question area to prevent reading during pause
+    const body = document.getElementById('rm-body');
+    if (body) body.style.filter = 'blur(4px)';
+  } else {
+    btn.textContent = '⏸';
+    btn.className = 'btn btn-amber';
+    badge.classList.remove('show');
+    const body = document.getElementById('rm-body');
+    if (body) body.style.filter = '';
+  }
+}
+
+// ── Save progress ─────────────────────────────────────────────
+document.getElementById('rm-save-btn').addEventListener('click', rmSaveProgress);
+function rmSaveProgress() {
+  const save = {
+    state: JSON.parse(JSON.stringify(rmState)),
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(RM_SAVED_KEY, JSON.stringify(save));
+  const btn = document.getElementById('rm-save-btn');
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => { btn.textContent = '💾 Save'; }, 1500);
+}
+
+// ── Close mid-exam ────────────────────────────────────────────
+document.getElementById('rm-close-btn').addEventListener('click', () => {
+  if (rmState.finished) { hideAllWindows(); showHome(); return; }
+  if (confirm('Save progress and exit Real Mock?')) {
+    rmSaveProgress();
+    clearInterval(rmQTimer); clearInterval(rmTotalTimer);
+    rmQTimer = null; rmTotalTimer = null;
+    hideAllWindows(); showHome();
+    loadSavedMocksUI();
+    // Show saved mock resume card
+    setTimeout(rmCheckSavedMock, 300);
+  }
+});
+
+// ── Finish mock ───────────────────────────────────────────────
+function rmFinish() {
+  clearInterval(rmQTimer); clearInterval(rmTotalTimer);
+  rmQTimer = null; rmTotalTimer = null;
+  rmState.finished = true;
+  localStorage.removeItem(RM_SAVED_KEY); // clear saved progress
+
+  // Calculate score
+  let correct = 0, wrong = 0, skipped = 0;
+  rmState.answers.forEach((ans, i) => {
+    const q = rmState.questions[i];
+    if (!ans.selected) { skipped++; }
+    else if (ans.selected === q.correct) { correct++; }
+    else { wrong++; }
+  });
+  const rawScore = correct - (wrong * 0.33);
+  const totalQ = rmState.questions.length;
+  const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
+  const attempted = correct + wrong;
+  const m = Math.floor(rmState.totalTime / 60);
+  const s = rmState.totalTime % 60;
+  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  // Save reviewed questions to review bank
+  rmState.answers.forEach((ans, i) => {
+    if (ans.reviewed) {
+      const q = rmState.questions[i];
+      rmSaveReviewQuestion(q, ans);
+    }
+  });
+
+  // Save to history
+  saveSessionToHistory(
+    rmState.mockName, rmState.mockUnit, timeStr, finalScore,
+    { totalQ, attempted, skipped, correct, wrong, mode: rmState.mode },
+    'real'
+  );
+
+  // Show result screen
+  document.getElementById('real-mock-screen').classList.remove('active');
+  const rs = document.getElementById('real-mock-result-screen');
+  rs.style.display = 'block';
+
+  const scoreEl = document.getElementById('rm-final-score-display');
+  scoreEl.textContent = finalScore;
+  scoreEl.className = 'rm-result-score ' + (parseFloat(finalScore) >= 50 ? 'pass' : 'fail');
+  document.getElementById('rm-result-sub').textContent = `${rmState.mockName} · ${rmState.mockUnit}`;
+  document.getElementById('rm-res-total').textContent = totalQ;
+  document.getElementById('rm-res-att').textContent = attempted;
+  document.getElementById('rm-res-correct').textContent = correct;
+  document.getElementById('rm-res-wrong').textContent = wrong;
+  document.getElementById('rm-res-skip').textContent = skipped;
+  document.getElementById('rm-res-time').textContent = timeStr;
+  document.getElementById('rm-score-formula').textContent =
+    `Formula: (${correct} correct × 1) − (${wrong} wrong × 0.33) = ${rawScore.toFixed(2)} raw → ${finalScore}/100`;
+
+  // In stretch mode — offer to review answers inline
+  if (rmState.mode === 'stretch') {
+    rmShowStretchReview();
+  }
+
+  rmUpdateQBCount();
+  renderReviewBtn();
+}
+
+// In stretch mode show full Q&A review below result stats
+function rmShowStretchReview() {
+  const inner = document.getElementById('rm-result-inner');
+  if (!inner) return;
+  const reviewDiv = document.createElement('div');
+  reviewDiv.style.cssText = 'margin-top:20px;';
+  reviewDiv.innerHTML = '<div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">📋 Answer Review</div>';
+  rmState.questions.forEach((q, i) => {
+    const ans = rmState.answers[i];
+    const userAns = ans.selected;
+    const isCorrect = userAns === q.correct;
+    const isSkipped = !userAns;
+    let status = isSkipped ? '— Skipped' : (isCorrect ? '✓ Correct' : `✗ Wrong (You: ${userAns}, Correct: ${q.correct})`);
+    let statusCls = isSkipped ? 'color:var(--amber)' : (isCorrect ? 'color:var(--green)' : 'color:var(--red)');
+    const optLetters = ['A','B','C','D'];
+    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
+      let cls = 'review-opt';
+      if (l === q.correct) cls += ' correct';
+      else if (l === userAns && !isCorrect) cls += ' your-wrong';
+      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
+    }).join('');
+    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
+    reviewDiv.innerHTML += `
+      <div class="review-q-card">
+        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          <span class="review-q-num">Q${i+1}</span>
+          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
+          <span style="font-size:12px;font-weight:600;${statusCls}">${status}</span>
+        </div>
+        <div class="review-q-body">
+          <div class="review-q-text">${q.question}</div>
+          ${optsHtml}
+          ${expHtml}
+        </div>
+      </div>`;
+  });
+  inner.appendChild(reviewDiv);
+}
+
+// ── Result screen buttons ─────────────────────────────────────
+document.getElementById('rm-review-after-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  openReviewScreen();
+});
+document.getElementById('rm-new-mock-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  openRMModal();
+});
+document.getElementById('rm-home-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  showHome();
+});
+
+// ── Saved mock resume check ───────────────────────────────────
+function rmCheckSavedMock() {
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    const card = document.getElementById('rm-resume-card');
+    if (card) {
+      card.style.display = 'block';
+      const label = document.getElementById('rm-resume-label');
+      if (label) label.textContent = `${data.state.mockName} — Q${data.state.currentIdx + 1}/${data.state.questions.length}`;
+    }
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+}
+
+// ── Review Questions System ───────────────────────────────────
+function rmSaveReviewQuestion(q, ans) {
+  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  // Avoid duplicates by question text
+  if (bank.find(r => r.question === q.question)) return;
+  bank.push({
+    id: q.id || genQBId(),
+    question: q.question,
+    options: q.options,
+    correct: q.correct,
+    unit: q.unit,
+    justification: q.justification || '',
+    yourAnswer: ans.selected,
+    addedOn: new Date().toISOString().split('T')[0],
+  });
+  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
+}
+
+function openReviewScreen() {
+  const screen = document.getElementById('review-screen');
+  screen.classList.add('active');
+  renderReviewList();
+}
+
+function renderReviewList() {
+  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const container = document.getElementById('review-list-container');
+  const countLabel = document.getElementById('review-count-label');
+  countLabel.textContent = `${bank.length} question${bank.length !== 1 ? 's' : ''} marked for review`;
+  renderReviewBtn();
+
+  if (!bank.length) {
+    container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted);"><div style="font-size:36px;margin-bottom:10px;">🔖</div><div>No review questions yet.</div><div style="font-size:12px;margin-top:8px;">Mark questions during a Real Mock exam by clicking "Mark for Review".</div></div>';
+    return;
+  }
+
+  container.innerHTML = bank.map((q, i) => {
+    const optLetters = ['A','B','C','D'];
+    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
+      let cls = 'review-opt';
+      if (l === q.correct) cls += ' correct';
+      else if (l === q.yourAnswer && l !== q.correct) cls += ' your-wrong';
+      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
+    }).join('');
+    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
+    const yourLabel = q.yourAnswer ? `Your answer: ${q.yourAnswer} · ` : '';
+    return `
+      <div class="review-q-card">
+        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          <span class="review-q-num">#${i+1}</span>
+          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
+          <span class="review-unit-tag">${q.unit}</span>
+          <button onclick="event.stopPropagation();rmRemoveReview(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 6px;">✕</button>
+        </div>
+        <div class="review-q-body">
+          <div class="review-q-text">${q.question}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">${yourLabel}Correct: <b style="color:var(--green)">${q.correct}</b> · Added: ${q.addedOn}</div>
+          ${optsHtml}
+          ${expHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function rmRemoveReview(idx) {
+  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  bank.splice(idx, 1);
+  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
+  renderReviewList();
+}
+
+document.getElementById('review-back-btn').addEventListener('click', () => {
+  document.getElementById('review-screen').classList.remove('active');
+});
+document.getElementById('review-clear-btn').addEventListener('click', () => {
+  if (!confirm('Clear all review questions?')) return;
+  localStorage.removeItem(RM_REVIEW_KEY);
+  renderReviewList();
+  renderReviewBtn();
+});
+
+// ── Dashboard: include real mock data ────────────────────────
+// The existing dashboard already reads from quizHistory which now includes real mocks.
+// The score in real mocks is a number 0-100, compatible with existing parsing.
+// No additional changes needed for dashboard — it works automatically.
+
+// ── Saved Real Mock resume on homepage ────────────────────────
+(function initRMSavedCard() {
+  // Add resume card to home-wrapper if there's a saved real mock
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    const card = document.createElement('div');
+    card.id = 'rm-resume-card';
+    card.className = 'card full-card';
+    card.style.cssText = 'border:1.5px solid var(--amber); background:var(--amber-dim); display:block;';
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="card-title">🔄 Resume Real Mock</span>
+        <button onclick="rmDismissResume()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">✕</button>
+      </div>
+      <div style="font-size:13px;color:var(--text);margin-bottom:12px;" id="rm-resume-label">
+        ${data.state.mockName} — Q${data.state.currentIdx + 1}/${data.state.questions.length}
+      </div>
+      <button class="btn btn-amber" onclick="rmResumeMock()" style="margin-top:0;">▶ Resume Mock</button>
+    `;
+    const hw = document.getElementById('home-wrapper');
+    if (hw) hw.prepend(card);
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+})();
+
+function rmResumeMock() {
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    rmState = data.state;
+    rmState.paused = false;
+    const savedTotal = data.state.totalTime || 0;
+    hideAllWindows();
+    document.getElementById('real-mock-screen').classList.add('active');
+    document.getElementById('rm-mock-label').textContent = rmState.mockName;
+    rmRenderQuestion();
+    rmStartTimers();
+    // Restore total time AFTER startTimers (which resets it to 0)
+    rmState.totalTime = savedTotal;
+    const m = String(Math.floor(savedTotal / 60)).padStart(2,'0');
+    const s = String(savedTotal % 60).padStart(2,'0');
+    const el = document.getElementById('rm-total-timer');
+    if (el) el.textContent = `${m}:${s}`;
+    // Dismiss resume card
+    const card = document.getElementById('rm-resume-card');
+    if (card) card.remove();
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); showHome(); }
+}
+
+function rmDismissResume() {
+  localStorage.removeItem(RM_SAVED_KEY);
+  const card = document.getElementById('rm-resume-card');
+  if (card) card.remove();
+}
+
+// chips use onclick directly — rmUpdateAvailable called from each chip click handler
+
+// ── Update QB count whenever admin saves questions (hook into existing saveQB) ──
+// Done by patching the call site below rather than redefining saveQB
+
+
 async function tryLoadQBFromGitHub() {
   try {
     const res = await fetch('questionbank.json');

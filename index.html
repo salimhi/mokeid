@@ -4,10 +4,139 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MockIQ — Exam Performance Tracker</title>
+<meta name="theme-color" content="#0d0f14">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlVgt_fdoouIwggTCbD21tdOWrNWWhMGg",
+    authDomain: "mockiq-dca74.firebaseapp.com",
+    databaseURL: "https://mockiq-dca74-default-rtdb.firebaseio.com",
+    projectId: "mockiq-dca74",
+    storageBucket: "mockiq-dca74.firebasestorage.app",
+    messagingSenderId: "45019263088",
+    appId: "1:45019263088:web:b2f6ff6369e5f007e144b5"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ── Expose Firebase helpers to global scope ──────────────
+  window._fbDb = db;
+  window._fbRef = ref;
+  window._fbSet = set;
+  window._fbGet = get;
+
+  // ── Push all data to Firebase ────────────────────────────
+  window.fbPush = async function() {
+    if (!navigator.onLine) return;
+    try {
+      const payload = {
+        quizHistory:       JSON.parse(localStorage.getItem('quizHistory')         || '[]'),
+        questionBank:      JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]'),
+        reviewQuestions:   JSON.parse(localStorage.getItem('rm_review_questions')  || '[]'),
+        savedMock:         JSON.parse(localStorage.getItem('rm_saved_mock')        || 'null'),
+        lastPush:          new Date().toISOString()
+      };
+      await set(ref(db, 'mockiq/data'), payload);
+      window._fbLastPush = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      const el = document.getElementById('fb-status');
+      if (el) { el.textContent = '☁ Synced ' + window._fbLastPush; el.style.color = 'var(--green, #4ade80)'; }
+      console.log('MockIQ Firebase: pushed successfully');
+    } catch(e) {
+      console.warn('MockIQ Firebase push failed:', e.message);
+      const el = document.getElementById('fb-status');
+      if (el) { el.textContent = '⚠ Sync failed'; el.style.color = 'var(--red, #f87171)'; }
+    }
+  };
+
+  // ── Pull from Firebase and merge into localStorage ───────
+  window.fbPull = async function() {
+    if (!navigator.onLine) return;
+    try {
+      const snap = await get(ref(db, 'mockiq/data'));
+      if (!snap.exists()) { console.log('MockIQ Firebase: no data yet'); return; }
+      const remote = snap.val();
+
+      // Merge quiz history
+      if (Array.isArray(remote.quizHistory) && remote.quizHistory.length) {
+        const local = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+        const localKeys = new Set(local.map(h => h.date + '|' + h.name));
+        const newOnes = remote.quizHistory.filter(h => !localKeys.has(h.date + '|' + h.name));
+        if (newOnes.length) {
+          const merged = [...local, ...newOnes].sort((a,b) => b.date.localeCompare(a.date));
+          localStorage.setItem('quizHistory', JSON.stringify(merged));
+        }
+      }
+
+      // Merge question bank
+      if (Array.isArray(remote.questionBank) && remote.questionBank.length) {
+        const local = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
+        const localIds = new Set(local.map(q => q.id));
+        const newQs = remote.questionBank.filter(q => !localIds.has(q.id));
+        if (newQs.length) {
+          localStorage.setItem('mockiq_question_bank', JSON.stringify([...local, ...newQs]));
+        }
+      }
+
+      // Merge review questions
+      if (Array.isArray(remote.reviewQuestions) && remote.reviewQuestions.length) {
+        const local = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
+        const localIds = new Set(local.map(q => q.id || q.question));
+        const newRev = remote.reviewQuestions.filter(q => !localIds.has(q.id || q.question));
+        if (newRev.length) {
+          localStorage.setItem('rm_review_questions', JSON.stringify([...local, ...newRev]));
+        }
+      }
+
+      // Restore saved mid-mock only if none in progress locally
+      if (remote.savedMock && !localStorage.getItem('rm_saved_mock')) {
+        localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
+      }
+
+      console.log('MockIQ Firebase: pull + merge complete');
+
+      // Refresh UI after merge
+      if (typeof migrateLegacyDates === 'function') migrateLegacyDates();
+      if (typeof renderCalendar === 'function') renderCalendar();
+      if (typeof updateSummaryCard === 'function') updateSummaryCard();
+      if (typeof updateUnitStatsCard === 'function') updateUnitStatsCard();
+      if (typeof updateOverallDashboardCard === 'function') updateOverallDashboardCard();
+      if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount();
+      if (typeof renderReviewBtn === 'function') renderReviewBtn();
+      if (typeof loadSavedMocksUI === 'function') loadSavedMocksUI();
+
+    } catch(e) {
+      console.warn('MockIQ Firebase pull failed:', e.message);
+    }
+  };
+
+  // ── Auto-push when back online ───────────────────────────
+  window.addEventListener('online', () => {
+    console.log('MockIQ: back online — syncing to Firebase');
+    const el = document.getElementById('fb-status');
+    if (el) { el.textContent = '↑ Syncing...'; el.style.color = 'var(--text-muted)'; }
+    setTimeout(window.fbPush, 1500); // small delay to let connection stabilise
+  });
+
+  window.addEventListener('offline', () => {
+    const el = document.getElementById('fb-status');
+    if (el) { el.textContent = '📵 Offline'; el.style.color = 'var(--text-muted)'; }
+  });
+
+  // ── Pull on page load (after app initialises) ────────────
+  window.addEventListener('mockiq-ready', () => {
+    window.fbPull();
+  });
+</script>
 <style>
 :root {
   --bg: #0d0f14;
@@ -1683,6 +1812,7 @@ body.pip-mode #exam-popup {
   <header class="topbar">
     <div class="brand">Mock<span>IQ</span></div>
     <div class="topbar-actions">
+      <span id="fb-status" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;cursor:pointer;" title="Firebase sync status — click to sync now" onclick="if(typeof window.fbPush==='function')window.fbPush()">☁ ...</span>
       <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">🌙 Theme</button>
       <button id="pip-btn" class="icon-btn">⊞ PiP Mode</button>
       <button id="history-toggle-btn" class="icon-btn">🗃 History</button>
@@ -3448,6 +3578,8 @@ function saveSessionToHistory(name, unit, time, score, details, mockType) {
   localStorage.setItem('exportNeeded', 'true');
   renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
   setTimeout(showAfterMockReminder, 800);
+  // Push to Firebase (silent background sync)
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
 }
 
 function toggleHistoryView() {
@@ -3949,7 +4081,12 @@ let parsedQuestions = [];
 
 // ── QB Storage helpers ──────────────────────────────────────
 function getQB() { return JSON.parse(localStorage.getItem(QB_KEY)) || []; }
-function saveQB(bank) { localStorage.setItem(QB_KEY, JSON.stringify(bank)); if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount(); }
+function saveQB(bank) {
+  localStorage.setItem(QB_KEY, JSON.stringify(bank));
+  if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount();
+  // Push to Firebase (silent background sync)
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
+}
 function genQBId() { return 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
 
 document.getElementById('admin-btn').addEventListener('click', openAdminPanel);
@@ -4488,7 +4625,6 @@ function rmCheckSavedMock() {
 // \u2500\u2500 Review Questions System \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function rmSaveReviewQuestion(q, ans) {
   let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
-  // Avoid duplicates by question text
   if (bank.find(r => r.question === q.question)) return;
   bank.push({
     id: q.id || genQBId(),
@@ -4501,6 +4637,8 @@ function rmSaveReviewQuestion(q, ans) {
     addedOn: new Date().toISOString().split('T')[0],
   });
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
+  // Push to Firebase
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
 }
 
 function openReviewScreen() {
@@ -5277,6 +5415,23 @@ window.onload = () => {
   renderReviewBtn();
   tryLoadQBFromGitHub();
   syncHistoryFromGitHub();
+
+  // Register service worker for offline PWA support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(r => console.log('MockIQ SW registered:', r.scope))
+      .catch(e => console.warn('MockIQ SW failed:', e));
+  }
+
+  // Set initial sync status
+  const el = document.getElementById('fb-status');
+  if (el) {
+    el.textContent = navigator.onLine ? '☁ Connecting...' : '📵 Offline';
+    el.style.color = 'var(--text-muted)';
+  }
+
+  // Fire event so Firebase module knows app is ready
+  window.dispatchEvent(new Event('mockiq-ready'));
 };
 
 

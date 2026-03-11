@@ -4710,6 +4710,9 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
         const em = endRe.exec(afterOpt);
         if (em) endPos = em.index;
       }
+      // Also stop at Difficulty: line (for option D)
+      const diffStop = afterOpt.search(/^Difficulty:/im);
+      if (diffStop > -1 && diffStop < endPos) endPos = diffStop;
       opts[letter] = afterOpt.slice(0, endPos).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
     });
 
@@ -4717,6 +4720,11 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
 
     // Justification: match by question index order
     const just = allJust[qMatches.indexOf(qMatches[i])] || '';
+
+    // Per-question difficulty: look for "Difficulty: easy/medium/hard" inside block
+    let difficulty = defaultDiff || 'medium';
+    const diffMatch = block.match(/^Difficulty:\s*(easy|medium|hard)/im);
+    if (diffMatch) difficulty = diffMatch[1].toLowerCase();
 
     // Unit detection
     let unit = null;
@@ -4739,7 +4747,7 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
       correct: answerKey[num] || '',
       unit,
       unitSource,
-      difficulty: defaultDiff || 'medium',
+      difficulty,
       justification: just,
     });
   }

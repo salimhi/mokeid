@@ -1,0 +1,283 @@
+{
+  "version": 2,
+  "exportedAt": "2026-03-11T10:53:53.003Z",
+  "quizHistory": [
+    {
+      "date": "2026-03-04 09:13 pm (04 Mar 2026)",
+      "name": "Mock 3",
+      "unit": "Unit 5, Unit 6, Unit 9",
+      "time": "00:02",
+      "score": "89.18",
+      "details": {
+        "totalQ": "40",
+        "attempted": "37",
+        "skipped": "3",
+        "correct": "36",
+        "incorrect": "1"
+      }
+    },
+    {
+      "date": "2026-03-04 09:12 pm (04 Mar 2026)",
+      "name": "Mock 2",
+      "unit": "Unit 5",
+      "time": "00:06",
+      "score": "80.22",
+      "details": {
+        "totalQ": "40",
+        "attempted": "36",
+        "skipped": "4",
+        "correct": "33",
+        "incorrect": "3"
+      }
+    },
+    {
+      "date": "2026-03-04 09:12 pm (04 Mar 2026)",
+      "name": "Mock 1",
+      "unit": "Unit 9",
+      "time": "00:12",
+      "score": "69.34",
+      "details": {
+        "totalQ": "50",
+        "attempted": "40",
+        "skipped": "10",
+        "correct": "36",
+        "incorrect": "4"
+      }
+    }
+  ],
+  "reviewQuestions": [
+    {
+      "id": "q_1773169907888_2ijah",
+      "question": "The Critical Zone in the freezing of fish, where the maximum quantity of water is turned into ice crystals, refers to the temperature range of:",
+      "options": {
+        "A": "0°C to -10°C",
+        "B": "-1°C to -5°C",
+        "C": "-18°C to -30°C",
+        "D": "-5°C to -15°C"
+      },
+      "correct": "B",
+      "unit": "Unit 5",
+      "justification": "This is called the zone of maximum ice crystal formation, where most of the water freezes. Rapid freezing aims to pass through this zone quickly to minimize tissue damage.",
+      "yourAnswer": null,
+      "addedOn": "2026-03-10"
+    }
+  ],
+  "savedMock": {
+    "state": {
+      "mode": "instant",
+      "questions": [
+        {
+          "id": "q_1773221861571_rvp2m",
+          "question": "Appearance, smell, texture, and taste are checked under:",
+          "options": {
+            "A": "Sensory standards",
+            "B": "Chemical standards",
+            "C": "Micro standards",
+            "D": "Process standards"
+          },
+          "correct": "A",
+          "unit": "Unit 6",
+          "difficulty": "easy",
+          "justification": "Sensory standards involve evaluating organoleptic characteristics such as appearance, smell, texture, and taste. These attributes determine consumer acceptance of seafood products. Justification: Process standards refer to the control of conditions during food processing such as temperature management, sanitation, and packaging practices. These measures help maintain food safety and quality. Justification: The PDCA cycle stands for Plan–Do–Check–Act, a systematic method for continuous improvement in quality management systems. It helps organizations monitor performance and implement effectiv",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773221348140_r9btq",
+          "question": "Alkalinity serves as a buffer against:",
+          "options": {
+            "A": "Sudden temperature changes",
+            "B": "Sudden pH fluctuations",
+            "C": "Nitrite toxicity",
+            "D": "Carbon dioxide buildup"
+          },
+          "correct": "B",
+          "unit": "Unit 10",
+          "difficulty": "medium",
+          "justification": "Alkalinity acts as a buffer system that stabilizes pH in aquatic environments. It neutralizes acids and bases, preventing sudden pH fluctuations that could stress fish. Justification: Most cultured fish species require dissolved oxygen levels around 4–6 mg/L for normal growth and metabolism. Lower levels can cause stress and reduce feeding and growth.",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773221617855_82d8a",
+          "question": "Which pathogen produces a pre-formed neurotoxin in improperly canned or vacuum-packed fish?",
+          "options": {
+            "A": "C. botulinum",
+            "B": "S. aureus",
+            "C": "Salmonella",
+            "D": "E. coli"
+          },
+          "correct": "A",
+          "unit": "Unit 6",
+          "difficulty": "medium",
+          "justification": "Clostridium botulinum grows under anaerobic conditions such as improperly canned or vacuum-packed fish products. It produces a powerful neurotoxin responsible for botulism, a life-threatening paralytic illness. Justification: Scombroid poisoning occurs when fish like tuna or mackerel are improperly stored and bacteria convert histidine into histamine. High histamine levels cause symptoms similar to allergic reactions. Justification: Ciguatera poisoning results from eating reef fish that have accumulated toxins produced by certain marine microalgae. These toxins biomagnify in the food chain a",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773220712257_djgm4",
+          "question": "The first step in aquatic disease investigation is:",
+          "options": {
+            "A": "Laboratory testing",
+            "B": "Histopathology",
+            "C": "Case history collection",
+            "D": "Antibiotic treatment"
+          },
+          "correct": "C",
+          "unit": "Unit 10",
+          "difficulty": "medium",
+          "justification": "Case history collection includes information about stocking density, feeding, water quality, and previous disease events. This information often provides critical clues for diagnosing the cause of disease before laboratory analysis. Justification: Hatchery-produced seed that is SPF or SRD is produced under controlled biosecure conditions. Such seed has minimal or no exposure to specific pathogens, making it more reliable for aquaculture. Justification: SPF stands for Specific Pathogen Free, meaning the seed stock has been tested and certified free from particular disease-causing organisms. T",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773220457282_b8exi",
+          "question": "The temperature maintained in an air blast freezer is typically?",
+          "options": {
+            "A": "−10°C to −15°C",
+            "B": "−20°C to −25°C",
+            "C": "−30°C to −35°C",
+            "D": "−35°C to −40°C"
+          },
+          "correct": "D",
+          "unit": "Unit 5",
+          "difficulty": "medium",
+          "justification": "Air blast freezers use very cold circulating air to rapidly freeze fish products. Temperatures around −35°C to −40°C ensure fast freezing, preserving texture and quality.",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773221617855_l8z5a",
+          "question": "Cold-loving pathogen found in ready-to-eat smoked fish is:",
+          "options": {
+            "A": "Salmonella",
+            "B": "Shigella",
+            "C": "Listeria monocytogenes",
+            "D": "Vibrio cholerae"
+          },
+          "correct": "C",
+          "unit": "Unit 6",
+          "difficulty": "medium",
+          "justification": "Listeria monocytogenes is a psychrotrophic bacterium capable of growing at refrigeration temperatures. It is commonly associated with ready-to-eat foods such as smoked fish and poses serious risks to immunocompromised individuals. Justification: Clostridium botulinum grows under anaerobic conditions such as improperly canned or vacuum-packed fish products. It produces a powerful neurotoxin responsible for botulism, a life-threatening paralytic illness. Justification: Scombroid poisoning occurs when fish like tuna or mackerel are improperly stored and bacteria convert histidine into histamine",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773220712257_cc383",
+          "question": "Assertion (A): History collection is considered the most important step in aquatic disease investigation. Reason (R): Because proper history helps identify the cause of disease even before laboratory tests.",
+          "options": {
+            "A": "Both A and R are true, and R is the correct explanation of A",
+            "B": "Both A and R are true, but R is NOT the correct explanation",
+            "C": "A is true but R is false",
+            "D": "A is false but R is true"
+          },
+          "correct": "A",
+          "unit": "Unit 10",
+          "difficulty": "medium",
+          "justification": "Both the assertion and reason are correct because collecting detailed case history helps investigators identify environmental or management factors responsible for disease. It often guides further diagnostic testing. Justification: The assertion is false because high stocking density reduces dissolved oxygen levels due to increased respiration and waste. The reason is true since more fish consume more oxygen and raise biological oxygen demand.",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773168705377_5crln",
+          "question": "While fabricating a glass aquarium, 100% silicone sealant is the standard adhesive used. However, certain commercially available silicone sealants must be strictly avoided because they contain substances highly toxic to aquatic life. Which of the following additives makes a sealant unfit for aquarium use?",
+          "options": {
+            "A": "Anti-mildew agents (Fungicides)",
+            "B": "Ultraviolet (UV) stabilizers",
+            "C": "Acetic acid curing agents",
+            "D": "Black pigmentation dyes"
+          },
+          "correct": "A",
+          "unit": "Unit 9",
+          "difficulty": "medium",
+          "justification": "Many household or bathroom silicone sealants contain fungicides (anti-mildew agents) to prevent mold growth in damp areas. These chemicals are highly toxic to fish and invertebrates and will leach into the aquarium water. Only 100% pure silicone (usually acetic-cure) should be used.",
+          "addedOn": "2026-03-10"
+        },
+        {
+          "id": "q_1773220457282_0o63z",
+          "question": "Freezing usually begins in fish at a temperature of?",
+          "options": {
+            "A": "0°C",
+            "B": "−0.5°C to −1°C",
+            "C": "−1°C to −2°C",
+            "D": "−5°C to −6°C"
+          },
+          "correct": "C",
+          "unit": "Unit 5",
+          "difficulty": "medium",
+          "justification": "Fish tissue begins to freeze slightly below the freezing point of water due to dissolved salts and proteins. Therefore freezing usually starts between −1°C and −2°C. Justification: Air blast freezers use very cold circulating air to rapidly freeze fish products. Temperatures around −35°C to −40°C ensure fast freezing, preserving texture and quality.",
+          "addedOn": "2026-03-11"
+        },
+        {
+          "id": "q_1773169027326_oa3xs",
+          "question": "The oxidative rancidity of highly unsaturated fish lipids during prolonged frozen storage results in the accumulation of secondary oxidation products, particularly malondialdehyde. The standard biochemical test used to quantify this specific spoilage compound is the:",
+          "options": {
+            "A": "Total Volatile Base Nitrogen (TVB-N) test",
+            "B": "Thiobarbituric Acid (TBA) value test",
+            "C": "Trimethylamine (TMA) test",
+            "D": "Peroxide Value (PV) test"
+          },
+          "correct": "B",
+          "unit": "Unit 5",
+          "difficulty": "medium",
+          "justification": "While the Peroxide Value (PV) measures primary oxidation (peroxides), the TBA test specifically measures malondialdehyde, a secondary oxidation product that causes the actual rancid smell and taste in frozen fish lipids. TVB-N and TMA measure protein/microbial spoilage.",
+          "addedOn": "2026-03-10"
+        }
+      ],
+      "currentIdx": 0,
+      "answers": [
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        },
+        {
+          "selected": null,
+          "skipped": false,
+          "reviewed": false
+        }
+      ],
+      "timeLeft": 56,
+      "totalTime": 4,
+      "paused": false,
+      "pauseTime": 0,
+      "mockName": "Real Mock 1",
+      "mockUnit": "Unit 1, Unit 3, Unit 5, Unit 6, Unit 7, Unit 9, Unit 10, Unit 11",
+      "finished": false
+    },
+    "savedAt": "2026-03-11T10:38:45.523Z"
+  }
+}

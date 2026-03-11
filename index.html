@@ -1675,26 +1675,6 @@ body.pip-mode #exam-popup {
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══════════════════════════════════════ -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-brand">Mock<span>IQ</span></div>
-    <div class="login-tagline">Exam Performance Tracker</div>
-    <div id="login-error">⚠ Incorrect username or password</div>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="login-username" placeholder="Enter username" autocomplete="username" />
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" />
-    </div>
-    <button id="login-btn">Sign In →</button>
-    <div class="login-footer">MockIQ · Fisheries Exam Prep</div>
-  </div>
-</div>
-<!-- ═══ /LOGIN SCREEN ════════════════════════════════════════ -->
-
 
 
 <div id="app-container">
@@ -2191,23 +2171,6 @@ body.pip-mode #exam-popup {
 <!-- ─── /EXAM POPUP ────────────────────────────────────────── -->
 
 
-<!-- ═══ ADMIN LOGIN GATE ════════════════════════════════════ -->
-<div id="admin-login-screen">
-  <div class="login-box">
-    <div class="login-brand">Mock<span>IQ</span> <span style="font-size:16px;color:#a78bfa;">Admin</span></div>
-    <div class="login-tagline">Admin Panel Access</div>
-    <div id="admin-login-error" style="background:var(--red-dim);border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:12px;font-weight:600;padding:9px 12px;margin-bottom:14px;display:none;text-align:center;">⚠ Incorrect admin password</div>
-    <div class="login-field">
-      <label>Admin Password</label>
-      <input type="password" id="admin-password-input" placeholder="Enter admin password" />
-    </div>
-    <button id="admin-login-submit-btn" class="btn btn-primary" style="margin-top:8px;">Enter Admin Panel →</button>
-    <div style="text-align:center;margin-top:14px;">
-      <button id="admin-login-cancel-btn" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font-body);">← Back to App</button>
-    </div>
-  </div>
-</div>
-
 <!-- ═══ ADMIN SCREEN ═════════════════════════════════════════ -->
 <div id="admin-screen">
   <!-- Topbar -->
@@ -2444,46 +2407,6 @@ body.pip-mode #exam-popup {
 
 <script>
 
-// ═══════════════════════════════════════════════════════
-// LOGIN GATE
-// ═══════════════════════════════════════════════════════
-(function() {
-  const VALID_USER = 'salim';
-  const VALID_PASS = 'salim';
-
-  function doLogin() {
-    const u = document.getElementById('login-username').value.trim();
-    const p = document.getElementById('login-password').value;
-    const errEl = document.getElementById('login-error');
-    if (u === VALID_USER && p === VALID_PASS) {
-      errEl.style.display = 'none';
-      const screen = document.getElementById('login-screen');
-      screen.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-      screen.style.opacity = '0';
-      screen.style.transform = 'scale(1.04)';
-      setTimeout(() => screen.remove(), 420);
-    } else {
-      errEl.style.display = 'block';
-      const box = document.querySelector('.login-box');
-      box.style.animation = 'none';
-      box.offsetHeight; // reflow
-      box.style.animation = 'loginShake 0.4s ease';
-    }
-  }
-
-  // Add shake keyframe dynamically
-  const shakeStyle = document.createElement('style');
-  shakeStyle.textContent = '@keyframes loginShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }';
-  document.head.appendChild(shakeStyle);
-
-  document.getElementById('login-btn').addEventListener('click', doLogin);
-  document.getElementById('login-password').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') doLogin();
-  });
-  document.getElementById('login-username').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('login-password').focus();
-  });
-})();
 
 const appContainer = document.getElementById('app-container');
 let windowChartInstance = null;
@@ -3977,7 +3900,6 @@ window.addEventListener('load', updateExportImportLabels);
 // ═══════════════════════════════════════════════════════════
 // ADMIN PANEL — Question Bank System
 // ═══════════════════════════════════════════════════════════
-const ADMIN_PASSWORD = 'admin123';
 const QB_KEY = 'mockiq_question_bank';
 let editingQBIndex = -1;
 let parsedQuestions = [];
@@ -3987,33 +3909,640 @@ function getQB() { return JSON.parse(localStorage.getItem(QB_KEY)) || []; }
 function saveQB(bank) { localStorage.setItem(QB_KEY, JSON.stringify(bank)); if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount(); }
 function genQBId() { return 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
 
-// ── Open admin (show login gate) ─────────────────────────────
-document.getElementById('admin-btn').addEventListener('click', () => {
-  document.getElementById('admin-login-screen').classList.add('active');
-  setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
-});
+document.getElementById('admin-btn').addEventListener('click', openAdminPanel);
 
-// ── Admin login ──────────────────────────────────────────────
-function doAdminLogin() {
-  const pw = document.getElementById('admin-password-input').value;
-  const errEl = document.getElementById('admin-login-error');
-  if (pw === ADMIN_PASSWORD) {
-    errEl.style.display = 'none';
-    document.getElementById('admin-login-screen').classList.remove('active');
-    document.getElementById('admin-password-input').value = '';
-    openAdminPanel();
+// ═══════════════════════════════════════════════════════
+// REAL MOCK ENGINE — Constants + Review Button
+// ═══════════════════════════════════════════════════════
+const RM_SAVED_KEY   = 'rm_saved_mock';
+const RM_REVIEW_KEY  = 'rm_review_questions';
+const RM_HISTORY_KEY = 'quizHistory';
+
+document.getElementById('review-btn').addEventListener('click', openReviewScreen);
+
+function renderReviewBtn() {
+  const marked = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const btn = document.getElementById('review-btn');
+  if (btn) btn.innerHTML = `🔖 Review${marked.length ? ` <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>` : ''}`;
+}
+
+let rmState = {
+  mode: 'stretch',           // 'stretch' or 'instant'
+  questions: [],             // shuffled subset from QB
+  currentIdx: 0,
+  answers: [],               // {selected, correct, skipped, reviewed}
+  timeLeft: 60,
+  totalTime: 0,
+  paused: false,
+  pauseTime: 0,
+  mockName: '',
+  mockUnit: '',
+  finished: false,
+};
+let rmQTimer = null, rmTotalTimer = null, rmPauseTimer = null;
+
+// \u2500\u2500 Update QB count display on homepage \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmUpdateQBCount() {
+  const bank = getQB();
+  const el = document.getElementById('rm-qb-total');
+  if (el) el.textContent = bank.length;
+}
+
+// \u2500\u2500 Open mode modal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('start-real-mock-btn').addEventListener('click', openRMModal);
+
+function openRMModal() {
+  // Build unit chips
+  const bank = getQB();
+  rmUpdateQBCount();
+  const chipContainer = document.getElementById('rm-unit-chips');
+  chipContainer.innerHTML = '';
+  UNIT_DATA.forEach(u => {
+    const count = bank.filter(q => q.unit === u.id).length;
+    if (count === 0) return;
+    const chip = document.createElement('div');
+    chip.className = 'rm-unit-chip';
+    chip.dataset.unit = u.id;
+    chip.innerHTML = `${u.id} <span style="opacity:0.6;">(${count})</span>`;
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      rmUpdateAvailable();
+    });
+    chipContainer.appendChild(chip);
+  });
+
+  // default: select all units with questions
+  chipContainer.querySelectorAll('.rm-unit-chip').forEach(c => c.classList.add('selected'));
+
+  // Mode selection state
+  rmSelectMode('stretch');
+  rmUpdateAvailable();
+
+  document.getElementById('rm-unit-error').style.display = 'none';
+  document.getElementById('rm-q-warn').style.display = 'none';
+  document.getElementById('rm-mode-modal').classList.add('active');
+}
+
+function rmSelectMode(mode) {
+  rmState.mode = mode;
+  document.getElementById('rm-mode-stretch').style.border = mode === 'stretch' ? '2px solid var(--accent)' : '2px solid var(--border)';
+  document.getElementById('rm-mode-stretch').style.background = mode === 'stretch' ? 'var(--accent-glow)' : '';
+  document.getElementById('rm-mode-instant').style.border = mode === 'instant' ? '2px solid #a78bfa' : '2px solid var(--border)';
+  document.getElementById('rm-mode-instant').style.background = mode === 'instant' ? 'rgba(124,58,237,0.1)' : '';
+}
+
+function rmGetSelectedUnits() {
+  return Array.from(document.querySelectorAll('#rm-unit-chips .rm-unit-chip.selected'))
+    .map(c => c.dataset.unit);
+}
+
+function rmUpdateAvailable() {
+  const units = rmGetSelectedUnits();
+  const bank = getQB();
+  const avail = bank.filter(q => units.includes(q.unit)).length;
+  const el = document.getElementById('rm-q-avail-label');
+  const warn = document.getElementById('rm-q-warn');
+  const inp = document.getElementById('rm-q-count-input');
+  el.textContent = `Available: ${avail}`;
+  el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
+  const requested = parseInt(inp.value) || 10;
+  if (avail === 0) {
+    warn.textContent = '\u26a0 No questions in bank for selected units. Add via Admin \u2192 Paste & Parse.';
+    warn.style.display = 'block';
+  } else if (requested > avail) {
+    warn.textContent = `\u26a0 Only ${avail} questions available. Mock will use all ${avail}.`;
+    warn.style.display = 'block';
   } else {
-    errEl.style.display = 'block';
-    document.getElementById('admin-password-input').value = '';
-    document.getElementById('admin-password-input').focus();
+    warn.style.display = 'none';
   }
 }
-document.getElementById('admin-login-submit-btn').addEventListener('click', doAdminLogin);
-document.getElementById('admin-password-input').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
-document.getElementById('admin-login-cancel-btn').addEventListener('click', () => {
-  document.getElementById('admin-login-screen').classList.remove('active');
-  document.getElementById('admin-password-input').value = '';
+
+document.getElementById('rm-q-count-input').addEventListener('input', rmUpdateAvailable);
+document.getElementById('rm-modal-cancel-btn').addEventListener('click', () => {
+  document.getElementById('rm-mode-modal').classList.remove('active');
 });
+
+document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
+  const units = rmGetSelectedUnits();
+  if (!units.length) {
+    document.getElementById('rm-unit-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('rm-unit-error').style.display = 'none';
+  const bank = getQB();
+  const pool = bank.filter(q => units.includes(q.unit));
+  if (!pool.length) {
+    alert('No questions found for selected units. Add questions via Admin panel first.');
+    return;
+  }
+  const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
+  const count = Math.min(requested, pool.length);
+  // Shuffle and pick
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+  document.getElementById('rm-mode-modal').classList.remove('active');
+  rmLaunch(shuffled, units, count);
+});
+
+// \u2500\u2500 Launch real mock \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmLaunch(questions, units, count) {
+  const history = JSON.parse(localStorage.getItem(RM_HISTORY_KEY)) || [];
+  const realMockCount = history.filter(h => h.mockType === 'real').length;
+  rmState = {
+    mode: rmState.mode,
+    questions,
+    currentIdx: 0,
+    answers: new Array(questions.length).fill(null).map(() => ({ selected: null, skipped: false, reviewed: false })),
+    timeLeft: 60,
+    totalTime: 0,
+    paused: false,
+    pauseTime: 0,
+    mockName: `Real Mock ${realMockCount + 1}`,
+    mockUnit: units.join(', '),
+    finished: false,
+  };
+  hideAllWindows();
+  document.getElementById('real-mock-screen').classList.add('active');
+  document.getElementById('rm-mock-label').textContent = rmState.mockName;
+  rmRenderQuestion();
+  rmStartTimers();
+}
+
+// \u2500\u2500 Render current question \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmRenderQuestion() {
+  const q = rmState.questions[rmState.currentIdx];
+  const ans = rmState.answers[rmState.currentIdx];
+  const total = rmState.questions.length;
+  const idx = rmState.currentIdx;
+  const mode = rmState.mode;
+  const revealed = mode === 'instant' && ans.selected !== null;
+
+  document.getElementById('rm-q-counter').textContent = `Q ${idx + 1} / ${total}`;
+  document.getElementById('rm-progress-fill').style.width = `${((idx) / total) * 100}%`;
+
+  const reviewMarked = ans.reviewed;
+
+  const body = document.getElementById('rm-body');
+  const optLetters = ['A','B','C','D'];
+
+  let optionsHtml = optLetters.map(letter => {
+    const text = q.options[letter];
+    if (!text) return '';
+    let cls = 'rm-option';
+    let icon = '';
+    if (ans.selected === letter) cls += ' selected';
+    if (revealed) {
+      if (letter === q.correct) { cls = 'rm-option correct'; icon = '<span class="rm-option-icon">\u2713</span>'; }
+      else if (ans.selected === letter && letter !== q.correct) { cls = 'rm-option wrong'; icon = '<span class="rm-option-icon">\u2717</span>'; }
+    }
+    const expHtml = (revealed && letter === q.correct && q.justification)
+      ? `<div class="rm-explanation show">${q.justification}</div>` : '';
+    return `<div class="${cls}" data-letter="${letter}" onclick="rmSelectOption('${letter}')">
+      <span class="rm-option-letter">${letter}</span>
+      <div style="flex:1;">
+        <div class="rm-option-text">${text}</div>
+        ${expHtml}
+      </div>
+      ${icon}
+    </div>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if (revealed) {
+    if (ans.selected === q.correct) {
+      feedbackHtml = `<div class="rm-feedback-row show correct">\u2713 Correct! +1 mark</div>`;
+    } else if (ans.selected) {
+      feedbackHtml = `<div class="rm-feedback-row show wrong">\u2717 Wrong. \u22120.33 marks. Correct: ${q.correct}</div>`;
+    } else {
+      feedbackHtml = `<div class="rm-feedback-row show skipped">\u2014 Skipped. No marks deducted.</div>`;
+    }
+  }
+
+  const isLast = idx === total - 1;
+  const nextLabel = isLast ? '\u2713 Finish' : 'Next \u2192';
+  const canGoBack = idx > 0;
+
+  body.innerHTML = `
+    <div class="rm-q-counter">Question ${idx + 1} of ${total} \u00b7 ${q.unit}</div>
+    <div class="rm-question-text">${q.question}</div>
+    ${feedbackHtml}
+    <div class="rm-options">${optionsHtml}</div>
+    <div class="rm-nav-row">
+      ${canGoBack ? `<button class="btn" onclick="rmPrevQ()" style="background:var(--surface-2);border:1px solid var(--border);padding:9px 16px;font-size:13px;">\u2190 Prev</button>` : ''}
+      <button class="rm-review-btn${reviewMarked ? ' marked' : ''}" onclick="rmToggleReview()" id="rm-review-flag-btn">
+        ${reviewMarked ? '\ud83d\udd16 Marked' : '\ud83d\udd16 Mark for Review'}
+      </button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-ghost" onclick="rmSkipQ()" style="padding:9px 16px;">Skip</button>
+      <button class="btn btn-primary" onclick="rmNextQ()" style="margin-top:0;padding:9px 20px;">${nextLabel}</button>
+    </div>
+  `;
+}
+
+function rmSelectOption(letter) {
+  const ans = rmState.answers[rmState.currentIdx];
+  if (rmState.mode === 'instant' && ans.selected !== null) return; // locked after selection in instant mode
+  if (rmState.paused) return;
+  ans.selected = letter;
+  ans.skipped = false;
+  rmRenderQuestion();
+  // In instant mode, stop the per-question timer after answering
+  if (rmState.mode === 'instant') {
+    clearInterval(rmQTimer); rmQTimer = null;
+  }
+}
+
+function rmToggleReview() {
+  rmState.answers[rmState.currentIdx].reviewed = !rmState.answers[rmState.currentIdx].reviewed;
+  rmRenderQuestion();
+}
+
+function rmSkipQ() {
+  if (rmState.paused) return;
+  const ans = rmState.answers[rmState.currentIdx];
+  ans.selected = null; ans.skipped = true;
+  rmNextQ();
+}
+
+function rmNextQ() {
+  if (rmState.paused) return;
+  const isLast = rmState.currentIdx === rmState.questions.length - 1;
+  if (isLast) { rmFinish(); return; }
+  rmState.currentIdx++;
+  rmResetQTimer();
+  rmRenderQuestion();
+}
+
+function rmPrevQ() {
+  if (rmState.currentIdx === 0) return;
+  rmState.currentIdx--;
+  rmResetQTimer();
+  rmRenderQuestion();
+}
+
+// \u2500\u2500 Timers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmStartTimers() {
+  rmState.timeLeft = 60;
+  rmState.totalTime = 0;
+  document.getElementById('rm-q-timer').textContent = '01:00';
+  document.getElementById('rm-q-timer').classList.remove('danger');
+
+  rmQTimer = setInterval(() => {
+    if (rmState.paused) return;
+    rmState.timeLeft--;
+    rmUpdateQTimerDisplay();
+    if (rmState.timeLeft <= 0) { rmAutoAdvance(); }
+  }, 1000);
+
+  rmTotalTimer = setInterval(() => {
+    if (rmState.paused) return;
+    rmState.totalTime++;
+    const m = String(Math.floor(rmState.totalTime / 60)).padStart(2,'0');
+    const s = String(rmState.totalTime % 60).padStart(2,'0');
+    document.getElementById('rm-total-timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function rmUpdateQTimerDisplay() {
+  const el = document.getElementById('rm-q-timer');
+  if (!el) return;
+  const t = rmState.timeLeft;
+  el.textContent = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+  el.classList.toggle('danger', t <= 10);
+}
+
+function rmResetQTimer() {
+  rmState.timeLeft = 60;
+  rmUpdateQTimerDisplay();
+}
+
+function rmAutoAdvance() {
+  // Time up for this question \u2014 mark as skipped and move on
+  const ans = rmState.answers[rmState.currentIdx];
+  if (ans.selected === null) ans.skipped = true;
+  rmNextQ();
+}
+
+// \u2500\u2500 Pause / Resume \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('rm-pause-btn').addEventListener('click', rmTogglePause);
+function rmTogglePause() {
+  rmState.paused = !rmState.paused;
+  const btn = document.getElementById('rm-pause-btn');
+  const badge = document.getElementById('rm-paused-badge');
+  if (rmState.paused) {
+    btn.textContent = '\u25b6 Resume';
+    btn.className = 'btn btn-green';
+    badge.classList.add('show');
+    // blur question area to prevent reading during pause
+    const body = document.getElementById('rm-body');
+    if (body) body.style.filter = 'blur(4px)';
+  } else {
+    btn.textContent = '\u23f8';
+    btn.className = 'btn btn-amber';
+    badge.classList.remove('show');
+    const body = document.getElementById('rm-body');
+    if (body) body.style.filter = '';
+  }
+}
+
+// \u2500\u2500 Save progress \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('rm-save-btn').addEventListener('click', rmSaveProgress);
+function rmSaveProgress() {
+  const save = {
+    state: JSON.parse(JSON.stringify(rmState)),
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(RM_SAVED_KEY, JSON.stringify(save));
+  const btn = document.getElementById('rm-save-btn');
+  btn.textContent = '\u2713 Saved!';
+  setTimeout(() => { btn.textContent = '\ud83d\udcbe Save'; }, 1500);
+}
+
+// \u2500\u2500 Close mid-exam \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('rm-close-btn').addEventListener('click', () => {
+  if (rmState.finished) { hideAllWindows(); showHome(); return; }
+  if (confirm('Save progress and exit Real Mock?')) {
+    rmSaveProgress();
+    clearInterval(rmQTimer); clearInterval(rmTotalTimer);
+    rmQTimer = null; rmTotalTimer = null;
+    hideAllWindows(); showHome();
+    loadSavedMocksUI();
+    // Show saved mock resume card
+    setTimeout(rmCheckSavedMock, 300);
+  }
+});
+
+// \u2500\u2500 Finish mock \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmFinish() {
+  clearInterval(rmQTimer); clearInterval(rmTotalTimer);
+  rmQTimer = null; rmTotalTimer = null;
+  rmState.finished = true;
+  localStorage.removeItem(RM_SAVED_KEY); // clear saved progress
+
+  // Calculate score
+  let correct = 0, wrong = 0, skipped = 0;
+  rmState.answers.forEach((ans, i) => {
+    const q = rmState.questions[i];
+    if (!ans.selected) { skipped++; }
+    else if (ans.selected === q.correct) { correct++; }
+    else { wrong++; }
+  });
+  const rawScore = correct - (wrong * 0.33);
+  const totalQ = rmState.questions.length;
+  const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
+  const attempted = correct + wrong;
+  const m = Math.floor(rmState.totalTime / 60);
+  const s = rmState.totalTime % 60;
+  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  // Save reviewed questions to review bank
+  rmState.answers.forEach((ans, i) => {
+    if (ans.reviewed) {
+      const q = rmState.questions[i];
+      rmSaveReviewQuestion(q, ans);
+    }
+  });
+
+  // Save to history
+  saveSessionToHistory(
+    rmState.mockName, rmState.mockUnit, timeStr, finalScore,
+    { totalQ, attempted, skipped, correct, wrong, mode: rmState.mode },
+    'real'
+  );
+
+  // Show result screen
+  document.getElementById('real-mock-screen').classList.remove('active');
+  const rs = document.getElementById('real-mock-result-screen');
+  rs.style.display = 'block';
+
+  const scoreEl = document.getElementById('rm-final-score-display');
+  scoreEl.textContent = finalScore;
+  scoreEl.className = 'rm-result-score ' + (parseFloat(finalScore) >= 50 ? 'pass' : 'fail');
+  document.getElementById('rm-result-sub').textContent = `${rmState.mockName} \u00b7 ${rmState.mockUnit}`;
+  document.getElementById('rm-res-total').textContent = totalQ;
+  document.getElementById('rm-res-att').textContent = attempted;
+  document.getElementById('rm-res-correct').textContent = correct;
+  document.getElementById('rm-res-wrong').textContent = wrong;
+  document.getElementById('rm-res-skip').textContent = skipped;
+  document.getElementById('rm-res-time').textContent = timeStr;
+  document.getElementById('rm-score-formula').textContent =
+    `Formula: (${correct} correct \u00d7 1) \u2212 (${wrong} wrong \u00d7 0.33) = ${rawScore.toFixed(2)} raw \u2192 ${finalScore}/100`;
+
+  // In stretch mode \u2014 offer to review answers inline
+  if (rmState.mode === 'stretch') {
+    rmShowStretchReview();
+  }
+
+  rmUpdateQBCount();
+  renderReviewBtn();
+}
+
+// In stretch mode show full Q&A review below result stats
+function rmShowStretchReview() {
+  const rs = document.getElementById('real-mock-result-screen');
+  const reviewDiv = document.createElement('div');
+  reviewDiv.style.cssText = 'max-width:680px;margin:20px auto 0;';
+  reviewDiv.innerHTML = '<div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">\ud83d\udccb Answer Review</div>';
+  rmState.questions.forEach((q, i) => {
+    const ans = rmState.answers[i];
+    const userAns = ans.selected;
+    const isCorrect = userAns === q.correct;
+    const isSkipped = !userAns;
+    let status = isSkipped ? '\u2014 Skipped' : (isCorrect ? '\u2713 Correct' : `\u2717 Wrong (You: ${userAns}, Correct: ${q.correct})`);
+    let statusCls = isSkipped ? 'color:var(--amber)' : (isCorrect ? 'color:var(--green)' : 'color:var(--red)');
+    const optLetters = ['A','B','C','D'];
+    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
+      let cls = 'review-opt';
+      if (l === q.correct) cls += ' correct';
+      else if (l === userAns && !isCorrect) cls += ' your-wrong';
+      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
+    }).join('');
+    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
+    reviewDiv.innerHTML += `
+      <div class="review-q-card">
+        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          <span class="review-q-num">Q${i+1}</span>
+          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
+          <span style="font-size:12px;font-weight:600;${statusCls}">${status}</span>
+        </div>
+        <div class="review-q-body">
+          <div class="review-q-text">${q.question}</div>
+          ${optsHtml}
+          ${expHtml}
+        </div>
+      </div>`;
+  });
+  rs.querySelector('div').appendChild(reviewDiv);
+}
+
+// \u2500\u2500 Result screen buttons \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('rm-review-after-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  openReviewScreen();
+});
+document.getElementById('rm-new-mock-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  openRMModal();
+});
+document.getElementById('rm-home-btn').addEventListener('click', () => {
+  document.getElementById('real-mock-result-screen').style.display = 'none';
+  showHome();
+});
+
+// \u2500\u2500 Saved mock resume check \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmCheckSavedMock() {
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    const card = document.getElementById('rm-resume-card');
+    if (card) {
+      card.style.display = 'block';
+      const label = document.getElementById('rm-resume-label');
+      if (label) label.textContent = `${data.state.mockName} \u2014 Q${data.state.currentIdx + 1}/${data.state.questions.length}`;
+    }
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+}
+
+// \u2500\u2500 Review Questions System \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function rmSaveReviewQuestion(q, ans) {
+  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  // Avoid duplicates by question text
+  if (bank.find(r => r.question === q.question)) return;
+  bank.push({
+    id: q.id || genQBId(),
+    question: q.question,
+    options: q.options,
+    correct: q.correct,
+    unit: q.unit,
+    justification: q.justification || '',
+    yourAnswer: ans.selected,
+    addedOn: new Date().toISOString().split('T')[0],
+  });
+  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
+}
+
+function openReviewScreen() {
+  const screen = document.getElementById('review-screen');
+  screen.classList.add('active');
+  renderReviewList();
+}
+
+function renderReviewList() {
+  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const container = document.getElementById('review-list-container');
+  const countLabel = document.getElementById('review-count-label');
+  countLabel.textContent = `${bank.length} question${bank.length !== 1 ? 's' : ''} marked for review`;
+  renderReviewBtn();
+
+  if (!bank.length) {
+    container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted);"><div style="font-size:36px;margin-bottom:10px;">\ud83d\udd16</div><div>No review questions yet.</div><div style="font-size:12px;margin-top:8px;">Mark questions during a Real Mock exam by clicking "Mark for Review".</div></div>';
+    return;
+  }
+
+  container.innerHTML = bank.map((q, i) => {
+    const optLetters = ['A','B','C','D'];
+    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
+      let cls = 'review-opt';
+      if (l === q.correct) cls += ' correct';
+      else if (l === q.yourAnswer && l !== q.correct) cls += ' your-wrong';
+      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
+    }).join('');
+    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
+    const yourLabel = q.yourAnswer ? `Your answer: ${q.yourAnswer} \u00b7 ` : '';
+    return `
+      <div class="review-q-card">
+        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          <span class="review-q-num">#${i+1}</span>
+          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
+          <span class="review-unit-tag">${q.unit}</span>
+          <button onclick="event.stopPropagation();rmRemoveReview(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 6px;">\u2715</button>
+        </div>
+        <div class="review-q-body">
+          <div class="review-q-text">${q.question}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">${yourLabel}Correct: <b style="color:var(--green)">${q.correct}</b> \u00b7 Added: ${q.addedOn}</div>
+          ${optsHtml}
+          ${expHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function rmRemoveReview(idx) {
+  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  bank.splice(idx, 1);
+  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
+  renderReviewList();
+}
+
+document.getElementById('review-back-btn').addEventListener('click', () => {
+  document.getElementById('review-screen').classList.remove('active');
+});
+document.getElementById('review-clear-btn').addEventListener('click', () => {
+  if (!confirm('Clear all review questions?')) return;
+  localStorage.removeItem(RM_REVIEW_KEY);
+  renderReviewList();
+  renderReviewBtn();
+});
+
+// \u2500\u2500 Dashboard: include real mock data \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// The existing dashboard already reads from quizHistory which now includes real mocks.
+// The score in real mocks is a number 0-100, compatible with existing parsing.
+// No additional changes needed for dashboard \u2014 it works automatically.
+
+// \u2500\u2500 Saved Real Mock resume on homepage \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+(function initRMSavedCard() {
+  // Add resume card to home-wrapper if there's a saved real mock
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    const card = document.createElement('div');
+    card.id = 'rm-resume-card';
+    card.className = 'card full-card';
+    card.style.cssText = 'border:1.5px solid var(--amber); background:var(--amber-dim); display:block;';
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="card-title">\ud83d\udd04 Resume Real Mock</span>
+        <button onclick="rmDismissResume()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">\u2715</button>
+      </div>
+      <div style="font-size:13px;color:var(--text);margin-bottom:12px;" id="rm-resume-label">
+        ${data.state.mockName} \u2014 Q${data.state.currentIdx + 1}/${data.state.questions.length}
+      </div>
+      <button class="btn btn-amber" onclick="rmResumeMock()" style="margin-top:0;">\u25b6 Resume Mock</button>
+    `;
+    const hw = document.getElementById('home-wrapper');
+    if (hw) hw.prepend(card);
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+})();
+
+function rmResumeMock() {
+  const saved = localStorage.getItem(RM_SAVED_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    rmState = data.state;
+    rmState.paused = false;
+    hideAllWindows();
+    document.getElementById('real-mock-screen').classList.add('active');
+    document.getElementById('rm-mock-label').textContent = rmState.mockName;
+    rmRenderQuestion();
+    rmStartTimers();
+    // Restore total time
+    rmState.totalTime = data.state.totalTime;
+  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); showHome(); }
+}
+
+function rmDismissResume() {
+  localStorage.removeItem(RM_SAVED_KEY);
+  const card = document.getElementById('rm-resume-card');
+  if (card) card.remove();
+}
+
+// \u2500\u2500 Unit chip event for live avail update \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+document.getElementById('rm-unit-chips').addEventListener('change', rmUpdateAvailable);
+
+// \u2500\u2500 Update QB count whenever admin saves questions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const _origSaveQB = saveQB;
 
 // ── Open admin panel ─────────────────────────────────────────
 function openAdminPanel() {
@@ -4101,18 +4630,6 @@ function detectUnit(text) {
 }
 
 function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
-  // ── Step 0: Normalize inline-formatted blocks (no newlines) ──────
-  // Insert \n before Q markers (handles Q1. Q2. **Q10. etc.)
-  raw = raw.replace(/(\*{0,2})(Q\d+[.:\s])/g, '\n$1$2');
-  // Insert \n before option letters A–D when they directly follow text
-  // Matches: any word/special char + [A-D] + ". " + uppercase or digit
-  raw = raw.replace(/([\w°\)\?:;\]\*])([A-D])\. (?=[A-Z0-9])/g,
-    function(_, pre, letter) { return pre + '\n' + letter + '. '; });
-  // Normalize Answer Key section
-  raw = raw.replace(/(Answer Key)/g, '\n\n$1');
-  raw = raw.replace(/(?<=[^\d\n])(\d+\. Answer:)/g, '\n$1');
-  raw = raw.replace(/(?<=[^\n])(Justification:)/g, '\nJustification:');
-
   const questions = [];
 
   // Extract header units mentioned e.g. "Unit 5: Fish Preservation"
@@ -4132,39 +4649,51 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
     answerKey[parseInt(am[1])] = am[2].toUpperCase();
   }
 
-  // Extract all justification blocks in order
+  // Extract all justification blocks in order (simpler approach, no multiline regex)
   const allJust = [];
+  let justSearch = raw;
+  let justOffset = 0;
   const justStartRe = /Justification:\s*/gi;
   let jMatch;
   while ((jMatch = justStartRe.exec(raw)) !== null) {
     const afterTag = raw.slice(jMatch.index + jMatch[0].length);
-    const endMatch = afterTag.search(/\n\d+\.\s+Answer:|Justification:|$/);
+    // Justification ends at next answer line, next Q number, or double newline
+    const endMatch = afterTag.search(/\n\d+\.\s+Answer:|\n\*{0,2}Q\d+[.:\s]|\n\n\n/);
     const justText = endMatch > -1 ? afterTag.slice(0, endMatch) : afterTag.slice(0, 600);
     allJust.push(justText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim());
   }
 
-  // Extract question blocks by finding Q markers
-  const qMatches = [];
-  const qMarkerRe = /\*{0,2}Q(\d+)[.:\s*]\*{0,2}/gi;
+  // Extract questions: Q1. or **Q1. or Q1:
+  // Split approach: find all Qn markers, extract blocks between them
+  const qBlocks = [];
+  const qMarkerRe = /\*{0,2}Q(\d+)[.:\s]\*{0,2}/gi;
   let qm;
+  const qMatches = [];
   while ((qm = qMarkerRe.exec(raw)) !== null) {
+    // Skip if this Q marker appears to be inside the answer key section
     const lineStart = raw.lastIndexOf('\n', qm.index) + 1;
     const linePrefix = raw.slice(lineStart, qm.index).trim();
+    // Answer key lines start with digit+dot, skip those
     if (/^\d+\./.test(linePrefix)) continue;
     qMatches.push({ num: parseInt(qm[1]), idx: qm.index + qm[0].length });
   }
 
   for (let i = 0; i < qMatches.length; i++) {
     const start = qMatches[i].idx;
-    let end = i + 1 < qMatches.length ? qMatches[i+1].idx - 4 : raw.length;
-    const akIdx = raw.search(/\nAnswer Key|\n\d+\.\s+Answer:/);
+    // Block ends at next Q marker or "Answer Key" section
+    let end = raw.length;
+    if (i + 1 < qMatches.length) end = qMatches[i+1].idx - qMatches[i+1].num.toString().length - 4;
+    // Also stop at answer key section
+    const akIdx = raw.search(/Answer Key|^\d+\.\s+Answer:/m);
     if (akIdx > start && akIdx < end) end = akIdx;
+
     const block = raw.slice(start, end).trim();
     const num = qMatches[i].num;
 
-    // Extract question text (before first ^A\.)
+    // Extract question text (before first "A." option line)
     const optStart = block.search(/^A\.\s/m);
     let qText = (optStart > -1 ? block.slice(0, optStart) : block.slice(0, 400)).trim();
+    // Clean trailing image refs, asterisks, "Shutterstock"
     qText = qText.replace(/\*{1,2}\s*$/, '').replace(/Shutterstock\s*$/i, '').replace(/\s+/g, ' ').trim();
 
     // Extract options A B C D
@@ -4184,16 +4713,22 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
       opts[letter] = afterOpt.slice(0, endPos).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
     });
 
-    if (!qText || !opts.A) continue;
+    if (!qText || !opts.A) continue; // skip unparseable blocks
 
-    const just = allJust[i] || '';
+    // Justification: match by question index order
+    const just = allJust[qMatches.indexOf(qMatches[i])] || '';
 
-    let unit = null, unitSource = 'default';
+    // Unit detection
+    let unit = null;
+    let unitSource = 'default';
     const detected = detectUnit(qText + ' ' + Object.values(opts).join(' ') + ' ' + just);
     if (defaultUnit === 'auto') {
-      unit = detected || (headerUnits[0] || 'Unit 1');
+      unit = detected || (headerUnits.length === 1 ? headerUnits[0] : headerUnits[0] || 'Unit 1');
       unitSource = detected ? 'auto' : (headerUnits.length ? 'auto' : 'default');
-    } else { unit = defaultUnit; unitSource = 'default'; }
+    } else {
+      unit = defaultUnit;
+      unitSource = 'default';
+    }
     if (!unit) { unit = 'Unit 1'; unitSource = 'default'; }
 
     questions.push({
@@ -4552,668 +5087,62 @@ document.getElementById('admin-clear-qb-btn').addEventListener('click', () => {
   alert('Question bank cleared.');
 });
 
+// ── Load questionbank.json from GitHub on startup ─────────────
 
-// ══════════════════════════════════════════════════════════════
-// REVIEW BUTTON IN TOPBAR
-// ══════════════════════════════════════════════════════════════
-document.getElementById('review-btn').addEventListener('click', openReviewScreen);
 
-function renderReviewBtn() {
-  const marked = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
-  const btn = document.getElementById('review-btn');
-  if (btn) btn.innerHTML = `🔖 Review${marked.length ? ' <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>' : ''}`;
-}
-
-// ══════════════════════════════════════════════════════════════
-// REAL MOCK ENGINE
-// ══════════════════════════════════════════════════════════════
-const RM_SAVED_KEY = 'rm_saved_mock';
-const RM_REVIEW_KEY = 'rm_review_questions';
-const RM_HISTORY_KEY = 'quizHistory'; // shared with pip mock
-
-let rmState = {
-  mode: 'stretch',           // 'stretch' or 'instant'
-  questions: [],             // shuffled subset from QB
-  currentIdx: 0,
-  answers: [],               // {selected, correct, skipped, reviewed}
-  timeLeft: 60,
-  totalTime: 0,
-  paused: false,
-  pauseTime: 0,
-  mockName: '',
-  mockUnit: '',
-  finished: false,
-};
-let rmQTimer = null, rmTotalTimer = null, rmPauseTimer = null;
-
-// ── Update QB count display on homepage ──────────────────────
-function rmUpdateQBCount() {
-  const bank = getQB();
-  const el = document.getElementById('rm-qb-total');
-  if (el) el.textContent = bank.length;
-}
-
-// ── Open mode modal ──────────────────────────────────────────
-document.getElementById('start-real-mock-btn').addEventListener('click', openRMModal);
-
-function openRMModal() {
-  // Build unit chips
-  const bank = getQB();
-  rmUpdateQBCount();
-  const chipContainer = document.getElementById('rm-unit-chips');
-  chipContainer.innerHTML = '';
-  UNIT_DATA.forEach(u => {
-    const count = bank.filter(q => q.unit === u.id).length;
-    if (count === 0) return;
-    const chip = document.createElement('div');
-    chip.className = 'rm-unit-chip';
-    chip.dataset.unit = u.id;
-    chip.innerHTML = `${u.id} <span style="opacity:0.6;">(${count})</span>`;
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('selected');
-      rmUpdateAvailable();
-    });
-    chipContainer.appendChild(chip);
-  });
-
-  // default: select all units with questions
-  chipContainer.querySelectorAll('.rm-unit-chip').forEach(c => c.classList.add('selected'));
-
-  // Mode selection state
-  rmSelectMode('stretch');
-  rmUpdateAvailable();
-
-  document.getElementById('rm-unit-error').style.display = 'none';
-  document.getElementById('rm-q-warn').style.display = 'none';
-  document.getElementById('rm-mode-modal').classList.add('active');
-}
-
-function rmSelectMode(mode) {
-  rmState.mode = mode;
-  document.getElementById('rm-mode-stretch').style.border = mode === 'stretch' ? '2px solid var(--accent)' : '2px solid var(--border)';
-  document.getElementById('rm-mode-stretch').style.background = mode === 'stretch' ? 'var(--accent-glow)' : '';
-  document.getElementById('rm-mode-instant').style.border = mode === 'instant' ? '2px solid #a78bfa' : '2px solid var(--border)';
-  document.getElementById('rm-mode-instant').style.background = mode === 'instant' ? 'rgba(124,58,237,0.1)' : '';
-}
-
-function rmGetSelectedUnits() {
-  return Array.from(document.querySelectorAll('#rm-unit-chips .rm-unit-chip.selected'))
-    .map(c => c.dataset.unit);
-}
-
-function rmUpdateAvailable() {
-  const units = rmGetSelectedUnits();
-  const bank = getQB();
-  const avail = bank.filter(q => units.includes(q.unit)).length;
-  const el = document.getElementById('rm-q-avail-label');
-  const warn = document.getElementById('rm-q-warn');
-  const inp = document.getElementById('rm-q-count-input');
-  el.textContent = `Available: ${avail}`;
-  el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
-  const requested = parseInt(inp.value) || 10;
-  if (avail === 0) {
-    warn.textContent = '⚠ No questions in bank for selected units. Add via Admin → Paste & Parse.';
-    warn.style.display = 'block';
-  } else if (requested > avail) {
-    warn.textContent = `⚠ Only ${avail} questions available. Mock will use all ${avail}.`;
-    warn.style.display = 'block';
-  } else {
-    warn.style.display = 'none';
-  }
-}
-
-document.getElementById('rm-q-count-input').addEventListener('input', rmUpdateAvailable);
-document.getElementById('rm-modal-cancel-btn').addEventListener('click', () => {
-  document.getElementById('rm-mode-modal').classList.remove('active');
-});
-
-document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
-  const units = rmGetSelectedUnits();
-  if (!units.length) {
-    document.getElementById('rm-unit-error').style.display = 'block';
-    return;
-  }
-  document.getElementById('rm-unit-error').style.display = 'none';
-  const bank = getQB();
-  const pool = bank.filter(q => units.includes(q.unit));
-  if (!pool.length) {
-    alert('No questions found for selected units. Add questions via Admin panel first.');
-    return;
-  }
-  const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
-  const count = Math.min(requested, pool.length);
-  // Shuffle and pick
-  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
-  document.getElementById('rm-mode-modal').classList.remove('active');
-  rmLaunch(shuffled, units, count);
-});
-
-// ── Launch real mock ─────────────────────────────────────────
-function rmLaunch(questions, units, count) {
-  const history = JSON.parse(localStorage.getItem(RM_HISTORY_KEY)) || [];
-  const realMockCount = history.filter(h => h.mockType === 'real').length;
-  rmState = {
-    mode: rmState.mode,
-    questions,
-    currentIdx: 0,
-    answers: new Array(questions.length).fill(null).map(() => ({ selected: null, skipped: false, reviewed: false })),
-    timeLeft: 60,
-    totalTime: 0,
-    paused: false,
-    pauseTime: 0,
-    mockName: `Real Mock ${realMockCount + 1}`,
-    mockUnit: units.join(', '),
-    finished: false,
-  };
-  hideAllWindows();
-  document.getElementById('real-mock-screen').classList.add('active');
-  document.getElementById('rm-mock-label').textContent = rmState.mockName;
-  rmRenderQuestion();
-  rmStartTimers();
-}
-
-// ── Render current question ───────────────────────────────────
-function rmRenderQuestion() {
-  const q = rmState.questions[rmState.currentIdx];
-  const ans = rmState.answers[rmState.currentIdx];
-  const total = rmState.questions.length;
-  const idx = rmState.currentIdx;
-  const mode = rmState.mode;
-  const revealed = mode === 'instant' && ans.selected !== null;
-
-  document.getElementById('rm-q-counter').textContent = `Q ${idx + 1} / ${total}`;
-  document.getElementById('rm-progress-fill').style.width = `${((idx) / total) * 100}%`;
-
-  const reviewMarked = ans.reviewed;
-
-  const body = document.getElementById('rm-body');
-  const optLetters = ['A','B','C','D'];
-
-  let optionsHtml = optLetters.map(letter => {
-    const text = q.options[letter];
-    if (!text) return '';
-    let cls = 'rm-option';
-    let icon = '';
-    if (ans.selected === letter) cls += ' selected';
-    if (revealed) {
-      if (letter === q.correct) { cls = 'rm-option correct'; icon = '<span class="rm-option-icon">✓</span>'; }
-      else if (ans.selected === letter && letter !== q.correct) { cls = 'rm-option wrong'; icon = '<span class="rm-option-icon">✗</span>'; }
-    }
-    const expHtml = (revealed && letter === q.correct && q.justification)
-      ? `<div class="rm-explanation show">${q.justification}</div>` : '';
-    return `<div class="${cls}" data-letter="${letter}" onclick="rmSelectOption('${letter}')">
-      <span class="rm-option-letter">${letter}</span>
-      <div style="flex:1;">
-        <div class="rm-option-text">${text}</div>
-        ${expHtml}
-      </div>
-      ${icon}
-    </div>`;
-  }).join('');
-
-  let feedbackHtml = '';
-  if (revealed) {
-    if (ans.selected === q.correct) {
-      feedbackHtml = `<div class="rm-feedback-row show correct">✓ Correct! +1 mark</div>`;
-    } else if (ans.selected) {
-      feedbackHtml = `<div class="rm-feedback-row show wrong">✗ Wrong. −0.33 marks. Correct: ${q.correct}</div>`;
-    } else {
-      feedbackHtml = `<div class="rm-feedback-row show skipped">— Skipped. No marks deducted.</div>`;
-    }
-  }
-
-  const isLast = idx === total - 1;
-  const nextLabel = isLast ? '✓ Finish' : 'Next →';
-  const canGoBack = idx > 0;
-
-  body.innerHTML = `
-    <div class="rm-q-counter">Question ${idx + 1} of ${total} · ${q.unit}</div>
-    <div class="rm-question-text">${q.question}</div>
-    ${feedbackHtml}
-    <div class="rm-options">${optionsHtml}</div>
-    <div class="rm-nav-row">
-      ${canGoBack ? `<button class="btn" onclick="rmPrevQ()" style="background:var(--surface-2);border:1px solid var(--border);padding:9px 16px;font-size:13px;">← Prev</button>` : ''}
-      <button class="rm-review-btn${reviewMarked ? ' marked' : ''}" onclick="rmToggleReview()" id="rm-review-flag-btn">
-        ${reviewMarked ? '🔖 Marked' : '🔖 Mark for Review'}
-      </button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-ghost" onclick="rmSkipQ()" style="padding:9px 16px;">Skip</button>
-      <button class="btn btn-primary" onclick="rmNextQ()" style="margin-top:0;padding:9px 20px;">${nextLabel}</button>
-    </div>
-  `;
-}
-
-function rmSelectOption(letter) {
-  const ans = rmState.answers[rmState.currentIdx];
-  if (rmState.mode === 'instant' && ans.selected !== null) return; // locked after selection in instant mode
-  if (rmState.paused) return;
-  ans.selected = letter;
-  ans.skipped = false;
-  rmRenderQuestion();
-  // In instant mode, stop the per-question timer after answering
-  if (rmState.mode === 'instant') {
-    clearInterval(rmQTimer); rmQTimer = null;
-  }
-}
-
-function rmToggleReview() {
-  rmState.answers[rmState.currentIdx].reviewed = !rmState.answers[rmState.currentIdx].reviewed;
-  rmRenderQuestion();
-}
-
-function rmSkipQ() {
-  if (rmState.paused) return;
-  const ans = rmState.answers[rmState.currentIdx];
-  ans.selected = null; ans.skipped = true;
-  rmNextQ();
-}
-
-function rmNextQ() {
-  if (rmState.paused) return;
-  const isLast = rmState.currentIdx === rmState.questions.length - 1;
-  if (isLast) { rmFinish(); return; }
-  rmState.currentIdx++;
-  rmResetQTimer();
-  rmRenderQuestion();
-}
-
-function rmPrevQ() {
-  if (rmState.currentIdx === 0) return;
-  rmState.currentIdx--;
-  rmResetQTimer();
-  rmRenderQuestion();
-}
-
-// ── Timers ────────────────────────────────────────────────────
-function rmStartTimers() {
-  rmState.timeLeft = 60;
-  rmState.totalTime = 0;
-  document.getElementById('rm-q-timer').textContent = '01:00';
-  document.getElementById('rm-q-timer').classList.remove('danger');
-
-  rmQTimer = setInterval(() => {
-    if (rmState.paused) return;
-    rmState.timeLeft--;
-    rmUpdateQTimerDisplay();
-    if (rmState.timeLeft <= 0) { rmAutoAdvance(); }
-  }, 1000);
-
-  rmTotalTimer = setInterval(() => {
-    if (rmState.paused) return;
-    rmState.totalTime++;
-    const m = String(Math.floor(rmState.totalTime / 60)).padStart(2,'0');
-    const s = String(rmState.totalTime % 60).padStart(2,'0');
-    document.getElementById('rm-total-timer').textContent = `${m}:${s}`;
-  }, 1000);
-}
-
-function rmUpdateQTimerDisplay() {
-  const el = document.getElementById('rm-q-timer');
-  if (!el) return;
-  const t = rmState.timeLeft;
-  el.textContent = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
-  el.classList.toggle('danger', t <= 10);
-}
-
-function rmResetQTimer() {
-  rmState.timeLeft = 60;
-  rmUpdateQTimerDisplay();
-}
-
-function rmAutoAdvance() {
-  // Time up for this question — mark as skipped and move on
-  const ans = rmState.answers[rmState.currentIdx];
-  if (ans.selected === null) ans.skipped = true;
-  rmNextQ();
-}
-
-// ── Pause / Resume ────────────────────────────────────────────
-document.getElementById('rm-pause-btn').addEventListener('click', rmTogglePause);
-function rmTogglePause() {
-  rmState.paused = !rmState.paused;
-  const btn = document.getElementById('rm-pause-btn');
-  const badge = document.getElementById('rm-paused-badge');
-  if (rmState.paused) {
-    btn.textContent = '▶ Resume';
-    btn.className = 'btn btn-green';
-    badge.classList.add('show');
-    // blur question area to prevent reading during pause
-    const body = document.getElementById('rm-body');
-    if (body) body.style.filter = 'blur(4px)';
-  } else {
-    btn.textContent = '⏸';
-    btn.className = 'btn btn-amber';
-    badge.classList.remove('show');
-    const body = document.getElementById('rm-body');
-    if (body) body.style.filter = '';
-  }
-}
-
-// ── Save progress ─────────────────────────────────────────────
-document.getElementById('rm-save-btn').addEventListener('click', rmSaveProgress);
-function rmSaveProgress() {
-  const save = {
-    state: JSON.parse(JSON.stringify(rmState)),
-    savedAt: new Date().toISOString()
-  };
-  localStorage.setItem(RM_SAVED_KEY, JSON.stringify(save));
-  const btn = document.getElementById('rm-save-btn');
-  btn.textContent = '✓ Saved!';
-  setTimeout(() => { btn.textContent = '💾 Save'; }, 1500);
-}
-
-// ── Close mid-exam ────────────────────────────────────────────
-document.getElementById('rm-close-btn').addEventListener('click', () => {
-  if (rmState.finished) { hideAllWindows(); showHome(); return; }
-  if (confirm('Save progress and exit Real Mock?')) {
-    rmSaveProgress();
-    clearInterval(rmQTimer); clearInterval(rmTotalTimer);
-    rmQTimer = null; rmTotalTimer = null;
-    hideAllWindows(); showHome();
-    loadSavedMocksUI();
-    // Show saved mock resume card
-    setTimeout(rmCheckSavedMock, 300);
-  }
-});
-
-// ── Finish mock ───────────────────────────────────────────────
-function rmFinish() {
-  clearInterval(rmQTimer); clearInterval(rmTotalTimer);
-  rmQTimer = null; rmTotalTimer = null;
-  rmState.finished = true;
-  localStorage.removeItem(RM_SAVED_KEY); // clear saved progress
-
-  // Calculate score
-  let correct = 0, wrong = 0, skipped = 0;
-  rmState.answers.forEach((ans, i) => {
-    const q = rmState.questions[i];
-    if (!ans.selected) { skipped++; }
-    else if (ans.selected === q.correct) { correct++; }
-    else { wrong++; }
-  });
-  const rawScore = correct - (wrong * 0.33);
-  const totalQ = rmState.questions.length;
-  const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
-  const attempted = correct + wrong;
-  const m = Math.floor(rmState.totalTime / 60);
-  const s = rmState.totalTime % 60;
-  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-
-  // Save reviewed questions to review bank
-  rmState.answers.forEach((ans, i) => {
-    if (ans.reviewed) {
-      const q = rmState.questions[i];
-      rmSaveReviewQuestion(q, ans);
-    }
-  });
-
-  // Save to history
-  saveSessionToHistory(
-    rmState.mockName, rmState.mockUnit, timeStr, finalScore,
-    { totalQ, attempted, skipped, correct, wrong, mode: rmState.mode },
-    'real'
-  );
-
-  // Show result screen
-  document.getElementById('real-mock-screen').classList.remove('active');
-  const rs = document.getElementById('real-mock-result-screen');
-  rs.style.display = 'block';
-
-  const scoreEl = document.getElementById('rm-final-score-display');
-  scoreEl.textContent = finalScore;
-  scoreEl.className = 'rm-result-score ' + (parseFloat(finalScore) >= 50 ? 'pass' : 'fail');
-  document.getElementById('rm-result-sub').textContent = `${rmState.mockName} · ${rmState.mockUnit}`;
-  document.getElementById('rm-res-total').textContent = totalQ;
-  document.getElementById('rm-res-att').textContent = attempted;
-  document.getElementById('rm-res-correct').textContent = correct;
-  document.getElementById('rm-res-wrong').textContent = wrong;
-  document.getElementById('rm-res-skip').textContent = skipped;
-  document.getElementById('rm-res-time').textContent = timeStr;
-  document.getElementById('rm-score-formula').textContent =
-    `Formula: (${correct} correct × 1) − (${wrong} wrong × 0.33) = ${rawScore.toFixed(2)} raw → ${finalScore}/100`;
-
-  // In stretch mode — offer to review answers inline
-  if (rmState.mode === 'stretch') {
-    rmShowStretchReview();
-  }
-
-  rmUpdateQBCount();
-  renderReviewBtn();
-}
-
-// In stretch mode show full Q&A review below result stats
-function rmShowStretchReview() {
-  const inner = document.getElementById('rm-result-inner');
-  if (!inner) return;
-  const reviewDiv = document.createElement('div');
-  reviewDiv.style.cssText = 'margin-top:20px;';
-  reviewDiv.innerHTML = '<div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">📋 Answer Review</div>';
-  rmState.questions.forEach((q, i) => {
-    const ans = rmState.answers[i];
-    const userAns = ans.selected;
-    const isCorrect = userAns === q.correct;
-    const isSkipped = !userAns;
-    let status = isSkipped ? '— Skipped' : (isCorrect ? '✓ Correct' : `✗ Wrong (You: ${userAns}, Correct: ${q.correct})`);
-    let statusCls = isSkipped ? 'color:var(--amber)' : (isCorrect ? 'color:var(--green)' : 'color:var(--red)');
-    const optLetters = ['A','B','C','D'];
-    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
-      let cls = 'review-opt';
-      if (l === q.correct) cls += ' correct';
-      else if (l === userAns && !isCorrect) cls += ' your-wrong';
-      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
-    }).join('');
-    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
-    reviewDiv.innerHTML += `
-      <div class="review-q-card">
-        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
-          <span class="review-q-num">Q${i+1}</span>
-          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
-          <span style="font-size:12px;font-weight:600;${statusCls}">${status}</span>
-        </div>
-        <div class="review-q-body">
-          <div class="review-q-text">${q.question}</div>
-          ${optsHtml}
-          ${expHtml}
-        </div>
-      </div>`;
-  });
-  inner.appendChild(reviewDiv);
-}
-
-// ── Result screen buttons ─────────────────────────────────────
-document.getElementById('rm-review-after-btn').addEventListener('click', () => {
-  document.getElementById('real-mock-result-screen').style.display = 'none';
-  openReviewScreen();
-});
-document.getElementById('rm-new-mock-btn').addEventListener('click', () => {
-  document.getElementById('real-mock-result-screen').style.display = 'none';
-  openRMModal();
-});
-document.getElementById('rm-home-btn').addEventListener('click', () => {
-  document.getElementById('real-mock-result-screen').style.display = 'none';
-  showHome();
-});
-
-// ── Saved mock resume check ───────────────────────────────────
-function rmCheckSavedMock() {
-  const saved = localStorage.getItem(RM_SAVED_KEY);
-  if (!saved) return;
-  try {
-    const data = JSON.parse(saved);
-    const card = document.getElementById('rm-resume-card');
-    if (card) {
-      card.style.display = 'block';
-      const label = document.getElementById('rm-resume-label');
-      if (label) label.textContent = `${data.state.mockName} — Q${data.state.currentIdx + 1}/${data.state.questions.length}`;
-    }
-  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
-}
-
-// ── Review Questions System ───────────────────────────────────
-function rmSaveReviewQuestion(q, ans) {
-  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
-  // Avoid duplicates by question text
-  if (bank.find(r => r.question === q.question)) return;
-  bank.push({
-    id: q.id || genQBId(),
-    question: q.question,
-    options: q.options,
-    correct: q.correct,
-    unit: q.unit,
-    justification: q.justification || '',
-    yourAnswer: ans.selected,
-    addedOn: new Date().toISOString().split('T')[0],
-  });
-  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
-}
-
-function openReviewScreen() {
-  const screen = document.getElementById('review-screen');
-  screen.classList.add('active');
-  renderReviewList();
-}
-
-function renderReviewList() {
-  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
-  const container = document.getElementById('review-list-container');
-  const countLabel = document.getElementById('review-count-label');
-  countLabel.textContent = `${bank.length} question${bank.length !== 1 ? 's' : ''} marked for review`;
-  renderReviewBtn();
-
-  if (!bank.length) {
-    container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted);"><div style="font-size:36px;margin-bottom:10px;">🔖</div><div>No review questions yet.</div><div style="font-size:12px;margin-top:8px;">Mark questions during a Real Mock exam by clicking "Mark for Review".</div></div>';
-    return;
-  }
-
-  container.innerHTML = bank.map((q, i) => {
-    const optLetters = ['A','B','C','D'];
-    const optsHtml = optLetters.filter(l => q.options[l]).map(l => {
-      let cls = 'review-opt';
-      if (l === q.correct) cls += ' correct';
-      else if (l === q.yourAnswer && l !== q.correct) cls += ' your-wrong';
-      return `<div class="${cls}"><b>${l}.</b> ${q.options[l]}</div>`;
-    }).join('');
-    const expHtml = q.justification ? `<div class="review-explanation">${q.justification}</div>` : '';
-    const yourLabel = q.yourAnswer ? `Your answer: ${q.yourAnswer} · ` : '';
-    return `
-      <div class="review-q-card">
-        <div class="review-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
-          <span class="review-q-num">#${i+1}</span>
-          <span class="review-q-preview">${q.question.slice(0,70)}...</span>
-          <span class="review-unit-tag">${q.unit}</span>
-          <button onclick="event.stopPropagation();rmRemoveReview(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 6px;">✕</button>
-        </div>
-        <div class="review-q-body">
-          <div class="review-q-text">${q.question}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">${yourLabel}Correct: <b style="color:var(--green)">${q.correct}</b> · Added: ${q.addedOn}</div>
-          ${optsHtml}
-          ${expHtml}
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function rmRemoveReview(idx) {
-  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
-  bank.splice(idx, 1);
-  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
-  renderReviewList();
-}
-
-document.getElementById('review-back-btn').addEventListener('click', () => {
-  document.getElementById('review-screen').classList.remove('active');
-});
-document.getElementById('review-clear-btn').addEventListener('click', () => {
-  if (!confirm('Clear all review questions?')) return;
-  localStorage.removeItem(RM_REVIEW_KEY);
-  renderReviewList();
-  renderReviewBtn();
-});
-
-// ── Dashboard: include real mock data ────────────────────────
-// The existing dashboard already reads from quizHistory which now includes real mocks.
-// The score in real mocks is a number 0-100, compatible with existing parsing.
-// No additional changes needed for dashboard — it works automatically.
-
-// ── Saved Real Mock resume on homepage ────────────────────────
-(function initRMSavedCard() {
-  // Add resume card to home-wrapper if there's a saved real mock
-  const saved = localStorage.getItem(RM_SAVED_KEY);
-  if (!saved) return;
-  try {
-    const data = JSON.parse(saved);
-    const card = document.createElement('div');
-    card.id = 'rm-resume-card';
-    card.className = 'card full-card';
-    card.style.cssText = 'border:1.5px solid var(--amber); background:var(--amber-dim); display:block;';
-    card.innerHTML = `
-      <div class="card-header">
-        <span class="card-title">🔄 Resume Real Mock</span>
-        <button onclick="rmDismissResume()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">✕</button>
-      </div>
-      <div style="font-size:13px;color:var(--text);margin-bottom:12px;" id="rm-resume-label">
-        ${data.state.mockName} — Q${data.state.currentIdx + 1}/${data.state.questions.length}
-      </div>
-      <button class="btn btn-amber" onclick="rmResumeMock()" style="margin-top:0;">▶ Resume Mock</button>
-    `;
-    const hw = document.getElementById('home-wrapper');
-    if (hw) hw.prepend(card);
-  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
-})();
-
-function rmResumeMock() {
-  const saved = localStorage.getItem(RM_SAVED_KEY);
-  if (!saved) return;
-  try {
-    const data = JSON.parse(saved);
-    rmState = data.state;
-    rmState.paused = false;
-    const savedTotal = data.state.totalTime || 0;
-    hideAllWindows();
-    document.getElementById('real-mock-screen').classList.add('active');
-    document.getElementById('rm-mock-label').textContent = rmState.mockName;
-    rmRenderQuestion();
-    rmStartTimers();
-    // Restore total time AFTER startTimers (which resets it to 0)
-    rmState.totalTime = savedTotal;
-    const m = String(Math.floor(savedTotal / 60)).padStart(2,'0');
-    const s = String(savedTotal % 60).padStart(2,'0');
-    const el = document.getElementById('rm-total-timer');
-    if (el) el.textContent = `${m}:${s}`;
-    // Dismiss resume card
-    const card = document.getElementById('rm-resume-card');
-    if (card) card.remove();
-  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); showHome(); }
-}
-
-function rmDismissResume() {
-  localStorage.removeItem(RM_SAVED_KEY);
-  const card = document.getElementById('rm-resume-card');
-  if (card) card.remove();
-}
-
-// chips use onclick directly — rmUpdateAvailable called from each chip click handler
-
-// ── Update QB count whenever admin saves questions (hook into existing saveQB) ──
-// Done by patching the call site below rather than redefining saveQB
-
+// ═══════════════════════════════════════════════════════
+// GITHUB SYNC — Question Bank + History
+// ═══════════════════════════════════════════════════════
 
 async function tryLoadQBFromGitHub() {
   try {
-    const res = await fetch('questionbank.json');
+    const res = await fetch('questionbank.json?cb=' + Date.now());
     if (!res.ok) return;
     const data = await res.json();
     if (!Array.isArray(data) || !data.length) return;
     const existing = getQB();
-    // Merge: add remote questions not already in local bank
     const newOnes = data.filter(q => !existing.find(e => e.id === q.id));
     if (newOnes.length) {
       saveQB([...existing, ...newOnes]);
-      console.log('MockIQ: Loaded ' + newOnes.length + ' new questions from questionbank.json');
+      console.log('MockIQ QB: merged ' + newOnes.length + ' questions from GitHub');
     }
-  } catch(e) { /* no questionbank.json yet — that's fine */ }
+  } catch(e) { /* questionbank.json not on GitHub yet — that's fine */ }
 }
-tryLoadQBFromGitHub();
+
+async function syncHistoryFromGitHub() {
+  try {
+    const res = await fetch('history.json?cb=' + Date.now());
+    if (!res.ok) return;
+    const remote = await res.json();
+    if (!Array.isArray(remote) || !remote.length) return;
+    const local = JSON.parse(localStorage.getItem('quizHistory')) || [];
+    const localKeys = new Set(local.map(h => h.date + '|' + h.name));
+    const newFromRemote = remote.filter(h => !localKeys.has(h.date + '|' + h.name));
+    if (newFromRemote.length) {
+      const merged = [...local, ...newFromRemote].sort((a,b) => b.date.localeCompare(a.date));
+      localStorage.setItem('quizHistory', JSON.stringify(merged));
+      console.log('MockIQ History: merged ' + newFromRemote.length + ' entries from GitHub');
+      renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
+    }
+  } catch(e) { /* history.json not on GitHub yet — that's fine */ }
+}
+
+
+window.onload = () => {
+  migrateLegacyDates();
+  showHome();
+  loadSavedMocksUI();
+  renderCalendar();
+  updateSummaryCard();
+  updateUnitStatsCard();
+  updateOverallDashboardCard();
+  updateExportImportLabels();
+  rmUpdateQBCount();
+  renderReviewBtn();
+  tryLoadQBFromGitHub();
+  syncHistoryFromGitHub();
+};
+
 
 </script>
 </body>

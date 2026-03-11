@@ -4714,6 +4714,16 @@ function detectUnit(text) {
 function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
   const questions = [];
 
+  // ── Normalize raw input ─────────────────────────────────────
+  // Handles inline/single-line format (all on one line, no real newlines)
+  // Insert newlines before key markers so the rest of the parser works correctly
+  raw = raw.replace(/(\s)(Q\d+[.:\s])/g, '\n$2');                          // before Q1. Q2. etc
+  raw = raw.replace(/\s+(Answer Key\s*:)/gi, '\n\n$1');                    // before Answer Key:
+  raw = raw.replace(/(\d+\.\s+Answer\s*:)/g, '\n$1');                      // before "1. Answer:"
+  raw = raw.replace(/\s+(Justification\s*:)/gi, '\n$1');                   // before each Justification:
+  raw = raw.replace(/([\w°\)\?:;\]\*\.])([A-D])\. (?=[A-Z0-9])/g,         // before inline options
+    (m, pre, letter) => `${pre}\n${letter}. `);
+
   // Extract header units mentioned e.g. "Unit 5: Fish Preservation"
   const headerUnits = [];
   const unitHeaderRe = /Unit\s+(\d+)\s*:?\s*([^,\r\n]+)/gi;
@@ -4731,16 +4741,15 @@ function parseQuestionBlock(raw, defaultUnit, defaultDiff) {
     answerKey[parseInt(am[1])] = am[2].toUpperCase();
   }
 
-  // Extract all justification blocks in order (simpler approach, no multiline regex)
+  // Extract all justification blocks in order
+  // End detection: stop at next "Justification:" keyword (handles both inline and newline formats)
   const allJust = [];
-  let justSearch = raw;
-  let justOffset = 0;
   const justStartRe = /Justification:\s*/gi;
   let jMatch;
   while ((jMatch = justStartRe.exec(raw)) !== null) {
     const afterTag = raw.slice(jMatch.index + jMatch[0].length);
-    // Justification ends at next answer line, next Q number, or double newline
-    const endMatch = afterTag.search(/\n\d+\.\s+Answer:|\n\*{0,2}Q\d+[.:\s]|\n\n\n/);
+    // Stop at next Justification: OR next answer line OR next Q marker OR triple newline
+    const endMatch = afterTag.search(/Justification:|^\d+\.\s+Answer:|\*{0,2}Q\d+[.:\s]|\n\n\n/im);
     const justText = endMatch > -1 ? afterTag.slice(0, endMatch) : afterTag.slice(0, 600);
     allJust.push(justText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim());
   }

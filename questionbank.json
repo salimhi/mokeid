@@ -1468,5 +1468,1655 @@
     "difficulty": "medium",
     "justification": "In irradiation terminology: Radappertization – Sterilization Radicidation – Pasteurization Radurization – Shelf-life extension",
     "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773220457281_7puaq",
+    "question": "The term fish refers to fishes that have which type of skeleton?",
+    "options": {
+      "A": "Cartilaginous skeleton",
+      "B": "Bony skeleton",
+      "C": "Exoskeleton",
+      "D": "Hydrostatic skeleton"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Fish in the common biological sense usually refers to vertebrates possessing a bony endoskeleton. These fishes belong mainly to the class Osteichthyes, distinguishing them from cartilaginous fishes like sharks and rays. Justification: Fish protein has a high biological value of around 80, meaning it contains essential amino acids in proportions suitable for human nutrition. This makes fish an excellent source of high-quality protein. Justification: Small fish eaten along with their bones provide a rich dietary source of calcium. The bones soften during cooking and contribute significantly to",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_cywa2",
+    "question": "The approximate biological value of fish protein is?",
+    "options": {
+      "A": "60",
+      "B": "70",
+      "C": "80",
+      "D": "90"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fish protein has a high biological value of around 80, meaning it contains essential amino acids in proportions suitable for human nutrition. This makes fish an excellent source of high-quality protein. Justification: Small fish eaten along with their bones provide a rich dietary source of calcium. The bones soften during cooking and contribute significantly to calcium intake. Justification: Lowering temperature slows microbial metabolism and reproduction. Most spoilage bacteria grow rapidly at warm temperatures, so chilling or icing fish effectively delays spoilage. Justification: The thic",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_exq4v",
+    "question": "Fish is especially rich in which mineral, particularly when small fish are eaten with bones?",
+    "options": {
+      "A": "Iron",
+      "B": "Calcium",
+      "C": "Phosphorus",
+      "D": "Potassium"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Small fish eaten along with their bones provide a rich dietary source of calcium. The bones soften during cooking and contribute significantly to calcium intake. Justification: Lowering temperature slows microbial metabolism and reproduction. Most spoilage bacteria grow rapidly at warm temperatures, so chilling or icing fish effectively delays spoilage. Justification: The thickness of fish determines how quickly heat can be removed from its center during cooling. Thicker fish require more time for the internal temperature to drop compared to thinner fish. Justification: Even small increases",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_txr4q",
+    "question": "Reduction of which factor can prevent the growth of many bacteria that cause fish spoilage?",
+    "options": {
+      "A": "Temperature",
+      "B": "Oxygen",
+      "C": "Moisture",
+      "D": "Salt"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Lowering temperature slows microbial metabolism and reproduction. Most spoilage bacteria grow rapidly at warm temperatures, so chilling or icing fish effectively delays spoilage. Justification: The thickness of fish determines how quickly heat can be removed from its center during cooling. Thicker fish require more time for the internal temperature to drop compared to thinner fish. Justification: Even small increases in temperature accelerate biochemical reactions and microbial growth in fish. At around 2.5°C higher temperature, spoilage reactions may occur roughly twice as fast. Justificat",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_bbhey",
+    "question": "The time taken to cool fish mainly depends on the ______ of the fish.",
+    "options": {
+      "A": "Weight",
+      "B": "Thickness",
+      "C": "Length",
+      "D": "Age"
+    },
+    "correct": "B",
+    "unit": "Unit 11",
+    "difficulty": "medium",
+    "justification": "The thickness of fish determines how quickly heat can be removed from its center during cooling. Thicker fish require more time for the internal temperature to drop compared to thinner fish. Justification: Even small increases in temperature accelerate biochemical reactions and microbial growth in fish. At around 2.5°C higher temperature, spoilage reactions may occur roughly twice as fast. Justification: The latent heat of fusion of ice is about 80 kilocalories per kilogram. When ice melts, it absorbs this heat from the surroundings, which makes ice highly effective for cooling fish. Justif",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_s1pt7",
+    "question": "Quality hazards in fish vary linearly with temperature and become approximately twice as fast at?",
+    "options": {
+      "A": "0°C",
+      "B": "2.5°C",
+      "C": "10°C",
+      "D": "15°C"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Even small increases in temperature accelerate biochemical reactions and microbial growth in fish. At around 2.5°C higher temperature, spoilage reactions may occur roughly twice as fast. Justification: The latent heat of fusion of ice is about 80 kilocalories per kilogram. When ice melts, it absorbs this heat from the surroundings, which makes ice highly effective for cooling fish. Justification: Flake ice consists of thin, soft flakes with smooth contours that easily spread over fish surfaces. This provides better contact and rapid cooling compared to larger ice forms. Justification: Fish",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457281_xumu2",
+    "question": "During transition from ice to water, 1 kg of ice absorbs how much heat?",
+    "options": {
+      "A": "40 kcal",
+      "B": "60 kcal",
+      "C": "80 kcal",
+      "D": "100 kcal"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The latent heat of fusion of ice is about 80 kilocalories per kilogram. When ice melts, it absorbs this heat from the surroundings, which makes ice highly effective for cooling fish. Justification: Flake ice consists of thin, soft flakes with smooth contours that easily spread over fish surfaces. This provides better contact and rapid cooling compared to larger ice forms. Justification: Fish tissue begins to freeze slightly below the freezing point of water due to dissolved salts and proteins. Therefore freezing usually starts between −1°C and −2°C. Justification: Air blast freezers use ver",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457282_rel9n",
+    "question": "Ice with smooth contours and in the shape of very thin flakes is called?",
+    "options": {
+      "A": "Block ice",
+      "B": "Plate ice",
+      "C": "Flake ice",
+      "D": "Tube ice"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Flake ice consists of thin, soft flakes with smooth contours that easily spread over fish surfaces. This provides better contact and rapid cooling compared to larger ice forms. Justification: Fish tissue begins to freeze slightly below the freezing point of water due to dissolved salts and proteins. Therefore freezing usually starts between −1°C and −2°C. Justification: Air blast freezers use very cold circulating air to rapidly freeze fish products. Temperatures around −35°C to −40°C ensure fast freezing, preserving texture and quality.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457282_0o63z",
+    "question": "Freezing usually begins in fish at a temperature of?",
+    "options": {
+      "A": "0°C",
+      "B": "−0.5°C to −1°C",
+      "C": "−1°C to −2°C",
+      "D": "−5°C to −6°C"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fish tissue begins to freeze slightly below the freezing point of water due to dissolved salts and proteins. Therefore freezing usually starts between −1°C and −2°C. Justification: Air blast freezers use very cold circulating air to rapidly freeze fish products. Temperatures around −35°C to −40°C ensure fast freezing, preserving texture and quality.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220457282_b8exi",
+    "question": "The temperature maintained in an air blast freezer is typically?",
+    "options": {
+      "A": "−10°C to −15°C",
+      "B": "−20°C to −25°C",
+      "C": "−30°C to −35°C",
+      "D": "−35°C to −40°C"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Air blast freezers use very cold circulating air to rapidly freeze fish products. Temperatures around −35°C to −40°C ensure fast freezing, preserving texture and quality.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_54tga",
+    "question": "Which parameter is measured using a colorimeter or spectrophotometer to detect early lipid oxidation in fish?",
+    "options": {
+      "A": "TVB-N",
+      "B": "TMA",
+      "C": "TBARS",
+      "D": "Water activity"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "The TBARS test measures thiobarbituric acid reactive substances formed during lipid oxidation. It is commonly determined using a colorimeter or spectrophotometer and is widely used as an indicator of early oxidative rancidity in fish. Justification: The TBARS assay mainly detects malondialdehyde, a secondary product formed during the oxidation of polyunsaturated fatty acids. Malondialdehyde reacts with thiobarbituric acid to produce a colored complex measurable spectrophotometrically. Justification: Peroxide value measures hydroperoxides formed during the early stages of lipid oxidation. The",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_dcauz",
+    "question": "TBARS test mainly detects which compound formed during fat oxidation?",
+    "options": {
+      "A": "Free fatty acids",
+      "B": "Malondialdehyde",
+      "C": "Trimethylamine",
+      "D": "Histamine"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "The TBARS assay mainly detects malondialdehyde, a secondary product formed during the oxidation of polyunsaturated fatty acids. Malondialdehyde reacts with thiobarbituric acid to produce a colored complex measurable spectrophotometrically. Justification: Peroxide value measures hydroperoxides formed during the early stages of lipid oxidation. These compounds represent primary oxidation products and indicate the onset of rancidity in fats and oils. Justification: A texture analyzer is used to evaluate mechanical properties such as hardness, cohesiveness, springiness, and chewiness in fish fil",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_nryrn",
+    "question": "Peroxide Value (PV) gives information about:",
+    "options": {
+      "A": "Primary oxidation products in fat",
+      "B": "Secondary oxidation products",
+      "C": "Protein breakdown products",
+      "D": "Moisture loss during storage"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Peroxide value measures hydroperoxides formed during the early stages of lipid oxidation. These compounds represent primary oxidation products and indicate the onset of rancidity in fats and oils. Justification: A texture analyzer is used to evaluate mechanical properties such as hardness, cohesiveness, springiness, and chewiness in fish fillets. It simulates the forces applied during chewing or processing to assess product quality. Justification: Fresh fish contains high moisture and therefore has a high water activity close to 0.98. Such high water activity allows rapid microbial growth, w",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_4clmz",
+    "question": "Instrument used to measure texture parameters like hardness and cohesiveness in fish fillets is:",
+    "options": {
+      "A": "Gas chromatograph",
+      "B": "Texture analyzer",
+      "C": "Autoanalyzer",
+      "D": "HPLC"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "A texture analyzer is used to evaluate mechanical properties such as hardness, cohesiveness, springiness, and chewiness in fish fillets. It simulates the forces applied during chewing or processing to assess product quality. Justification: Fresh fish contains high moisture and therefore has a high water activity close to 0.98. Such high water activity allows rapid microbial growth, which is why fish spoils quickly without preservation. Justification: Mohr’s titration is a classical argentometric titration used to determine chloride content using silver nitrate and potassium chromate as an in",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_zinij",
+    "question": "Water activity (aᵥ) in fresh fish is generally around:",
+    "options": {
+      "A": "0.40",
+      "B": "0.60",
+      "C": "0.85",
+      "D": "0.98"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Fresh fish contains high moisture and therefore has a high water activity close to 0.98. Such high water activity allows rapid microbial growth, which is why fish spoils quickly without preservation. Justification: Mohr’s titration is a classical argentometric titration used to determine chloride content using silver nitrate and potassium chromate as an indicator. It helps detect excess salt or added water/ice in fish products. Justification: TVB-N measures volatile nitrogenous compounds such as ammonia, dimethylamine, and trimethylamine produced during microbial and enzymatic protein breakd",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_u4znk",
+    "question": "Which method is used to estimate chloride content in fish for detecting added water/ice?",
+    "options": {
+      "A": "TBARS test",
+      "B": "Mohr’s titration",
+      "C": "Kjeldahl digestion",
+      "D": "Soxhlet extraction"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Mohr’s titration is a classical argentometric titration used to determine chloride content using silver nitrate and potassium chromate as an indicator. It helps detect excess salt or added water/ice in fish products. Justification: TVB-N measures volatile nitrogenous compounds such as ammonia, dimethylamine, and trimethylamine produced during microbial and enzymatic protein breakdown. Increasing TVB-N levels indicate spoilage and loss of freshness. Justification: Trimethylamine (TMA) is produced when bacteria reduce trimethylamine oxide (TMAO), a compound naturally present in marine fish. Th",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_8cgtf",
+    "question": "Total Volatile Basic Nitrogen (TVB-N) is an indicator of:",
+    "options": {
+      "A": "Lipid oxidation",
+      "B": "Protein spoilage",
+      "C": "Water loss",
+      "D": "Salinity variation"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "TVB-N measures volatile nitrogenous compounds such as ammonia, dimethylamine, and trimethylamine produced during microbial and enzymatic protein breakdown. Increasing TVB-N levels indicate spoilage and loss of freshness. Justification: Trimethylamine (TMA) is produced when bacteria reduce trimethylamine oxide (TMAO), a compound naturally present in marine fish. This reaction contributes to the characteristic fishy odor of spoiled fish. Justification: In peroxide value determination, iodine is liberated from potassium iodide by lipid peroxides present in the fat. The liberated iodine is then",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_c100w",
+    "question": "TMA (Trimethylamine) production in fish is due to reduction of:",
+    "options": {
+      "A": "Myoglobin",
+      "B": "TMAO",
+      "C": "Creatine",
+      "D": "Histidine"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Trimethylamine (TMA) is produced when bacteria reduce trimethylamine oxide (TMAO), a compound naturally present in marine fish. This reaction contributes to the characteristic fishy odor of spoiled fish. Justification: In peroxide value determination, iodine is liberated from potassium iodide by lipid peroxides present in the fat. The liberated iodine is then titrated with sodium thiosulfate to quantify peroxide content. Justification: A high peroxide value indicates accumulation of hydroperoxides formed during the early stages of lipid oxidation. This reflects the initial development of ran",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_yhzjt",
+    "question": "In peroxide value estimation, iodine liberated from KI is titrated using:",
+    "options": {
+      "A": "NaOH",
+      "B": "HCl",
+      "C": "Sodium thiosulfate",
+      "D": "Potassium chromate"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "In peroxide value determination, iodine is liberated from potassium iodide by lipid peroxides present in the fat. The liberated iodine is then titrated with sodium thiosulfate to quantify peroxide content. Justification: A high peroxide value indicates accumulation of hydroperoxides formed during the early stages of lipid oxidation. This reflects the initial development of rancidity before further breakdown into secondary products.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220557729_6fd6o",
+    "question": "A high PV value in fish fat indicates:",
+    "options": {
+      "A": "Very fresh fish",
+      "B": "Initial stages of rancidity",
+      "C": "Absence of lipid oxidation",
+      "D": "Only microbial spoilage"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "A high peroxide value indicates accumulation of hydroperoxides formed during the early stages of lipid oxidation. This reflects the initial development of rancidity before further breakdown into secondary products.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712256_8u62g",
+    "question": "Biosecurity in aquaculture mainly aims to:",
+    "options": {
+      "A": "Increase feed conversion ratio",
+      "B": "Prevent entry and spread of pathogens",
+      "C": "Increase growth rate of fish",
+      "D": "Improve water transparency"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Biosecurity focuses on preventing the introduction and spread of infectious agents in aquaculture systems. Measures such as quarantine, sanitation, and vector control help protect cultured organisms from disease outbreaks. Justification: Vector control involves managing organisms that can carry pathogens between ponds or farms. Birds, frogs, and crabs can mechanically transfer disease-causing agents, so controlling them reduces disease transmission. Justification: Hatchery-produced seed provides uniform size, known genetic background, and controlled disease status. This improves survival rat",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_kjfbx",
+    "question": "“Vector control” in aquaculture refers to:",
+    "options": {
+      "A": "Increasing stocking density",
+      "B": "Feeding probiotics",
+      "C": "Controlling carriers like birds, frogs, crabs",
+      "D": "Using antibiotics"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Vector control involves managing organisms that can carry pathogens between ponds or farms. Birds, frogs, and crabs can mechanically transfer disease-causing agents, so controlling them reduces disease transmission. Justification: Hatchery-produced seed provides uniform size, known genetic background, and controlled disease status. This improves survival rates and reduces the risk of introducing pathogens compared to wild seed. Justification: Case history collection includes information about stocking density, feeding, water quality, and previous disease events. This information often provid",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_j5hb0",
+    "question": "Hatchery seed is preferred over wild seed because:",
+    "options": {
+      "A": "More colourful",
+      "B": "Cheaper",
+      "C": "Better uniformity and disease control",
+      "D": "Less oxygen requirement"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Hatchery-produced seed provides uniform size, known genetic background, and controlled disease status. This improves survival rates and reduces the risk of introducing pathogens compared to wild seed. Justification: Case history collection includes information about stocking density, feeding, water quality, and previous disease events. This information often provides critical clues for diagnosing the cause of disease before laboratory analysis. Justification: Hatchery-produced seed that is SPF or SRD is produced under controlled biosecure conditions. Such seed has minimal or no exposure to s",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_djgm4",
+    "question": "The first step in aquatic disease investigation is:",
+    "options": {
+      "A": "Laboratory testing",
+      "B": "Histopathology",
+      "C": "Case history collection",
+      "D": "Antibiotic treatment"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Case history collection includes information about stocking density, feeding, water quality, and previous disease events. This information often provides critical clues for diagnosing the cause of disease before laboratory analysis. Justification: Hatchery-produced seed that is SPF or SRD is produced under controlled biosecure conditions. Such seed has minimal or no exposure to specific pathogens, making it more reliable for aquaculture. Justification: SPF stands for Specific Pathogen Free, meaning the seed stock has been tested and certified free from particular disease-causing organisms. T",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_u14xx",
+    "question": "The most reliable source of disease-free seed in aquaculture is:",
+    "options": {
+      "A": "Wild seed",
+      "B": "Local market seed",
+      "C": "Hatchery-produced seed (SPF/SRD)",
+      "D": "Seed from natural ponds"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Hatchery-produced seed that is SPF or SRD is produced under controlled biosecure conditions. Such seed has minimal or no exposure to specific pathogens, making it more reliable for aquaculture. Justification: SPF stands for Specific Pathogen Free, meaning the seed stock has been tested and certified free from particular disease-causing organisms. This reduces the risk of introducing major pathogens into farms. Justification: Stocking density indicates how many fish or shrimp are kept in a specific pond area or water volume. Proper density management is essential to maintain good water qualit",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_g3wcu",
+    "question": "What does SPF seed stand for in aquaculture?",
+    "options": {
+      "A": "Specific Pathogen Friendly",
+      "B": "Specific Pathogen Free",
+      "C": "Species Protected Farm",
+      "D": "Super Pathogen Free"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "SPF stands for Specific Pathogen Free, meaning the seed stock has been tested and certified free from particular disease-causing organisms. This reduces the risk of introducing major pathogens into farms. Justification: Stocking density indicates how many fish or shrimp are kept in a specific pond area or water volume. Proper density management is essential to maintain good water quality and fish health. Justification: Birds, frogs, and crabs frequently move between water bodies and can carry pathogens on their bodies. These organisms act as vectors and contribute to disease spread in aquacu",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_a2ttw",
+    "question": "Stocking density refers to:",
+    "options": {
+      "A": "Number of feedings per day",
+      "B": "Number of fish stocked per unit area or volume",
+      "C": "Amount of aeration used",
+      "D": "Size of pond"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Stocking density indicates how many fish or shrimp are kept in a specific pond area or water volume. Proper density management is essential to maintain good water quality and fish health. Justification: Birds, frogs, and crabs frequently move between water bodies and can carry pathogens on their bodies. These organisms act as vectors and contribute to disease spread in aquaculture farms. Justification: Both the assertion and reason are correct because collecting detailed case history helps investigators identify environmental or management factors responsible for disease. It often guides fur",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_uxu2j",
+    "question": "Which carriers commonly act as vectors spreading diseases in aquaculture farms?",
+    "options": {
+      "A": "Birds, frogs, and crabs",
+      "B": "Plankton and algae",
+      "C": "Fish feed pellets",
+      "D": "Pond aerators"
+    },
+    "correct": "A",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Birds, frogs, and crabs frequently move between water bodies and can carry pathogens on their bodies. These organisms act as vectors and contribute to disease spread in aquaculture farms. Justification: Both the assertion and reason are correct because collecting detailed case history helps investigators identify environmental or management factors responsible for disease. It often guides further diagnostic testing. Justification: The assertion is false because high stocking density reduces dissolved oxygen levels due to increased respiration and waste. The reason is true since more fish con",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_cc383",
+    "question": "Assertion (A): History collection is considered the most important step in aquatic disease investigation. Reason (R): Because proper history helps identify the cause of disease even before laboratory tests.",
+    "options": {
+      "A": "Both A and R are true, and R is the correct explanation of A",
+      "B": "Both A and R are true, but R is NOT the correct explanation",
+      "C": "A is true but R is false",
+      "D": "A is false but R is true"
+    },
+    "correct": "A",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Both the assertion and reason are correct because collecting detailed case history helps investigators identify environmental or management factors responsible for disease. It often guides further diagnostic testing. Justification: The assertion is false because high stocking density reduces dissolved oxygen levels due to increased respiration and waste. The reason is true since more fish consume more oxygen and raise biological oxygen demand.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773220712257_gv1gj",
+    "question": "Assertion (A): High stocking density has no effect on dissolved oxygen level. Reason (R): More fish consume more oxygen and increase biological oxygen demand.",
+    "options": {
+      "A": "Both A and R are true, and R explains A",
+      "B": "A is false but R is true",
+      "C": "A is true but R is false",
+      "D": "Both A and R are false"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "The assertion is false because high stocking density reduces dissolved oxygen levels due to increased respiration and waste. The reason is true since more fish consume more oxygen and raise biological oxygen demand.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_zp9fs",
+    "question": "Large ice crystals are formed during which type of freezing process in fish?",
+    "options": {
+      "A": "Rapid freezing",
+      "B": "Slow freezing",
+      "C": "Cryogenic freezing",
+      "D": "Plate freezing"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Slow freezing allows water molecules inside fish tissue to form large ice crystals. These crystals can rupture cell walls and damage texture, reducing the quality of the fish after thawing. Justification: Air freezing is commonly classified into still air freezing and blast air freezing. These methods differ mainly in the speed of circulating cold air around the fish. Justification: Still air freezing systems operate at very low temperatures between about -28°C and -45°C. Because the air is not circulated rapidly, freezing occurs relatively slowly. Justification: Blast air freezing uses hig",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_oitti",
+    "question": "What are the two main types of air freezing used in fish preservation?",
+    "options": {
+      "A": "Plate and contact freezing",
+      "B": "Still and blast freezing",
+      "C": "Cryogenic and plate freezing",
+      "D": "Vacuum and spray freezing"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Air freezing is commonly classified into still air freezing and blast air freezing. These methods differ mainly in the speed of circulating cold air around the fish. Justification: Still air freezing systems operate at very low temperatures between about -28°C and -45°C. Because the air is not circulated rapidly, freezing occurs relatively slowly. Justification: Blast air freezing uses high velocity cold air maintained around -35°C to -40°C. The rapid airflow removes heat quickly and produces faster freezing compared with still air systems. Justification: Air blast freezing is widely used t",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_tc1ho",
+    "question": "Still air freezing temperature is usually maintained at:",
+    "options": {
+      "A": "-10 to -15°C",
+      "B": "-18 to -22°C",
+      "C": "-28 to -45°C",
+      "D": "-5 to -10°C"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Still air freezing systems operate at very low temperatures between about -28°C and -45°C. Because the air is not circulated rapidly, freezing occurs relatively slowly. Justification: Blast air freezing uses high velocity cold air maintained around -35°C to -40°C. The rapid airflow removes heat quickly and produces faster freezing compared with still air systems. Justification: Air blast freezing is widely used to produce IQF (Individually Quick Frozen) fish products. The strong airflow rapidly freezes individual pieces without them sticking together. Justification: Fluidization refers to t",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_ppkvn",
+    "question": "Blast air freezing temperature is typically maintained at:",
+    "options": {
+      "A": "-10 to -15°C",
+      "B": "-18 to -25°C",
+      "C": "-25 to -30°C",
+      "D": "-35 to -40°C"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Blast air freezing uses high velocity cold air maintained around -35°C to -40°C. The rapid airflow removes heat quickly and produces faster freezing compared with still air systems. Justification: Air blast freezing is widely used to produce IQF (Individually Quick Frozen) fish products. The strong airflow rapidly freezes individual pieces without them sticking together. Justification: Fluidization refers to the condition where solid particles are partially suspended in an upward stream of cold air. This improves heat transfer and ensures uniform freezing of small food particles. Justificat",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_ndkos",
+    "question": "Freezing is easier for producing IQF fish using which method?",
+    "options": {
+      "A": "Plate freezing",
+      "B": "Brine freezing",
+      "C": "Air blast freezing",
+      "D": "Contact freezing"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Air blast freezing is widely used to produce IQF (Individually Quick Frozen) fish products. The strong airflow rapidly freezes individual pieces without them sticking together. Justification: Fluidization refers to the condition where solid particles are partially suspended in an upward stream of cold air. This improves heat transfer and ensures uniform freezing of small food particles. Justification: Fluidized bed freezers require high air velocity to keep particles suspended. Typically, an air velocity around 120 m/min is used to achieve proper fluidization and efficient freezing. Justifi",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_1ujpp",
+    "question": "The method of keeping solid particles partially supported in a rising column of cold air is called:",
+    "options": {
+      "A": "Fluidization",
+      "B": "Sublimation",
+      "C": "Cryogenic cooling",
+      "D": "Plate contact"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fluidization refers to the condition where solid particles are partially suspended in an upward stream of cold air. This improves heat transfer and ensures uniform freezing of small food particles. Justification: Fluidized bed freezers require high air velocity to keep particles suspended. Typically, an air velocity around 120 m/min is used to achieve proper fluidization and efficient freezing. Justification: Fluidized bed freezers generally operate at temperatures around -35°C to -40°C. Such low temperatures enable rapid freezing and help preserve texture and quality. Justification: Most o",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_aex74",
+    "question": "The typical air velocity used in fluidized bed freezing is approximately:",
+    "options": {
+      "A": "40 m/min",
+      "B": "80 m/min",
+      "C": "120 m/min",
+      "D": "200 m/min"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fluidized bed freezers require high air velocity to keep particles suspended. Typically, an air velocity around 120 m/min is used to achieve proper fluidization and efficient freezing. Justification: Fluidized bed freezers generally operate at temperatures around -35°C to -40°C. Such low temperatures enable rapid freezing and help preserve texture and quality. Justification: Most of the free water present in fish tissue becomes frozen at approximately -5°C. Below this temperature the majority of water is converted into ice within the tissue. Justification: Chilling reduces temperature close",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_rbuy1",
+    "question": "Operating temperature of fluidized bed freezing is generally:",
+    "options": {
+      "A": "-10 to -15°C",
+      "B": "-18 to -22°C",
+      "C": "-25 to -30°C",
+      "D": "-35 to -40°C"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "hard",
+    "justification": "Fluidized bed freezers generally operate at temperatures around -35°C to -40°C. Such low temperatures enable rapid freezing and help preserve texture and quality. Justification: Most of the free water present in fish tissue becomes frozen at approximately -5°C. Below this temperature the majority of water is converted into ice within the tissue. Justification: Chilling reduces temperature close to the freezing point but does not freeze the fish. It slows microbial growth and enzymatic activity, thereby delaying spoilage but not completely stopping it.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_lqrzl",
+    "question": "At approximately what temperature is most of the water in fish frozen?",
+    "options": {
+      "A": "-1°C",
+      "B": "-3°C",
+      "C": "-5°C",
+      "D": "-10°C"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "hard",
+    "justification": "Most of the free water present in fish tissue becomes frozen at approximately -5°C. Below this temperature the majority of water is converted into ice within the tissue. Justification: Chilling reduces temperature close to the freezing point but does not freeze the fish. It slows microbial growth and enzymatic activity, thereby delaying spoilage but not completely stopping it.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221220734_heaf4",
+    "question": "Which preservation method slows spoilage considerably but does not completely stop it?",
+    "options": {
+      "A": "Freezing",
+      "B": "Canning",
+      "C": "Drying",
+      "D": "Chilling"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "hard",
+    "justification": "Chilling reduces temperature close to the freezing point but does not freeze the fish. It slows microbial growth and enzymatic activity, thereby delaying spoilage but not completely stopping it.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_2r90i",
+    "question": "Nitrite toxicity mainly affects which physiological system in fish?",
+    "options": {
+      "A": "Digestive",
+      "B": "Respiratory",
+      "C": "Nervous",
+      "D": "Endocrine"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "easy",
+    "justification": "Nitrite toxicity primarily affects the respiratory system of fish. It interferes with oxygen transport in the blood, leading to reduced oxygen availability to tissues. Justification: Nitrite oxidizes hemoglobin to methemoglobin, which cannot effectively carry oxygen. This condition gives the blood a brown coloration, hence the name brown blood disease. Justification: Nitrite enters fish mainly through the gills via chloride cells. These cells normally regulate ion exchange, but nitrite can enter through the same transport pathway. Justification: Alkalinity in pond water mainly comes from ca",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_wu2a0",
+    "question": "Nitrite causes “brown blood disease” due to formation of:",
+    "options": {
+      "A": "Oxyhemoglobin",
+      "B": "Methemoglobin",
+      "C": "Hematin",
+      "D": "Ferritin"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "easy",
+    "justification": "Nitrite oxidizes hemoglobin to methemoglobin, which cannot effectively carry oxygen. This condition gives the blood a brown coloration, hence the name brown blood disease. Justification: Nitrite enters fish mainly through the gills via chloride cells. These cells normally regulate ion exchange, but nitrite can enter through the same transport pathway. Justification: Alkalinity in pond water mainly comes from carbonates and bicarbonates dissolved in water. These compounds provide buffering capacity and help stabilize the pH of aquatic systems. Justification: High nitrite concentrations usual",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_wypxh",
+    "question": "Nitrite enters the fish body primarily through:",
+    "options": {
+      "A": "Gill chloride cells",
+      "B": "Skin epithelium",
+      "C": "Intestinal mucosa",
+      "D": "Lateral line"
+    },
+    "correct": "A",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Nitrite enters fish mainly through the gills via chloride cells. These cells normally regulate ion exchange, but nitrite can enter through the same transport pathway. Justification: Alkalinity in pond water mainly comes from carbonates and bicarbonates dissolved in water. These compounds provide buffering capacity and help stabilize the pH of aquatic systems. Justification: High nitrite concentrations usually occur when nitrification is incomplete. This happens when ammonia is converted to nitrite but the next step converting nitrite to nitrate is insufficient. Justification: A nitrite-N co",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_pvph5",
+    "question": "Alkalinity in pond water is mainly due to the presence of:",
+    "options": {
+      "A": "Sulfates and nitrates",
+      "B": "Carbonates and bicarbonates",
+      "C": "Silicates",
+      "D": "Chlorides"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "easy",
+    "justification": "Alkalinity in pond water mainly comes from carbonates and bicarbonates dissolved in water. These compounds provide buffering capacity and help stabilize the pH of aquatic systems. Justification: High nitrite concentrations usually occur when nitrification is incomplete. This happens when ammonia is converted to nitrite but the next step converting nitrite to nitrate is insufficient. Justification: A nitrite-N concentration below 0.1 mg/L is generally considered safe for aquaculture ponds. Levels above this may cause physiological stress and toxicity in fish. Justification: Trout are highly",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_2c9ut",
+    "question": "High nitrite levels are commonly seen in ponds with:",
+    "options": {
+      "A": "High alkalinity",
+      "B": "Low pH",
+      "C": "Incomplete nitrification",
+      "D": "High salinity"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "High nitrite concentrations usually occur when nitrification is incomplete. This happens when ammonia is converted to nitrite but the next step converting nitrite to nitrate is insufficient. Justification: A nitrite-N concentration below 0.1 mg/L is generally considered safe for aquaculture ponds. Levels above this may cause physiological stress and toxicity in fish. Justification: Trout are highly sensitive to water quality changes and nitrite toxicity compared to many warm-water fish species. Even low nitrite concentrations can affect their health. Justification: Nitrosomonas bacteria oxi",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_xip45",
+    "question": "What is the safe nitrite-N level in aquaculture ponds?",
+    "options": {
+      "A": "< 0.1 mg/L",
+      "B": "< 1 mg/L",
+      "C": "< 5 mg/L",
+      "D": "< 10 mg/L"
+    },
+    "correct": "A",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "A nitrite-N concentration below 0.1 mg/L is generally considered safe for aquaculture ponds. Levels above this may cause physiological stress and toxicity in fish. Justification: Trout are highly sensitive to water quality changes and nitrite toxicity compared to many warm-water fish species. Even low nitrite concentrations can affect their health. Justification: Nitrosomonas bacteria oxidize ammonia to nitrite in the nitrification process. Nitrobacter subsequently converts nitrite to nitrate in the next step. Justification: Alkalinity acts as a buffer system that stabilizes pH in aquatic e",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_sdy5e",
+    "question": "Which species is most sensitive to nitrite toxicity?",
+    "options": {
+      "A": "Tilapia",
+      "B": "Catfish",
+      "C": "Carp",
+      "D": "Trout"
+    },
+    "correct": "D",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Trout are highly sensitive to water quality changes and nitrite toxicity compared to many warm-water fish species. Even low nitrite concentrations can affect their health. Justification: Nitrosomonas bacteria oxidize ammonia to nitrite in the nitrification process. Nitrobacter subsequently converts nitrite to nitrate in the next step. Justification: Alkalinity acts as a buffer system that stabilizes pH in aquatic environments. It neutralizes acids and bases, preventing sudden pH fluctuations that could stress fish. Justification: Most cultured fish species require dissolved oxygen levels ar",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_1c7qm",
+    "question": "Nitrite is formed from ammonia by which group of bacteria?",
+    "options": {
+      "A": "Nitrosomonas",
+      "B": "Nitrobacter",
+      "C": "Azotobacter",
+      "D": "Streptococcus"
+    },
+    "correct": "A",
+    "unit": "Unit 10",
+    "difficulty": "hard",
+    "justification": "Nitrosomonas bacteria oxidize ammonia to nitrite in the nitrification process. Nitrobacter subsequently converts nitrite to nitrate in the next step. Justification: Alkalinity acts as a buffer system that stabilizes pH in aquatic environments. It neutralizes acids and bases, preventing sudden pH fluctuations that could stress fish. Justification: Most cultured fish species require dissolved oxygen levels around 4–6 mg/L for normal growth and metabolism. Lower levels can cause stress and reduce feeding and growth.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_r9btq",
+    "question": "Alkalinity serves as a buffer against:",
+    "options": {
+      "A": "Sudden temperature changes",
+      "B": "Sudden pH fluctuations",
+      "C": "Nitrite toxicity",
+      "D": "Carbon dioxide buildup"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Alkalinity acts as a buffer system that stabilizes pH in aquatic environments. It neutralizes acids and bases, preventing sudden pH fluctuations that could stress fish. Justification: Most cultured fish species require dissolved oxygen levels around 4–6 mg/L for normal growth and metabolism. Lower levels can cause stress and reduce feeding and growth.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221348140_ofyfg",
+    "question": "Normal dissolved oxygen level required for fish ponds:",
+    "options": {
+      "A": "1–2 mg/L",
+      "B": "2–4 mg/L",
+      "C": "4–6 mg/L",
+      "D": "8–10 mg/L"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "easy",
+    "justification": "Most cultured fish species require dissolved oxygen levels around 4–6 mg/L for normal growth and metabolism. Lower levels can cause stress and reduce feeding and growth.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_ojlnx",
+    "question": "Which bacterial pathogen is most commonly associated with raw or undercooked seafood causing gastroenteritis?",
+    "options": {
+      "A": "Salmonella typhi",
+      "B": "Vibrio parahaemolyticus",
+      "C": "Listeria monocytogenes",
+      "D": "Shigella flexneri"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Vibrio parahaemolyticus is a halophilic bacterium naturally present in marine waters and seafood. Consumption of raw or undercooked seafood contaminated with this pathogen frequently leads to acute gastroenteritis. Justification: Vibrio cholerae produces cholera toxin which causes massive secretion of water and electrolytes from intestinal cells. This leads to profuse watery diarrhea known as rice-water stools. Justification: Vibrio vulnificus is an opportunistic marine pathogen capable of causing rapidly progressing wound infections after exposure to contaminated seawater. These infections",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_gc6mn",
+    "question": "“Rice-water stools” are characteristic of infection by:",
+    "options": {
+      "A": "Vibrio cholerae",
+      "B": "Vibrio vulnificus",
+      "C": "Salmonella enterica",
+      "D": "Clostridium botulinum"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Vibrio cholerae produces cholera toxin which causes massive secretion of water and electrolytes from intestinal cells. This leads to profuse watery diarrhea known as rice-water stools. Justification: Vibrio vulnificus is an opportunistic marine pathogen capable of causing rapidly progressing wound infections after exposure to contaminated seawater. These infections can become severe and may lead to septicemia. Justification: Listeria monocytogenes is a psychrotrophic bacterium capable of growing at refrigeration temperatures. It is commonly associated with ready-to-eat foods such as smoked f",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_q7qvv",
+    "question": "Extremely severe wound infections after exposure to seawater are caused by:",
+    "options": {
+      "A": "Vibrio vulnificus",
+      "B": "Listeria",
+      "C": "Staphylococcus aureus",
+      "D": "Enterococcus"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Vibrio vulnificus is an opportunistic marine pathogen capable of causing rapidly progressing wound infections after exposure to contaminated seawater. These infections can become severe and may lead to septicemia. Justification: Listeria monocytogenes is a psychrotrophic bacterium capable of growing at refrigeration temperatures. It is commonly associated with ready-to-eat foods such as smoked fish and poses serious risks to immunocompromised individuals. Justification: Clostridium botulinum grows under anaerobic conditions such as improperly canned or vacuum-packed fish products. It produce",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_l8z5a",
+    "question": "Cold-loving pathogen found in ready-to-eat smoked fish is:",
+    "options": {
+      "A": "Salmonella",
+      "B": "Shigella",
+      "C": "Listeria monocytogenes",
+      "D": "Vibrio cholerae"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Listeria monocytogenes is a psychrotrophic bacterium capable of growing at refrigeration temperatures. It is commonly associated with ready-to-eat foods such as smoked fish and poses serious risks to immunocompromised individuals. Justification: Clostridium botulinum grows under anaerobic conditions such as improperly canned or vacuum-packed fish products. It produces a powerful neurotoxin responsible for botulism, a life-threatening paralytic illness. Justification: Scombroid poisoning occurs when fish like tuna or mackerel are improperly stored and bacteria convert histidine into histamine",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_82d8a",
+    "question": "Which pathogen produces a pre-formed neurotoxin in improperly canned or vacuum-packed fish?",
+    "options": {
+      "A": "C. botulinum",
+      "B": "S. aureus",
+      "C": "Salmonella",
+      "D": "E. coli"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Clostridium botulinum grows under anaerobic conditions such as improperly canned or vacuum-packed fish products. It produces a powerful neurotoxin responsible for botulism, a life-threatening paralytic illness. Justification: Scombroid poisoning occurs when fish like tuna or mackerel are improperly stored and bacteria convert histidine into histamine. High histamine levels cause symptoms similar to allergic reactions. Justification: Ciguatera poisoning results from eating reef fish that have accumulated toxins produced by certain marine microalgae. These toxins biomagnify in the food chain a",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_1vjsf",
+    "question": "Scombroid poisoning in tuna and mackerel is caused by high levels of:",
+    "options": {
+      "A": "Histamine",
+      "B": "Mercury",
+      "C": "Listeriolysin",
+      "D": "Vibrio toxin"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Scombroid poisoning occurs when fish like tuna or mackerel are improperly stored and bacteria convert histidine into histamine. High histamine levels cause symptoms similar to allergic reactions. Justification: Ciguatera poisoning results from eating reef fish that have accumulated toxins produced by certain marine microalgae. These toxins biomagnify in the food chain and cause neurological and gastrointestinal symptoms. Justification: Paralytic Shellfish Poisoning occurs when shellfish accumulate toxins produced by dinoflagellates during red tide events. These toxins interfere with nerve fu",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_hjuh0",
+    "question": "Which seafood-borne illness results from eating reef fish barracuda or snapper contaminated with algal toxins?",
+    "options": {
+      "A": "Scombroid poisoning",
+      "B": "Ciguatera poisoning",
+      "C": "Botulism",
+      "D": "Salmonellosis"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Ciguatera poisoning results from eating reef fish that have accumulated toxins produced by certain marine microalgae. These toxins biomagnify in the food chain and cause neurological and gastrointestinal symptoms. Justification: Paralytic Shellfish Poisoning occurs when shellfish accumulate toxins produced by dinoflagellates during red tide events. These toxins interfere with nerve function and can lead to paralysis in severe cases. Justification: Anisakis is a parasitic nematode found in many marine fish species. Humans may develop gastric infection when consuming raw or undercooked fish co",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_zk6aj",
+    "question": "“Red tide” toxins leading to Paralytic Shellfish Poisoning PSP are produced by:",
+    "options": {
+      "A": "Bacteria",
+      "B": "Parasites",
+      "C": "Dinoflagellates",
+      "D": "Vibrio species"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "hard",
+    "justification": "Paralytic Shellfish Poisoning occurs when shellfish accumulate toxins produced by dinoflagellates during red tide events. These toxins interfere with nerve function and can lead to paralysis in severe cases. Justification: Anisakis is a parasitic nematode found in many marine fish species. Humans may develop gastric infection when consuming raw or undercooked fish containing the larvae. Justification: Staphylococcus aureus produces heat-stable enterotoxins in contaminated food. Even if the bacteria are destroyed during cooking, the toxin remains active and can cause rapid onset food poisonin",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_cxh7m",
+    "question": "The parasite commonly found in raw or undercooked marine fish causing gastric worm infection is:",
+    "options": {
+      "A": "Giardia",
+      "B": "Anisakis",
+      "C": "Taenia",
+      "D": "Cryptosporidium"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Anisakis is a parasitic nematode found in many marine fish species. Humans may develop gastric infection when consuming raw or undercooked fish containing the larvae. Justification: Staphylococcus aureus produces heat-stable enterotoxins in contaminated food. Even if the bacteria are destroyed during cooking, the toxin remains active and can cause rapid onset food poisoning.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221617855_5khm0",
+    "question": "Staphylococcus aureus food poisoning in fish occurs mainly because it produces:",
+    "options": {
+      "A": "Enterotoxin heat-stable",
+      "B": "Neurotoxin",
+      "C": "Cytotoxin",
+      "D": "Spore toxin"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "hard",
+    "justification": "Staphylococcus aureus produces heat-stable enterotoxins in contaminated food. Even if the bacteria are destroyed during cooking, the toxin remains active and can cause rapid onset food poisoning.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_cgjuz",
+    "question": "Which substance is solid carbon dioxide used for refrigeration during transport?",
+    "options": {
+      "A": "Liquid nitrogen",
+      "B": "Dry ice",
+      "C": "Flake ice",
+      "D": "Gel ice"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Dry ice is the solid form of carbon dioxide and is widely used as a refrigerant during transportation of perishable products. It sublimates directly from solid to gas, providing strong cooling without leaving liquid residue. Justification: Gel mat chilling systems are lightweight and convenient for air transport of fish products. They maintain low temperatures without melting water, making them suitable for aircraft shipment. Justification: Boxing is commonly used for sorting fish with ice during handling and storage. It helps maintain uniform cooling and prevents physical damage to fish dur",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_5oku8",
+    "question": "Gel mat chilling is mainly suitable for which type of fish transport?",
+    "options": {
+      "A": "Water transport",
+      "B": "Air transport",
+      "C": "Rail transport",
+      "D": "Sea transport"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Gel mat chilling systems are lightweight and convenient for air transport of fish products. They maintain low temperatures without melting water, making them suitable for aircraft shipment. Justification: Boxing is commonly used for sorting fish with ice during handling and storage. It helps maintain uniform cooling and prevents physical damage to fish during transport. Justification: Aquatic products spoil very quickly due to their high moisture content and nutrient availability. Therefore they are classified as highly perishable foods. Justification: Fish spoilage is a complex process inv",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_2nli3",
+    "question": "Which is the preferred method of sorting fish in ice during storage and handling?",
+    "options": {
+      "A": "Layering",
+      "B": "Boxing",
+      "C": "Brining",
+      "D": "Vacuum packing"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Boxing is commonly used for sorting fish with ice during handling and storage. It helps maintain uniform cooling and prevents physical damage to fish during transport. Justification: Aquatic products spoil very quickly due to their high moisture content and nutrient availability. Therefore they are classified as highly perishable foods. Justification: Fish spoilage is a complex process involving enzymatic reactions, bacterial growth, and chemical changes. These combined actions degrade proteins, fats, and other compounds in fish tissue. Justification: Rigor mortis occurs when muscles stiffe",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_0km1a",
+    "question": "Aqua products are classified as which type of food based on shelf life?",
+    "options": {
+      "A": "Semi-perishable",
+      "B": "Non-perishable",
+      "C": "Highly perishable",
+      "D": "Dehydrated foods"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Aquatic products spoil very quickly due to their high moisture content and nutrient availability. Therefore they are classified as highly perishable foods. Justification: Fish spoilage is a complex process involving enzymatic reactions, bacterial growth, and chemical changes. These combined actions degrade proteins, fats, and other compounds in fish tissue. Justification: Rigor mortis occurs when muscles stiffen after death due to depletion of ATP and biochemical changes in muscle fibers. This stage is important in determining fish freshness and processing quality. Justification: Autolysis",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_4o463",
+    "question": "Fish spoilage is mainly caused by the action of:",
+    "options": {
+      "A": "Enzymes, bacteria and chemicals",
+      "B": "Only bacteria",
+      "C": "Only enzymes",
+      "D": "Salt and minerals"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fish spoilage is a complex process involving enzymatic reactions, bacterial growth, and chemical changes. These combined actions degrade proteins, fats, and other compounds in fish tissue. Justification: Rigor mortis occurs when muscles stiffen after death due to depletion of ATP and biochemical changes in muscle fibers. This stage is important in determining fish freshness and processing quality. Justification: Autolysis refers to the breakdown of fish tissue by its own endogenous enzymes after death. This process begins soon after rigor mortis and contributes to texture softening and spoil",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_prqtj",
+    "question": "After death, muscle stiffening due to breakdown of circulation and leakage of chemical signals is called:",
+    "options": {
+      "A": "Autolysis",
+      "B": "Putrefaction",
+      "C": "Rigor mortis",
+      "D": "Glycolysis"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Rigor mortis occurs when muscles stiffen after death due to depletion of ATP and biochemical changes in muscle fibers. This stage is important in determining fish freshness and processing quality. Justification: Autolysis refers to the breakdown of fish tissue by its own endogenous enzymes after death. This process begins soon after rigor mortis and contributes to texture softening and spoilage. Justification: Belly bursting occurs when digestive enzymes from the gut break down surrounding tissues after death. This enzymatic activity weakens the abdominal wall leading to rupture. Justificat",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_rbcer",
+    "question": "The self-digestion process in fish occurring after death due to endogenous enzymes is called:",
+    "options": {
+      "A": "Fermentation",
+      "B": "Autolysis",
+      "C": "Oxidation",
+      "D": "Hydrolysis"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Autolysis refers to the breakdown of fish tissue by its own endogenous enzymes after death. This process begins soon after rigor mortis and contributes to texture softening and spoilage. Justification: Belly bursting occurs when digestive enzymes from the gut break down surrounding tissues after death. This enzymatic activity weakens the abdominal wall leading to rupture. Justification: TMAO stands for trimethylamine oxide, a compound naturally present in marine fish. During spoilage it can be reduced by bacteria to trimethylamine, producing a characteristic fishy odor. Justification: Fatty",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_rpf8p",
+    "question": "Which spoilage condition is caused by digestive enzymes present in the gut of fish?",
+    "options": {
+      "A": "Surface discoloration",
+      "B": "Belly bursting",
+      "C": "Gill spoilage",
+      "D": "Muscle dehydration"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "hard",
+    "justification": "Belly bursting occurs when digestive enzymes from the gut break down surrounding tissues after death. This enzymatic activity weakens the abdominal wall leading to rupture. Justification: TMAO stands for trimethylamine oxide, a compound naturally present in marine fish. During spoilage it can be reduced by bacteria to trimethylamine, producing a characteristic fishy odor. Justification: Fatty fish contain high levels of unsaturated lipids that are susceptible to oxidation. Oxidative rancidity produces off-flavors and odors and is a major cause of quality deterioration in fatty fish.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_av7ar",
+    "question": "TMAO present in marine fish stands for:",
+    "options": {
+      "A": "Trimethylamine oxide",
+      "B": "Tetramethylamine oxide",
+      "C": "Triamine molecular oxide",
+      "D": "Trioxymethylamine"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "TMAO stands for trimethylamine oxide, a compound naturally present in marine fish. During spoilage it can be reduced by bacteria to trimethylamine, producing a characteristic fishy odor. Justification: Fatty fish contain high levels of unsaturated lipids that are susceptible to oxidation. Oxidative rancidity produces off-flavors and odors and is a major cause of quality deterioration in fatty fish.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221764697_f6fde",
+    "question": "The most common chemical reaction causing spoilage in fatty fish is:",
+    "options": {
+      "A": "Hydrolysis",
+      "B": "Fermentation",
+      "C": "Oxidative rancidity",
+      "D": "Denaturation"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "hard",
+    "justification": "Fatty fish contain high levels of unsaturated lipids that are susceptible to oxidation. Oxidative rancidity produces off-flavors and odors and is a major cause of quality deterioration in fatty fish.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_h0g45",
+    "question": "“Quality” in food processing mainly refers to:",
+    "options": {
+      "A": "Meeting customer expectations",
+      "B": "Reducing production time",
+      "C": "Increasing profit margin",
+      "D": "Adding preservatives"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Quality in food processing generally refers to the ability of a product to meet customer expectations regarding safety, freshness, taste, and appearance. Maintaining consistent quality ensures consumer satisfaction and regulatory compliance. Justification: Quality Control focuses on detecting defects in the final product through inspection and testing. It ensures that only products meeting required standards reach the consumer. Justification: Quality Assurance is a preventive system designed to avoid defects during production. It focuses on proper planning, procedures, and monitoring to ensu",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_5616p",
+    "question": "Quality Control QC focuses on:",
+    "options": {
+      "A": "Preventing defects",
+      "B": "Inspecting final products",
+      "C": "Improving worker skills",
+      "D": "Designing new processes"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Quality Control focuses on detecting defects in the final product through inspection and testing. It ensures that only products meeting required standards reach the consumer. Justification: Quality Assurance is a preventive system designed to avoid defects during production. It focuses on proper planning, procedures, and monitoring to ensure consistent product quality. Justification: The PDCA cycle is a widely used continuous improvement tool in quality management. It involves planning a change, implementing it, checking results, and acting on improvements. Justification: Microbiological st",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_yf5aj",
+    "question": "Quality Assurance QA is:",
+    "options": {
+      "A": "A reactive process",
+      "B": "A corrective activity",
+      "C": "A preventive activity",
+      "D": "Only laboratory testing"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Quality Assurance is a preventive system designed to avoid defects during production. It focuses on proper planning, procedures, and monitoring to ensure consistent product quality. Justification: The PDCA cycle is a widely used continuous improvement tool in quality management. It involves planning a change, implementing it, checking results, and acting on improvements. Justification: Microbiological standards specify acceptable limits for microorganisms such as E. coli and Salmonella in food products. These standards help ensure the safety of seafood and other foods for human consumption.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_vr2g8",
+    "question": "Which is a tool used in Quality Improvement QI?",
+    "options": {
+      "A": "PDCA cycle",
+      "B": "Autoclave",
+      "C": "Fish grader",
+      "D": "Salinometer"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "The PDCA cycle is a widely used continuous improvement tool in quality management. It involves planning a change, implementing it, checking results, and acting on improvements. Justification: Microbiological standards specify acceptable limits for microorganisms such as E. coli and Salmonella in food products. These standards help ensure the safety of seafood and other foods for human consumption. Justification: Chemical standards relate to the permissible limits of chemical substances in food products. Histamine levels and heavy metal concentrations are controlled to prevent toxic effects i",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_d64a4",
+    "question": "Standards that limit bacteria like E. coli and Salmonella refer to:",
+    "options": {
+      "A": "Physical standards",
+      "B": "Microbiological standards",
+      "C": "Chemical standards",
+      "D": "Sensory standards"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Microbiological standards specify acceptable limits for microorganisms such as E. coli and Salmonella in food products. These standards help ensure the safety of seafood and other foods for human consumption. Justification: Chemical standards relate to the permissible limits of chemical substances in food products. Histamine levels and heavy metal concentrations are controlled to prevent toxic effects in consumers. Justification: Physical standards ensure that food products are free from foreign materials such as bones, stones, glass, or parasites. These contaminants can pose physical hazard",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_cgvv4",
+    "question": "Limits for histamine and heavy metals fall under:",
+    "options": {
+      "A": "Microbiological standards",
+      "B": "Chemical standards",
+      "C": "Physical standards",
+      "D": "Packaging standards"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Chemical standards relate to the permissible limits of chemical substances in food products. Histamine levels and heavy metal concentrations are controlled to prevent toxic effects in consumers. Justification: Physical standards ensure that food products are free from foreign materials such as bones, stones, glass, or parasites. These contaminants can pose physical hazards to consumers. Justification: Sensory standards involve evaluating organoleptic characteristics such as appearance, smell, texture, and taste. These attributes determine consumer acceptance of seafood products. Justificati",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_mjhc2",
+    "question": "Absence of bones, stones, filth, glass, parasites refers to:",
+    "options": {
+      "A": "Chemical standard",
+      "B": "Microbiological standard",
+      "C": "Physical standard",
+      "D": "Sensory standard"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Physical standards ensure that food products are free from foreign materials such as bones, stones, glass, or parasites. These contaminants can pose physical hazards to consumers. Justification: Sensory standards involve evaluating organoleptic characteristics such as appearance, smell, texture, and taste. These attributes determine consumer acceptance of seafood products. Justification: Process standards refer to the control of conditions during food processing such as temperature management, sanitation, and packaging practices. These measures help maintain food safety and quality. Justifi",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_rvp2m",
+    "question": "Appearance, smell, texture, and taste are checked under:",
+    "options": {
+      "A": "Sensory standards",
+      "B": "Chemical standards",
+      "C": "Micro standards",
+      "D": "Process standards"
+    },
+    "correct": "A",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Sensory standards involve evaluating organoleptic characteristics such as appearance, smell, texture, and taste. These attributes determine consumer acceptance of seafood products. Justification: Process standards refer to the control of conditions during food processing such as temperature management, sanitation, and packaging practices. These measures help maintain food safety and quality. Justification: The PDCA cycle stands for Plan–Do–Check–Act, a systematic method for continuous improvement in quality management systems. It helps organizations monitor performance and implement effectiv",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_iytej",
+    "question": "Temperature control, hygiene, packaging are part of:",
+    "options": {
+      "A": "First-aid standards",
+      "B": "Process standards",
+      "C": "Organoleptic standards",
+      "D": "Environmental standards"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Process standards refer to the control of conditions during food processing such as temperature management, sanitation, and packaging practices. These measures help maintain food safety and quality. Justification: The PDCA cycle stands for Plan–Do–Check–Act, a systematic method for continuous improvement in quality management systems. It helps organizations monitor performance and implement effective improvements.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221861571_ms8cz",
+    "question": "The PDCA cycle stands for:",
+    "options": {
+      "A": "Plan–Drive–Check–Act",
+      "B": "Prepare–Direct–Control–Assess",
+      "C": "Plan–Do–Check–Act",
+      "D": "Process–Develop–Check–Apply"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "hard",
+    "justification": "The PDCA cycle stands for Plan–Do–Check–Act, a systematic method for continuous improvement in quality management systems. It helps organizations monitor performance and implement effective improvements.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_uv77i",
+    "question": "The main aim of fish plant sanitation is to",
+    "options": {
+      "A": "Improve taste",
+      "B": "Prevent contamination",
+      "C": "Increase shelf life only",
+      "D": "Improve colour"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Fish plant sanitation focuses on maintaining hygienic conditions during processing to prevent contamination by microorganisms, chemicals, or foreign matter. Proper sanitation helps ensure safe seafood products for consumers. Justification: Potable water used in fish processing must be safe for human consumption and generally chlorinated to eliminate harmful microorganisms. Using safe water prevents contamination during washing and processing. Justification: Workers handling fish must follow strict personal hygiene practices such as wearing clean protective clothing. This helps reduce the ris",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_rcbjy",
+    "question": "Potable water used in fish processing should be",
+    "options": {
+      "A": "Salty",
+      "B": "Chlorinated and safe for drinking",
+      "C": "Boiled only",
+      "D": "Untreated water"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Potable water used in fish processing must be safe for human consumption and generally chlorinated to eliminate harmful microorganisms. Using safe water prevents contamination during washing and processing. Justification: Workers handling fish must follow strict personal hygiene practices such as wearing clean protective clothing. This helps reduce the risk of transferring microorganisms from workers to seafood products. Justification: Workers with open wounds can transmit pathogens to fish products. Therefore they must be restricted from direct handling of fish until the wounds are properly",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_s2eaw",
+    "question": "Which of the following is a personal hygiene requirement in fish plants?",
+    "options": {
+      "A": "Long nails",
+      "B": "Jewellery allowed",
+      "C": "Clean protective clothing",
+      "D": "Bare hands"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Workers handling fish must follow strict personal hygiene practices such as wearing clean protective clothing. This helps reduce the risk of transferring microorganisms from workers to seafood products. Justification: Workers with open wounds can transmit pathogens to fish products. Therefore they must be restricted from direct handling of fish until the wounds are properly healed or protected. Justification: The Export Inspection Council of India is responsible for inspection and certification of export products including seafood. It ensures that exported products meet international quality",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_48wpq",
+    "question": "Workers with open wounds should",
+    "options": {
+      "A": "Continue work",
+      "B": "Cover wound and work",
+      "C": "Be restricted from handling fish",
+      "D": "Wash hands only"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Workers with open wounds can transmit pathogens to fish products. Therefore they must be restricted from direct handling of fish until the wounds are properly healed or protected. Justification: The Export Inspection Council of India is responsible for inspection and certification of export products including seafood. It ensures that exported products meet international quality and safety standards. Justification: A health certificate confirms that seafood products meet sanitary and safety standards required by the importing country. It is essential for compliance with international trade re",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_46v9t",
+    "question": "Which organisation issues export inspection and certification in India?",
+    "options": {
+      "A": "FAO",
+      "B": "FDA",
+      "C": "EIC",
+      "D": "ISO"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "The Export Inspection Council of India is responsible for inspection and certification of export products including seafood. It ensures that exported products meet international quality and safety standards. Justification: A health certificate confirms that seafood products meet sanitary and safety standards required by the importing country. It is essential for compliance with international trade regulations. Justification: Catch certificates are required mainly for exporting seafood to European Union countries. They ensure that fish products are legally caught and comply with regulations a",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_6pqw4",
+    "question": "Health certificate is required for seafood export to",
+    "options": {
+      "A": "Improve quality",
+      "B": "Meet importing country regulations",
+      "C": "Increase profit",
+      "D": "Reduce weight"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "A health certificate confirms that seafood products meet sanitary and safety standards required by the importing country. It is essential for compliance with international trade regulations. Justification: Catch certificates are required mainly for exporting seafood to European Union countries. They ensure that fish products are legally caught and comply with regulations against illegal fishing. Justification: The Codex Alimentarius Commission, jointly established by FAO and WHO, develops international food standards. These standards help ensure food safety and facilitate fair trade in food",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_vx1x5",
+    "question": "Catch certificate is mandatory mainly for export to",
+    "options": {
+      "A": "USA",
+      "B": "Japan",
+      "C": "EU countries",
+      "D": "China"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Catch certificates are required mainly for exporting seafood to European Union countries. They ensure that fish products are legally caught and comply with regulations against illegal fishing. Justification: The Codex Alimentarius Commission, jointly established by FAO and WHO, develops international food standards. These standards help ensure food safety and facilitate fair trade in food products. Justification: ISO 22000 is an international standard that specifies requirements for a food safety management system. It integrates principles of HACCP and ensures safe production and handling of",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_dhv82",
+    "question": "Codex Alimentarius standards are developed by",
+    "options": {
+      "A": "WHO only",
+      "B": "FAO only",
+      "C": "FAO and WHO",
+      "D": "ISO"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "hard",
+    "justification": "The Codex Alimentarius Commission, jointly established by FAO and WHO, develops international food standards. These standards help ensure food safety and facilitate fair trade in food products. Justification: ISO 22000 is an international standard that specifies requirements for a food safety management system. It integrates principles of HACCP and ensures safe production and handling of food. Justification: Food safety standards are designed to protect consumers from health risks associated with contaminated or unsafe food. They ensure that food products reaching the market are safe for con",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_vcshu",
+    "question": "ISO 22000 mainly deals with",
+    "options": {
+      "A": "Product grading",
+      "B": "Food safety management system",
+      "C": "Export pricing",
+      "D": "Packaging design"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "ISO 22000 is an international standard that specifies requirements for a food safety management system. It integrates principles of HACCP and ensures safe production and handling of food. Justification: Food safety standards are designed to protect consumers from health risks associated with contaminated or unsafe food. They ensure that food products reaching the market are safe for consumption.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773221926367_q1kid",
+    "question": "Food safety standards mainly ensure",
+    "options": {
+      "A": "High market price",
+      "B": "Attractive appearance",
+      "C": "Safe food for consumers",
+      "D": "Faster export"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "easy",
+    "justification": "Food safety standards are designed to protect consumers from health risks associated with contaminated or unsafe food. They ensure that food products reaching the market are safe for consumption.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402180_s5xj7",
+    "question": "Which of the following is an example for both a transboundary and straddling stock?",
+    "options": {
+      "A": "Gadus morhua",
+      "B": "Engraulis ringens",
+      "C": "Placopecten magellanicus",
+      "D": "Gadus chalcogrammus"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Gadus chalcogrammus (Alaska pollock) occurs across national EEZs and adjacent high seas, making it both a transboundary and straddling stock. Justification: A metapopulation is a group of spatially separated populations of the same species that interact through occasional migration and gene flow. Justification: Relative population refers to an estimate of population size obtained indirectly from catch data such as nets or traps. However, it is not defined by geographical distribution. Justification: A straddling stock occurs partly within the EEZ of a country and partly in adjacent high sea",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_s99tp",
+    "question": "Group of populations that share occasional migration is called",
+    "options": {
+      "A": "Relative population",
+      "B": "Absolute population",
+      "C": "Unit population",
+      "D": "Meta population"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "A metapopulation is a group of spatially separated populations of the same species that interact through occasional migration and gene flow. Justification: Relative population refers to an estimate of population size obtained indirectly from catch data such as nets or traps. However, it is not defined by geographical distribution. Justification: A straddling stock occurs partly within the EEZ of a country and partly in adjacent high seas. Alaskan pollock is considered a transboundary stock rather than a straddling stock. Justification: Greenland halibut is a demersal species distributed acr",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_f1p4i",
+    "question": "I. Estimate of number of organisms caught in nets or traps is called relative population. II. Relative population is related to the geographical area of occurrence.",
+    "options": {
+      "A": "Statement I is true and statement II is false",
+      "B": "Both the statements are false",
+      "C": "Statement I is false but statement II is true",
+      "D": "Both I & II are true"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Relative population refers to an estimate of population size obtained indirectly from catch data such as nets or traps. However, it is not defined by geographical distribution. Justification: A straddling stock occurs partly within the EEZ of a country and partly in adjacent high seas. Alaskan pollock is considered a transboundary stock rather than a straddling stock. Justification: Greenland halibut is a demersal species distributed across national jurisdictions and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu lies on the south-eastern coast of India",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_5yobg",
+    "question": "I. Stock of fish that migrates between or occurs in the EEZ of at least two countries is called straddling stock. II. Alaskan Pollock is a transboundary stock.",
+    "options": {
+      "A": "I is true & II is false",
+      "B": "Both I & II are false",
+      "C": "I is false & II is true",
+      "D": "Both I & II are true"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "A straddling stock occurs partly within the EEZ of a country and partly in adjacent high seas. Alaskan pollock is considered a transboundary stock rather than a straddling stock. Justification: Greenland halibut is a demersal species distributed across national jurisdictions and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu lies on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as Clupea harengus and is a major pelagic fish species in the",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_ip7n6",
+    "question": "Which of the following is a demersal straddling stock?",
+    "options": {
+      "A": "Patagonian toothfish",
+      "B": "North Atlantic cod",
+      "C": "Greenland halibut",
+      "D": "Chilean jack mackerel"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Greenland halibut is a demersal species distributed across national jurisdictions and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu lies on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as Clupea harengus and is a major pelagic fish species in the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes major fishing regions such as Kerala and Karnataka. Justification: India has 9 maritime states",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_3m5na",
+    "question": "Which of the following state belongs to the South East coast of India?",
+    "options": {
+      "A": "Goa",
+      "B": "Gujarat",
+      "C": "Karnataka",
+      "D": "Tamil Nadu"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "Tamil Nadu lies on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as Clupea harengus and is a major pelagic fish species in the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes major fishing regions such as Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and the Bay of Bengal. Justification: Scomber scombrus (Atlantic mackerel) is a migratory transboundary stock occurring in",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_f53p9",
+    "question": "Scientific name of Norwegian Herring",
+    "options": {
+      "A": "Trachurus murphy",
+      "B": "Clupea harengus",
+      "C": "Oncorhynchus sp.",
+      "D": "Scomber scombrus"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "The Norwegian herring is scientifically known as Clupea harengus and is a major pelagic fish species in the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes major fishing regions such as Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and the Bay of Bengal. Justification: Scomber scombrus (Atlantic mackerel) is a migratory transboundary stock occurring in waters around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_xh8yv",
+    "question": "The sea along South west coast of India",
+    "options": {
+      "A": "Arabian sea",
+      "B": "Bay of Bengal",
+      "C": "Palk bay",
+      "D": "Indian Ocean"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "The south-west coast of India borders the Arabian Sea and includes major fishing regions such as Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and the Bay of Bengal. Justification: Scomber scombrus (Atlantic mackerel) is a migratory transboundary stock occurring in waters around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_em0oo",
+    "question": "Number of maritime states in India",
+    "options": {
+      "A": "9",
+      "B": "10",
+      "C": "11",
+      "D": "8"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "India has 9 maritime states with coastlines along the Arabian Sea and the Bay of Bengal. Justification: Scomber scombrus (Atlantic mackerel) is a migratory transboundary stock occurring in waters around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222402181_t0uy4",
+    "question": "The transboundary stock distributed along the coasts of Norway, Iceland and Faroe Island",
+    "options": {
+      "A": "Dissostichus eleginoides",
+      "B": "Scomber scombrus",
+      "C": "Gadus morhua",
+      "D": "None of the above"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Scomber scombrus (Atlantic mackerel) is a migratory transboundary stock occurring in waters around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_wnsz7",
+    "question": "Which of the following is an example for both a transboundary and straddling stock?",
+    "options": {
+      "A": "Gadus morhua",
+      "B": "Engraulis ringens",
+      "C": "Placopecten magellanicus",
+      "D": "Gadus chalcogrammus"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Gadus chalcogrammus (Alaska pollock) occurs across the EEZs of different countries and also in adjacent high seas, therefore it can be considered both a transboundary and straddling stock. Justification: A metapopulation is a group of spatially separated populations of the same species that interact through occasional migration or gene flow. Justification: Relative population refers to the estimate of population size obtained from indirect measures such as catch rates in fishing gear. However, it is not defined based on geographical area of occurrence. Justification: A straddling stock occu",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_5gazj",
+    "question": "Group of populations that share occasional migration is called",
+    "options": {
+      "A": "Relative population",
+      "B": "Absolute population",
+      "C": "Unit population",
+      "D": "Meta population"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "A metapopulation is a group of spatially separated populations of the same species that interact through occasional migration or gene flow. Justification: Relative population refers to the estimate of population size obtained from indirect measures such as catch rates in fishing gear. However, it is not defined based on geographical area of occurrence. Justification: A straddling stock occurs partly in a country's EEZ and partly in adjacent high seas, not necessarily between EEZs of two countries. Alaskan Pollock is recognized as a transboundary stock. Justification: Greenland halibut is a",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_wz21v",
+    "question": "I. Estimate of number of organisms caught in nets or traps is called relative population. II. Relative population is related to the geographical area of occurrence.",
+    "options": {
+      "A": "Statement I is true and statement II is false",
+      "B": "Both the statements are false",
+      "C": "Statement I is false but statement II is true",
+      "D": "Both I & II are true"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Relative population refers to the estimate of population size obtained from indirect measures such as catch rates in fishing gear. However, it is not defined based on geographical area of occurrence. Justification: A straddling stock occurs partly in a country's EEZ and partly in adjacent high seas, not necessarily between EEZs of two countries. Alaskan Pollock is recognized as a transboundary stock. Justification: Greenland halibut is a demersal species that occurs across national boundaries and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu is located",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_nc1ra",
+    "question": "I. Stock of fish that migrates between or occurs in the EEZ of at least two countries is called straddling stock. II. Alaskan Pollock is a transboundary stock.",
+    "options": {
+      "A": "I is true & II is false",
+      "B": "Both I & II are false",
+      "C": "I is false & II is true",
+      "D": "Both I & II are true"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "A straddling stock occurs partly in a country's EEZ and partly in adjacent high seas, not necessarily between EEZs of two countries. Alaskan Pollock is recognized as a transboundary stock. Justification: Greenland halibut is a demersal species that occurs across national boundaries and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu is located on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as *Clupea harengus*, a commercially important pe",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_s6bya",
+    "question": "Which of the following is a demersal straddling stock?",
+    "options": {
+      "A": "Patagonian toothfish",
+      "B": "North Atlantic cod",
+      "C": "Greenland halibut",
+      "D": "Chilean jack mackerel"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "Greenland halibut is a demersal species that occurs across national boundaries and adjacent high seas, making it a demersal straddling stock. Justification: Tamil Nadu is located on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as *Clupea harengus*, a commercially important pelagic fish species of the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes important fishing states like Kerala and Karnataka. Justification: India has 9",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_ybih0",
+    "question": "Which of the following state belongs to the South East coast of India?",
+    "options": {
+      "A": "Goa",
+      "B": "Gujarat",
+      "C": "Karnataka",
+      "D": "Tamil Nadu"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "Tamil Nadu is located on the south-eastern coast of India along the Bay of Bengal and is an important marine fisheries state. Justification: The Norwegian herring is scientifically known as *Clupea harengus*, a commercially important pelagic fish species of the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes important fishing states like Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and Bay of Bengal. Justification: *Scomber scombrus* (Atlantic mackerel) is a migratory transboundary s",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_q9xx0",
+    "question": "Scientific name of Norwegian Herring",
+    "options": {
+      "A": "Trachurus murphy",
+      "B": "Clupea harengus",
+      "C": "Oncorhynchus sp.",
+      "D": "Scomber scombrus"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "The Norwegian herring is scientifically known as *Clupea harengus*, a commercially important pelagic fish species of the North Atlantic. Justification: The south-west coast of India borders the Arabian Sea and includes important fishing states like Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and Bay of Bengal. Justification: *Scomber scombrus* (Atlantic mackerel) is a migratory transboundary stock distributed in the North Atlantic around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_ysbmt",
+    "question": "The sea along South west coast of India",
+    "options": {
+      "A": "Arabian sea",
+      "B": "Bay of Bengal",
+      "C": "Palk bay",
+      "D": "Indian Ocean"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "The south-west coast of India borders the Arabian Sea and includes important fishing states like Kerala and Karnataka. Justification: India has 9 maritime states with coastlines along the Arabian Sea and Bay of Bengal. Justification: *Scomber scombrus* (Atlantic mackerel) is a migratory transboundary stock distributed in the North Atlantic around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_2l9rc",
+    "question": "Number of maritime states in India",
+    "options": {
+      "A": "9",
+      "B": "10",
+      "C": "11",
+      "D": "8"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "India has 9 maritime states with coastlines along the Arabian Sea and Bay of Bengal. Justification: *Scomber scombrus* (Atlantic mackerel) is a migratory transboundary stock distributed in the North Atlantic around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773222755828_rhu5d",
+    "question": "The transboundary stock distributed along the coasts of Norway, Iceland and Faroe Island",
+    "options": {
+      "A": "Dissostichus eleginoides",
+      "B": "Scomber scombrus",
+      "C": "Gadus morhua",
+      "D": "None of the above"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "hard",
+    "justification": "*Scomber scombrus* (Atlantic mackerel) is a migratory transboundary stock distributed in the North Atlantic around Norway, Iceland and the Faroe Islands.",
+    "addedOn": "2026-03-11"
   }
 ]

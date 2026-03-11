@@ -4472,8 +4472,10 @@ function rmSaveProgress() {
   };
   localStorage.setItem(RM_SAVED_KEY, JSON.stringify(save));
   const btn = document.getElementById('rm-save-btn');
-  btn.textContent = '\u2713 Saved!';
-  setTimeout(() => { btn.textContent = '\ud83d\udcbe Save'; }, 1500);
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => { btn.textContent = '💾 Save'; }, 1500);
+  // Push to Firebase so mid-exam progress is backed up
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
 }
 
 // \u2500\u2500 Close mid-exam \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

@@ -1,0 +1,1472 @@
+[
+  {
+    "id": "q_1773168557872_ql8ih",
+    "question": "According to recent data, what is India’s contribution to the global ornamental fish trade?",
+    "options": {
+      "A": "More than 20%",
+      "B": "About 10%",
+      "C": "Less than 5%",
+      "D": "Negligible"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Despite having rich biodiversity and indigenous species, India's contribution to the multi-billion dollar global ornamental fish trade currently stands at less than 5%.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_4360j",
+    "question": "Which among the following filter media is primarily used in an aquarium to facilitate the conversion of highly toxic ammonia into less harmful substances through bacterial action?",
+    "options": {
+      "A": "Sponge filter",
+      "B": "Filter wool",
+      "C": "Bio-balls",
+      "D": "Activated carbon"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Bio-balls act as a medium for biological filtration, harboring beneficial bacteria that convert harmful ammonia from fish waste into nitrites and then harmless nitrates. Sponge and filter wool are mechanical filters.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_4l08n",
+    "question": "Consider the following statements regarding the trade regulations of ornamental fishes: 1. CITES regulates the international trade of endangered ornamental fishes. 2. Sanitary and phytosanitary (SPS) measures in the fish trade are regulated under the MAC agreement. Which of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "Both 1 and 2",
+      "D": "Neither 1 nor 2"
+    },
+    "correct": "A",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Statement 1 is correct. Statement 2 is incorrect because Sanitary and Phytosanitary (SPS) measures are regulated under the WTO (World Trade Organization) agreement, not the MAC (Marine Aquarium Council) which deals with green certification.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_4vi7k",
+    "question": "The secondary sexual character that helps to identify the male Poecilia reticulata (Guppy) is the modification of the anal fin into a copulatory organ. This structure is known as:",
+    "options": {
+      "A": "Clasper",
+      "B": "Gonopodium",
+      "C": "Tubercles",
+      "D": "Genital papilla"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "In live-bearing fishes like the Guppy, the male's anal fin is modified into a specialized intromittent organ called the gonopodium for transferring sperm to the female.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_9cz5b",
+    "question": "Which of the following is an indigenous ornamental fish of India characterized by a transparent body?",
+    "options": {
+      "A": "Pethia conchonius",
+      "B": "Danio rerio",
+      "C": "Parambassis ranga",
+      "D": "Pterophyllum scalare"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Parambassis ranga is the scientific name for the Indian Glass Fish, a native species known for its transparent body. Pethia conchonius is the Rosy barb and Danio rerio is the Zebra danio.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_e0mqd",
+    "question": "While setting up a freshwater aquarium, tap water is often kept undisturbed for 24-48 hours before introducing the fish. The primary objective of this practice is to:",
+    "options": {
+      "A": "Allow beneficial bacteria to multiply",
+      "B": "Settle the suspended solid particles",
+      "C": "Eliminate dissolved chlorine",
+      "D": "Stabilize the pH of the water"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Tap water contains chlorine/chloramine used for purification, which is highly toxic to fish gills. Ageing the water allows the volatile chlorine gas to dissipate.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_nu20b",
+    "question": "The widely used live feed organism 'Brachionus', often utilized in the larval rearing of ornamental fishes, taxonomically belongs to which of the following groups?",
+    "options": {
+      "A": "Copepoda",
+      "B": "Rotifera",
+      "C": "Cladocera",
+      "D": "Protozoa"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Brachionus is a genus of planktonic rotifers, serving as a crucial microscopic first feed for the tiny larvae of many ornamental fishes before they are weaned onto larger prey like Artemia.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_yalrl",
+    "question": "The major share of the global ornamental fish trade, accounting for approximately 90%, is contributed by:",
+    "options": {
+      "A": "Marine captured fishes",
+      "B": "Marine captive-bred fishes",
+      "C": "Brackish water fishes",
+      "D": "Freshwater fishes"
+    },
+    "correct": "D",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Freshwater ornamental species dominate the global aquarium trade, making up roughly 90% of the market volume, primarily because they are easier to breed in captivity and maintain than marine species.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_gi5jm",
+    "question": "Consider the following pairs of ornamental fishes and their characteristic breeding behavior: 1. Betta splendens - Bubble nest builder 2. Pterophyllum scalare - Substrate spawner with parental care 3. Carassius auratus - Live bearer Which of the pairs given above are correctly matched?",
+    "options": {
+      "A": "1 and 2 only",
+      "B": "2 and 3 only",
+      "C": "1 and 3 only",
+      "D": "1, 2, and 3"
+    },
+    "correct": "A",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Pairs 1 and 2 are correct. Pair 3 is incorrect because the Goldfish (Carassius auratus) is an egg-layer (substrate spawner) with external fertilization, not a live bearer. 1",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168557872_ezo18",
+    "question": "Which among the following live feeds is most commonly cultivated as an indispensable diet for the early larval stages of diverse ornamental fishes due to its appropriate size and high nutritional profile?",
+    "options": {
+      "A": "Tubifex worms",
+      "B": "Blood worms",
+      "C": "Artemia nauplii",
+      "D": "Earthworms"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Artemia (brine shrimp) nauplii are the most universally used live feed for rearing larval fishes globally because their cysts can be stored long-term and hatched on demand to provide highly nutritious, appropriately sized prey.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_0dczh",
+    "question": "Which among the following equipment is considered indispensable in a marine aquarium, but is generally not required in a freshwater aquarium, to actively remove dissolved organic compounds from the water before they break down into toxic nitrogenous waste?",
+    "options": {
+      "A": "Canister filter",
+      "B": "Protein skimmer",
+      "C": "UV sterilizer",
+      "D": "Under-gravel filter"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "A protein skimmer (or foam fractionator) uses air bubbles to mechanically remove dissolved organic matter from the water column. It is highly effective in saltwater due to the higher specific gravity and surface tension, but largely ineffective in freshwater setups.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_xzkfz",
+    "question": "Among the indigenous ornamental fishes of India, which species is globally recognized and extensively utilized as a 'model organism' in scientific, genetic, and developmental biology research?",
+    "options": {
+      "A": "Parambassis ranga",
+      "B": "Pethia conchonius",
+      "C": "Danio rerio",
+      "D": "Channa micropeltes"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Danio rerio (Zebra danio) is an indigenous ornamental fish that is extensively used worldwide as a model organism in genetics and developmental biology because its embryos are transparent and develop rapidly outside the mother's body.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_ejv6u",
+    "question": "In the larval rearing of ornamental fishes with extremely small mouth gapes, a mixed culture of microscopic organisms commonly called 'Infusoria' is provided as the first feed. Taxonomically, Infusoria primarily consists of:",
+    "options": {
+      "A": "Planktonic crustaceans",
+      "B": "Ciliated protozoans",
+      "C": "Unicellular green algae",
+      "D": "Microscopic nematodes"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "'Infusoria' is a collective term used by aquarists to describe microscopic, aquatic, ciliated protozoans (like Paramecium). Due to their minute size, they are the ideal first feed for the tiny larvae of fishes like gouramis and bettas.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_dn2me",
+    "question": "Consider the following statements regarding the Marine Aquarium Council (MAC) certification:1. It promotes the eco-labeling of marine ornamental fishes to ensure environmental and socio-economic sustainability.2. It guarantees that the certified fishes have been collected using non-destructive methods.Which of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "Both 1 and 2",
+      "D": "Neither 1 nor 2"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "MAC (Marine Aquarium Council) certification is a global green certification/eco-labeling scheme that ensures marine organisms are caught using non-destructive methods (no cyanide), handled properly, and traded sustainably.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_fbizh",
+    "question": "According to the global ornamental fish trade dynamics, which among the following countries currently acts as the largest exporter and the primary global hub for the transshipment of ornamental fishes?",
+    "options": {
+      "A": "India",
+      "B": "Singapore",
+      "C": "Brazil",
+      "D": "Sri Lanka"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Singapore is the undisputed global hub for the ornamental fish trade. It imports fishes from neighboring countries, conditions them, and re-exports them worldwide, alongside its own captive-bred freshwater species.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_77uv8",
+    "question": "During the induced breeding or captive breeding of Carassius auratus (Goldfish), aquatic plants like Hydrilla or synthetic spawning mops are intentionally placed inside the breeding tank. The primary scientific reason for this practice is to:",
+    "options": {
+      "A": "Provide a hiding space for the male broodstock after fertilization",
+      "B": "Act as a substratum for the attachment of adhesive eggs",
+      "C": "Increase the dissolved oxygen levels during the spawning process",
+      "D": "Induce spawning behavior through the release of plant hormones"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Goldfish are substrate spawners that scatter their eggs. Their eggs are highly adhesive and need to stick to surfaces like aquatic plants or synthetic mops; otherwise, they fall to the bottom where they are prone to fungal attacks or being eaten by the parents.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_uity2",
+    "question": "When fabricating a custom glass aquarium, the minimum thickness of the glass required to safely withstand the hydrostatic pressure is primarily determined by the:",
+    "options": {
+      "A": "Total volume of the water in the tank",
+      "B": "Length of the aquarium tank",
+      "C": "Depth (height) of the water column",
+      "D": "Surface area of the water exposed to air"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "According to the principles of fluid dynamics, hydrostatic pressure at any point in a liquid depends solely on the depth of the liquid ($P = \\rho gh$), not the total volume or length. Therefore, taller aquariums require thicker glass than shallow, long aquariums of the same volume.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_7a5f4",
+    "question": "\"New Tank Syndrome\" is a frequent cause of massive fish mortality in newly established aquariums, even when mechanical filtration and aeration are running perfectly. This syndrome is a direct consequence of:",
+    "options": {
+      "A": "Copper toxicity from new silicone sealants",
+      "B": "Sudden fluctuation in water temperature",
+      "C": "Accumulation of ammonia due to an unestablished biological filter",
+      "D": "Depletion of dissolved oxygen by excess heterotrophic bacteria"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "\"New Tank Syndrome\" occurs in newly set-up aquariums because the beneficial nitrifying bacteria (which convert toxic ammonia into nitrite, then nitrate) take several weeks to establish. Before this biofilter matures, ammonia levels spike rapidly, causing fish death.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_n6lx1",
+    "question": "An Indian exporter's consignment of live ornamental fishes is subjected to strict quarantine, health certification, and disease screening at an international border. Under which international regulatory framework are these sanitary measures legally justified to prevent the spread of exotic pathogens?",
+    "options": {
+      "A": "CITES Appendix regulations",
+      "B": "WTO-SPS (Sanitary and Phytosanitary) Agreement",
+      "C": "MAC (Marine Aquarium Council) guidelines",
+      "D": "IUCN Red List guidelines"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "The WTO's SPS Agreement allows countries to set their own standards to protect human, animal, or plant life from pests and diseases (pathogens) brought in by imported goods, including live ornamental fishes. CITES deals with endangered species, not sanitary measures.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168602754_t4gdm",
+    "question": "Among the exotic ornamental fishes listed below, which is an egg-laying species (substrate spawner) well known for exhibiting pronounced parental care by guarding and fanning its eggs?",
+    "options": {
+      "A": "Poecilia sphenops (Molly)",
+      "B": "Xiphophorus hellerii (Swordtail)",
+      "C": "Pterophyllum scalare (Angelfish)",
+      "D": "Trichogaster lalius (Dwarf Gourami)"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Angelfish belong to the family Cichlidae. They are substrate spawners that lay their eggs on vertical surfaces (like broad leaves or slate) and exhibit strong parental care, with both parents aggressively guarding the territory and fanning the eggs to provide oxygen. Mollies and Swordtails are live-bearers.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_ch1it",
+    "question": "The commercial success of breeding egg-laying ornamental fishes heavily relies on the \"conditioning\" of the broodstock. In aquaculture terminology, this practice primarily refers to:",
+    "options": {
+      "A": "Acclimatizing the breeders to the spawning tank's water parameters",
+      "B": "Administering synthetic hormones like Ovatide to induce gamete release",
+      "C": "Segregating the sexes and feeding them a high-protein live diet prior to breeding",
+      "D": "Exposing the fishes to artificial UV lighting to simulate daylight changes"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "\"Conditioning\" is a crucial pre-breeding step where male and female broodstock are kept in separate tanks to prevent premature spawning and are fed high-quality, protein-rich live foods (like bloodworms or earthworms) to promote rapid gonadal maturation and high fecundity.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_l8uld",
+    "question": "Symphysodon aequifasciatus (Discus), a highly valued exotic ornamental fish, exhibits a highly specialized and unique parental care behavior during its larval rearing phase. Which of the following correctly describes this behavior?",
+    "options": {
+      "A": "The male carries the fertilized eggs and newly hatched larvae inside its mouth",
+      "B": "Both parents secrete a nutritious epidermal mucus which the fry feed upon",
+      "C": "The female buries the eggs in the substrate and aggressively guards the territory",
+      "D": "The parents construct a complex bubble nest to protect the floating larvae"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "The Discus fish is famous for its unique larval rearing. Once the fry become free-swimming, they instinctively feed on a specialized, nutrient-rich and antibody-laden mucus secreted by the skin of both the mother and father. Removing the parents too early results in fry mortality.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_cvc2v",
+    "question": "In the mass culture of Cladocerans like Daphnia or Moina (widely used as live feed), a sudden environmental stress such as overcrowding, low oxygen, or food depletion triggers a reproductive shift. This shift is phenotypically indicated by the appearance of:",
+    "options": {
+      "A": "Exclusively female offspring reproducing via parthenogenesis",
+      "B": "Ephippia (resting eggs) in the brood chambers of the females",
+      "C": "Swarms of microscopic, free-swimming ciliated nauplii",
+      "D": "Increased molting frequency resulting in transparent exoskeletons"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Under optimal conditions, Cladocerans reproduce rapidly via parthenogenesis (cloning females). When stressed by poor water quality or low food, they produce males, mate, and produce dark, hardy 'resting eggs' called ephippia that can survive desiccation and freezing, signaling an impending population crash in the culture.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_5crln",
+    "question": "While fabricating a glass aquarium, 100% silicone sealant is the standard adhesive used. However, certain commercially available silicone sealants must be strictly avoided because they contain substances highly toxic to aquatic life. Which of the following additives makes a sealant unfit for aquarium use?",
+    "options": {
+      "A": "Anti-mildew agents (Fungicides)",
+      "B": "Ultraviolet (UV) stabilizers",
+      "C": "Acetic acid curing agents",
+      "D": "Black pigmentation dyes"
+    },
+    "correct": "A",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Many household or bathroom silicone sealants contain fungicides (anti-mildew agents) to prevent mold growth in damp areas. These chemicals are highly toxic to fish and invertebrates and will leach into the aquarium water. Only 100% pure silicone (usually acetic-cure) should be used.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_oer82",
+    "question": "In heavily planted freshwater aquariums, hobbyists often inject supplemental Carbon dioxide ($CO_2$) to boost plant growth. However, if the water has a very low Carbonate Hardness (KH), a sudden overdose or continuous injection of $CO_2$ will most likely result in:",
+    "options": {
+      "A": "A sudden spike in unionized ammonia levels",
+      "B": "A rapid and fatal drop in the water's pH",
+      "C": "The precipitation of dissolved calcium leading to cloudy water",
+      "D": "A spontaneous increase in the dissolved oxygen concentration"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Carbon dioxide dissolved in water forms weak carbonic acid. Carbonate hardness (KH) acts as a buffer that absorbs acids and keeps the pH stable. If KH is low, the water lacks buffering capacity, and excess $CO_2$ will cause a severe, sudden drop in pH (acidosis), killing the fish.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_h0ah0",
+    "question": "Which of the following indigenous ornamental fishes, endemic to the Western Ghats of Kerala, is heavily exploited for the international aquarium trade and is famously known in the global market as 'Miss Kerala'?",
+    "options": {
+      "A": "Horabagrus brachysoma",
+      "B": "Etroplus maculatus",
+      "C": "Sahyadria denisonii",
+      "D": "Dawkinsia filamentosa"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Sahyadria denisonii (formerly Puntius denisonii), commonly known as the Red-line torpedo barb or 'Miss Kerala', is a highly prized endemic ornamental fish from the Western Ghats. Overexploitation for export has led to its inclusion in the IUCN Red List as Endangered.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_z5id0",
+    "question": "Under the WTO-SPS (Sanitary and Phytosanitary) Agreement, which international organization is officially recognized as the standard-setting body for aquatic animal health to prevent the spread of diseases during the global trade of live ornamental fishes?",
+    "options": {
+      "A": "Food and Agriculture Organization (FAO)",
+      "B": "World Organisation for Animal Health (OIE / WOAH)",
+      "C": "Marine Aquarium Council (MAC)",
+      "D": "Convention on International Trade in Endangered Species (CITES)"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "The WTO's SPS agreement recognizes the OIE (Office International des Epizooties, now WOAH) as the global reference organization for setting standards regarding animal health, including aquatic animal health codes to regulate the safe international trade of live fishes.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_5h1zb",
+    "question": "The eco-labeling of marine ornamental fishes under green certification schemes (like MAC) primarily aims to eliminate which of the following destructive, yet historically widespread, collection methods in coral reefs?",
+    "options": {
+      "A": "Bottom trawling",
+      "B": "Electrofishing",
+      "C": "Cyanide fishing",
+      "D": "Purse seining"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Sodium cyanide has historically been squirted into coral crevices to stun and easily capture elusive marine ornamental fishes. This practice kills the coral polyps and damages the fish's internal organs. Green certification guarantees the fish were caught using sustainable, net-caught methods.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_gpaus",
+    "question": "The commercially popular 'GloFish', such as the fluorescent green or red Zebra Danio (Danio rerio), which emits a bright glow under ultraviolet light, was scientifically developed utilizing which of the following techniques?",
+    "options": {
+      "A": "Androgenesis",
+      "B": "Gynogenesis",
+      "C": "Chemical mutagenesis using colchicine",
+      "D": "Transgenesis **"
+    },
+    "correct": "D",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "GloFish are genetically modified organisms (GMOs). They are produced via transgenesis, where fluorescent protein genes isolated from organisms like jellyfish or sea anemones are inserted into the genome of the Zebra Danio embryo.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168705377_qubo6",
+    "question": "ShutterstockIn the biological filtration process of an established aquarium (the Nitrogen Cycle), the critical conversion of highly toxic Nitrite ($NO_2^-$) into relatively harmless Nitrate ($NO_3^-$) is exclusively carried out by chemoautotrophic bacteria belonging to the genus:",
+    "options": {
+      "A": "Nitrosomonas",
+      "B": "Nitrobacter",
+      "C": "Pseudomonas",
+      "D": "Bacillus"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "In the two-step biological nitrification process, Nitrosomonas species first oxidize ammonia ($NH_3$) into nitrite ($NO_2^-$). Then, Nitrobacter species oxidize the toxic nitrite into nitrate ($NO_3^-$), which is much less toxic and can be removed via water changes or absorbed by plants.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_4bxqb",
+    "question": "Clownfish (Amphiprion spp.) are highly sought-after marine ornamental fishes globally. They exhibit a highly specialized reproductive strategy wherein the removal or death of the dominant female in a social group triggers the dominant male to change sex. This biological phenomenon is termed as:",
+    "options": {
+      "A": "Protogynous sequential hermaphroditism",
+      "B": "Synchronous hermaphroditism",
+      "C": "Protandrous sequential hermaphroditism",
+      "D": "Environmental sex determination"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Clownfish are born as males (or undifferentiated). The largest and most dominant fish in a sea anemone becomes the female, and the second largest is the breeding male. If the female dies, the breeding male undergoes protandrous (male-to-female) sex reversal.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_hi3vo",
+    "question": "The toxicity of Total Ammonia Nitrogen (TAN) in an aquarium is highly dependent on the water parameters. As the pH and temperature of the aquarium water increase, which of the following chemical shifts occurs, leading to a higher risk of fish mortality?",
+    "options": {
+      "A": "The proportion of non-toxic ammonium ion ($NH_4^+$) drastically increases",
+      "B": "The proportion of highly toxic un-ionized ammonia ($NH_3$) increases",
+      "C": "The rate of conversion from nitrite to nitrate by bacteria completely stops",
+      "D": "The dissolved oxygen binding capacity of ammonia increases"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Total Ammonia Nitrogen (TAN) exists in two forms: toxic un-ionized ammonia ($NH_3$) and relatively non-toxic ammonium ion ($NH_4^+$). As pH and temperature increase, the chemical equilibrium shifts, drastically increasing the percentage of the highly toxic $NH_3$ form.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_feh3i",
+    "question": "The Asian Arowana (Scleropages formosus), a highly prized ornamental fish, is strictly protected under international trade laws to prevent wild depletion. It is listed under which Appendix of CITES, mandating that only captive-bred specimens carrying an implanted microchip can be legally traded internationally?",
+    "options": {
+      "A": "Appendix I",
+      "B": "Appendix II",
+      "C": "Appendix III",
+      "D": "It is exempted from CITES regulations for captive breeding"
+    },
+    "correct": "A",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "The Asian Arowana is listed under CITES Appendix I, which includes species threatened with extinction. International commercial trade of wild specimens is strictly prohibited. Only second-generation, captive-bred fishes from registered farms, implanted with a PIT (Passive Integrated Transponder) tag, can be traded.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_m3old",
+    "question": "'Microworms' are frequently cultured by ornamental fish breeders as an excellent live feed for fry that have mouths too small to consume Artemia nauplii. Taxonomically, these microworms (Panagrellus redivivus) belong to the phylum:",
+    "options": {
+      "A": "Annelida",
+      "B": "Platyhelminthes",
+      "C": "Arthropoda",
+      "D": "Nematoda"
+    },
+    "correct": "D",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Microworms (Panagrellus redivivus) are free-living, non-parasitic roundworms belonging to the phylum Nematoda. They are cultured on simple carbohydrate pastes (like oatmeal) and are an indispensable first feed for very tiny fry.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_lfnrx",
+    "question": "When fabricating large custom aquariums, acrylic (polymethyl methacrylate) is often preferred over conventional float glass. Which of the following statements regarding acrylic aquariums is INCORRECT?",
+    "options": {
+      "A": "Acrylic is significantly lighter in weight compared to standard glass",
+      "B": "Acrylic joints are chemically welded together, forming a single continuous molecular bond",
+      "C": "Acrylic has a higher refractive index than water, causing significant visual distortion for the viewer",
+      "D": "Acrylic has high impact resistance and is far less prone to shattering than glass"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Statement C is incorrect. One of the greatest advantages of acrylic is that its refractive index is almost identical to that of water. This means light passes through the water and the acrylic without bending, resulting in zero visual distortion, unlike thick glass.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_h7sra",
+    "question": "Female live-bearing ornamental fishes, such as Guppies and Swordtails, often produce successive broods of fry over several months even after being completely isolated from males. This phenomenon is biologically attributed to:",
+    "options": {
+      "A": "Parthenogenetic reproduction triggered by environmental stress",
+      "B": "The presence of specialized sperm-storing folds in their reproductive tract",
+      "C": "Spontaneous sex reversal occurring in dominant females",
+      "D": "Delayed embryonic development inside the brood pouch"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Female Poeciliids (livebearers) have specialized anatomical structures in their ovarian walls that allow them to store viable sperm from a single mating for up to 6–8 months, using it to fertilize multiple successive batches of eggs (superfetation).",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_lmwrs",
+    "question": "In India, which among the following statutory bodies under the Ministry of Commerce and Industry is primarily responsible for the promotion of ornamental fish exports and provides financial assistance for establishing ornamental fish breeding units?",
+    "options": {
+      "A": "National Fisheries Development Board (NFDB)",
+      "B": "Marine Products Export Development Authority (MPEDA)",
+      "C": "Central Institute of Brackishwater Aquaculture (CIBA)",
+      "D": "Coastal Aquaculture Authority (CAA)"
+    },
+    "correct": "B",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "MPEDA is the nodal agency for the holistic development of the seafood industry in India to promote exports. It plays a major role in the ornamental fish sector by providing subsidies, training, and organizing international trade fairs (like Aqua Aquaria India).",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_1uhkd",
+    "question": "In a marine reef aquarium setup, \"Live Rock\" is extensively used as a primary biological filtration medium. What is the crucial biological function of the deep, oxygen-depleted (porous interior) zones of these live rocks?",
+    "options": {
+      "A": "To provide a stable substrate for photosynthetic macroalgae",
+      "B": "To facilitate aerobic nitrification by Nitrosomonas bacteria",
+      "C": "To harbor anaerobic bacteria capable of denitrification (converting nitrate to nitrogen gas)",
+      "D": "To chemically precipitate dissolved calcium and magnesium"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "While the surface of live rock hosts aerobic nitrifying bacteria, the deep, porous interior lacks oxygen. This creates anoxic zones where anaerobic bacteria thrive, reducing nitrate ($NO_3^-$) into harmless nitrogen gas ($N_2$) which escapes the aquarium, completing the nitrogen cycle.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168732301_qbt9w",
+    "question": "To enhance the vibrant red and orange coloration of high-value ornamental fishes like Koi and Discus before export, their feeds are often enriched with specific carotenoid pigments. Which among the following microalgae is commercially cultivated as a premium natural source of the red pigment Astaxanthin?",
+    "options": {
+      "A": "Spirulina platensis",
+      "B": "Chlorella vulgaris",
+      "C": "Haematococcus pluvialis",
+      "D": "Chaetoceros calcitrans"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Haematococcus pluvialis is a freshwater green microalga that, under stress conditions, produces massive amounts of astaxanthin (a red keto-carotenoid). It is the premier natural color enhancer used in premium ornamental fish feeds. Spirulina is primarily used for blue/green enhancement and overall health.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_3833u",
+    "question": "In the commercial culture of Tubifex worms (sludge worms) as live feed for ornamental fishes, extreme caution and prophylactic treatments are necessary before feeding them to the broodstock. This is primarily because wild-collected Tubifex are notorious intermediate hosts for the parasite that causes:",
+    "options": {
+      "A": "White Spot Disease (Ich)",
+      "B": "Whirling Disease (Myxobolus cerebralis)",
+      "C": "Epizootic Ulcerative Syndrome (EUS)",
+      "D": "Argulosis (Fish lice)"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Tubifex worms inhabit the highly polluted bottom sludge of slow-moving waters. They are the obligate intermediate host for Myxobolus cerebralis, a highly destructive parasite that causes Whirling disease in fishes. Therefore, they must be thoroughly purged and sterilized, or replaced by cultured alternatives.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_atbek",
+    "question": "During the induced breeding of Amazonian exotic fishes like Corydoras (armored catfish) or Neon Tetras in captivity, aquarists often perform a massive 50-70% water change using water that is slightly cooler and softer than the tank water. What is the physiological purpose of this specific intervention?",
+    "options": {
+      "A": "To drastically reduce the dissolved oxygen level to stress the fish into spawning",
+      "B": "To simulate the onset of the monsoon season and seasonal flooding",
+      "C": "To temporarily stun the aggressive males and allow females to release eggs",
+      "D": "To neutralize the accumulation of spawning-inhibiting pheromones"
+    },
+    "correct": "B",
+    "unit": "Unit 7",
+    "difficulty": "medium",
+    "justification": "Many tropical fishes from the Amazon basin naturally spawn during the rainy season. A massive water change with cooler, softer water mimics the sudden influx of rain, dropping the temperature and hardness, which acts as a powerful environmental trigger for induced breeding in captivity.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_o4m1m",
+    "question": "Consider the following statements regarding the lighting requirements for a heavily planted freshwater ornamental aquarium (Nature Aquarium): 1. A light spectrum with a color temperature of around 6500K (Daylight) is considered optimal for aquatic plant photosynthesis. 2. Continuous 24-hour illumination maximizes plant growth and completely suppresses algal blooms. Which of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "Both 1 and 2",
+      "D": "Neither 1 nor 2"
+    },
+    "correct": "A",
+    "unit": "Unit 7",
+    "difficulty": "medium",
+    "justification": "Statement 1 is correct; 6500K mimics natural daylight and is ideal for heavily planted tanks. Statement 2 is incorrect; plants require a dark period for respiration. Continuous 24-hour lighting will severely stress the plants and fishes, and will inevitably lead to massive, uncontrollable algal blooms.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_sinqk",
+    "question": "To improve the hatching efficiency and eliminate the risk of disease introduction, Artemia cysts (brine shrimp eggs) often undergo a process called 'Decapsulation' before hatching. This process involves the chemical removal of the hard outer chorion using:",
+    "options": {
+      "A": "Formalin and Malachite green",
+      "B": "Sodium hypochlorite (Bleach) and Sodium hydroxide",
+      "C": "Potassium permanganate",
+      "D": "Acetic acid and Copper sulphate"
+    },
+    "correct": "B",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "Decapsulation involves hydrating the cysts and treating them with a strong oxidizing agent, usually sodium hypochlorite (bleach) buffered with sodium hydroxide, to dissolve the tough chorion. This leaves the viable embryo enclosed only in a thin membrane, yielding higher hatch rates and energy-rich nauplii.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_kd3c2",
+    "question": "Among the Indian states, which state has historically been recognized as the largest producer and the major export hub for freshwater ornamental fishes, accounting for the lion's share of India's export volume?",
+    "options": {
+      "A": "Kerala",
+      "B": "Tamil Nadu",
+      "C": "West Bengal",
+      "D": "Maharashtra"
+    },
+    "correct": "C",
+    "unit": "Unit 3",
+    "difficulty": "medium",
+    "justification": "West Bengal, particularly the Kolkata region, is the pioneering state and the largest export hub for ornamental fishes in India. It contributes to a vast majority of the country's ornamental fish export, heavily relying on a network of small-scale backyard breeders.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_cvjdo",
+    "question": "The Orange Chromide (Etroplus maculatus), an indigenous ornamental fish endemic to the estuarine and freshwaters of the Western Ghats, exhibits a distinct breeding behavior characterized by:",
+    "options": {
+      "A": "Mouthbrooding of eggs by the male parent exclusively",
+      "B": "Constructing elaborate bubble nests at the water surface",
+      "C": "Substrate spawning with strong biparental care of both eggs and fry",
+      "D": "Scattering non-adhesive eggs in the open water column"
+    },
+    "correct": "C",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "The Orange Chromide (Etroplus maculatus) is a cichlid native to India. Like many cichlids, they are substrate spawners that attach their eggs to cleaned solid surfaces (rocks/wood). Both the male and female aggressively defend the territory, fan the eggs, and guard the fry.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_seooh",
+    "question": "In the global trade regulations for live ornamental fishes, an importer in India must obtain a 'Sanitary Import Permit' (SIP) to legally import exotic species. Which department/agency under the Government of India is the central authority responsible for issuing this permit?",
+    "options": {
+      "A": "Marine Products Export Development Authority (MPEDA)",
+      "B": "Department of Animal Husbandry and Dairying (DAHD)",
+      "C": "Coastal Aquaculture Authority (CAA)",
+      "D": "National Bureau of Fish Genetic Resources (NBFGR)"
+    },
+    "correct": "B",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "The import of live aquatic animals, including ornamental fishes, falls under the strict purview of the DAHD (Ministry of Fisheries, Animal Husbandry and Dairying). They issue the Sanitary Import Permit (SIP) after risk analysis to prevent the introduction of exotic diseases into Indian waters.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_a244t",
+    "question": "The specific gravity of water is a critical parameter in the maintenance of a marine reef aquarium. For a typical tropical marine aquarium hosting corals and ornamental fishes, the ideal specific gravity (measured at 25°C) should be maintained within the range of:",
+    "options": {
+      "A": "1.005 to 1.010",
+      "B": "1.012 to 1.018",
+      "C": "1.023 to 1.026",
+      "D": "1.030 to 1.035"
+    },
+    "correct": "C",
+    "unit": "Unit 7",
+    "difficulty": "medium",
+    "justification": "Natural seawater has a specific gravity of approximately 1.025 at 25° C. For a marine reef aquarium containing sensitive invertebrates and tropical fishes, maintaining the specific gravity tightly between 1.023 and 1.026 is critical for osmoregulation and overall health.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_r01vp",
+    "question": "Which among the following is a fundamental advantage of using Moina spp. over Daphnia spp. in the larval rearing of smaller ornamental fishes like Gouramis and Bettas?",
+    "options": {
+      "A": "Moina has a significantly smaller physical size and higher protein content",
+      "B": "Moina reproduces exclusively through sexual reproduction, ensuring genetic diversity",
+      "C": "Moina can survive in highly saline marine aquarium conditions",
+      "D": "Moina does not require microalgae or infusoria as feed"
+    },
+    "correct": "A",
+    "unit": "Unit 9",
+    "difficulty": "medium",
+    "justification": "Moina (water fleas) are much smaller than Daphnia, making them an ideal intermediate live feed for fry that have outgrown rotifers/infusoria but are still too small to ingest Artemia or Daphnia. Furthermore, Moina has a higher protein profile and reproduces faster.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168890565_gpnb8",
+    "question": "A common therapeutic approach to treating 'Ich' (White Spot Disease) in tropical freshwater aquariums involves the gradual raising of the water temperature to about 30°C (86°F) combined with medication. The primary scientific rationale for raising the temperature is to:",
+    "options": {
+      "A": "Directly kill the adult parasites attached to the fish's skin",
+      "B": "Increase the oxygen-carrying capacity of the water to aid the fish's breathing",
+      "C": "Accelerate the life cycle of the parasite, forcing it into the vulnerable free-swimming stage",
+      "D": "Stimulate the fish's immune system to produce targeted antibodies instantly"
+    },
+    "correct": "C",
+    "unit": "Unit 10",
+    "difficulty": "medium",
+    "justification": "The Ichthyophthirius multifiliis parasite cannot be killed by medications while it is embedded in the fish's skin (the white spots) or resting in the substrate. Raising the temperature speeds up its life cycle, causing it to quickly detach and enter the free-swimming (theront) stage, which is the only stage vulnerable to medications like Malachite green.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964044_qmvk7",
+    "question": "The characteristic \"fishy\" odour emitted during the post-mortem spoilage of marine teleost fishes is primarily due to the bacterial reduction of which of the following osmoregulatory compounds?",
+    "options": {
+      "A": "Dimethylamine (DMA)",
+      "B": "Trimethylamine oxide (TMAO)",
+      "C": "Hydrogen sulphide ($H_2S$)",
+      "D": "Urea *"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Marine teleosts contain Trimethylamine oxide (TMAO) for osmoregulation. Post-mortem, spoilage bacteria reduce odourless TMAO into Trimethylamine (TMA), which gives off the characteristic pungent \"fishy\" smell.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_s1gqn",
+    "question": "ShutterstockIn a standard mechanical vapour compression refrigeration system used in fish freezing plants, the phase change of the refrigerant from a high-pressure, high-temperature vapour to a high-pressure liquid occurs in the:",
+    "options": {
+      "A": "Evaporator",
+      "B": "Compressor",
+      "C": "Condenser",
+      "D": "Expansion Valve"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In the refrigeration cycle, the compressor pressurizes the refrigerant gas, but it is in the condenser where this high-pressure gas releases heat to the environment and condenses into a high-pressure liquid.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_s1y7f",
+    "question": "The thermal processing step (retorting) in the canning of fish is designed to achieve \"commercial sterility\". This process specifically targets the destruction of the highly heat-resistant spores of which dangerous pathogen?",
+    "options": {
+      "A": "Staphylococcus aureus",
+      "B": "Listeria monocytogenes",
+      "C": "Vibrio parahaemolyticus",
+      "D": "Clostridium botulinum"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Clostridium botulinum is an anaerobic, spore-forming bacterium that produces a deadly neurotoxin. Because it thrives in the anaerobic environment of a sealed can, the thermal process (retorting) is mathematically calculated (12D concept) to destroy its highly heat-resistant spores.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_dtgc2",
+    "question": "During the artificial drying/dehydration of fish, if the drying rate is excessively high and the relative humidity is very low, a hard impervious layer forms on the surface of the fish preventing further internal moisture diffusion. This specific quality defect is termed as:",
+    "options": {
+      "A": "Protein Denaturation",
+      "B": "Case hardening",
+      "C": "Freeze-burn",
+      "D": "Dun formation"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Case hardening occurs when the evaporation rate from the surface exceeds the rate of moisture diffusion from the interior. The surface dries out too quickly, forming a hard crust that traps moisture inside, leading to improper drying and subsequent spoilage.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_cd6vl",
+    "question": "Consider the following statements regarding the irradiation of seafood:1. 'Radurization' is a pasteurization process using low doses (1-5 kGy) to extend the shelf life of fresh fish.2. 'Radappertization' involves the application of high doses (25-50 kGy) to achieve commercial sterility, analogous to thermal canning.Which of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "Both 1 and 2",
+      "D": "Neither 1 nor 2"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Both statements are correct. Radurization (1-5 kGy) reduces spoilage organisms to extend shelf life (similar to pasteurization). Radappertization (25-50 kGy) destroys all viable microorganisms, achieving commercial sterility.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_blb7v",
+    "question": "During the freezing of fish, the maximum crystallization of water into ice (approximately 80%) occurs within the \"critical zone\". What is the typical temperature range of this critical zone?",
+    "options": {
+      "A": "0°C to 4°CB. -1°C to -5°CC. -10°C to -15°CD. -18°C to -30°C",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The \"critical zone of maximum crystallization\" in fish freezing occurs between -1°C and -5° C. Passing through this temperature zone as rapidly as possible is crucial to form small ice crystals and prevent cellular damage to the fish tissue.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_omph6",
+    "question": "Which among the following industrial freezers uses expandable gaseous refrigerants like Liquid Nitrogen ($LN_2$) or Carbon dioxide ($CO_2$) sprayed directly onto the fish for ultra-fast freezing?",
+    "options": {
+      "A": "Air blast freezer",
+      "B": "Fluidized bed freezer",
+      "C": "Plate freezer",
+      "D": "Cryogenic freezer"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Cryogenic freezing utilizes expendable refrigerants like liquid nitrogen ($LN_2$) or liquid carbon dioxide. When sprayed on the food, they sublime/evaporate instantly at extremely low temperatures, causing ultra-fast freezing.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_u4r6i",
+    "question": "In crustacean species like shrimp and crab, the post-mortem enzymatic degradation of which of the following copper-containing blood proteins leads to the discoloration defect known as \"black spot\" or melanosis?",
+    "options": {
+      "A": "Myoglobin",
+      "B": "Hemocyanin",
+      "C": "Plastocyanin",
+      "D": "Astaxanthin"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Hemocyanin is the copper-based respiratory protein in crustaceans. Post-harvest, polyphenoloxidase (PPO) enzymes oxidize phenolic compounds in the presence of oxygen, leading to the formation of dark melanin pigments (black spot).",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_oh7k6",
+    "question": "Fish marinades are semi-preserved fish products. The primary preservative action that delays microbial development in these products is achieved through the synergistic use of:",
+    "options": {
+      "A": "High heat and vacuum sealing",
+      "B": "Lactic acid bacteria and sugar",
+      "C": "Acetic acid and salt",
+      "D": "Formaldehyde and wood smoke"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Marinades are lightly or semi-preserved fish products treated with edible acids (usually acetic acid/vinegar) and salt. The low pH from the acid combined with the reduced water activity from the salt inhibits microbial growth.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168964045_nbl5b",
+    "question": "In the Modified Atmosphere Packaging (MAP) of fresh fish, a specific gas mixture is used to extend shelf life. Which of the following gases is intentionally increased in the MAP gas flush mixture primarily for its strong bacteriostatic effect against aerobic spoilage bacteria?",
+    "options": {
+      "A": "Oxygen ($O_2$)",
+      "B": "Nitrogen ($N_2$)",
+      "C": "Carbon dioxide ($CO_2$)",
+      "D": "Carbon monoxide ($CO$)"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In MAP, $CO_2$ is the most important active gas. It dissolves in the aqueous and lipid phases of the fish tissue to form weak carbonic acid, lowering the pH and exerting a strong bacteriostatic effect on typical aerobic spoilage bacteria like Pseudomonas.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_l74zf",
+    "question": "According to the First Law of Thermodynamics, energy cannot be created or destroyed. Applying this principle to a standard vapour compression refrigeration cycle, the total heat rejected at the condenser is equal to:",
+    "options": {
+      "A": "The heat absorbed at the evaporator only",
+      "B": "The work done by the compressor only",
+      "C": "The heat absorbed at the evaporator plus the work done by the compressor",
+      "D": "The heat absorbed at the evaporator minus the work done by the compressor"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In a refrigeration cycle, the refrigerant absorbs heat from the cold room (evaporator) and is then compressed, which adds the mechanical heat of compression (work done). The condenser must reject both of these combined heat loads to the outside environment.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_0aa9n",
+    "question": "During the quality inspection of canned fish, a can is found with one end bulged. When this bulged end is pressed inward, it flips back to normal, but simultaneously forces the opposite end to bulge outward. This specific stage of can spoilage is technically termed as:",
+    "options": {
+      "A": "Flipper",
+      "B": "Springer",
+      "C": "Soft swell",
+      "D": "Hard swell"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "A 'Springer' is a can where one end bulges, and pressing it in causes the other end to spring out. A 'Flipper' is an earlier stage where hitting the can on a table causes one end to bulge, but it can be pressed back flat. Swells (soft/hard) cannot be pressed back at all.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_4itlg",
+    "question": "The 'K-value' is a universally accepted biochemical index used to accurately determine the early post-mortem freshness of fish. This value is calculated based on the sequential degradation pathway of which of the following compounds?",
+    "options": {
+      "A": "Glycogen",
+      "B": "Trimethylamine oxide (TMAO)",
+      "C": "Adenosine Triphosphate (ATP)",
+      "D": "Free fatty acids **"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Post-mortem, ATP in fish muscle rapidly degrades through a specific pathway: ATP $\\rightarrow$ ADP $\\rightarrow$ AMP $\\rightarrow$ IMP $\\rightarrow$ Inosine (HxR) $\\rightarrow$ Hypoxanthine (Hx). The K-value is the ratio of the spoilage compounds (HxR and Hx) to the total ATP breakdown products, making it a reliable freshness indicator.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_j2nvk",
+    "question": "ShutterstockExploreFreeze-drying (Lyophilization) produces superior quality dehydrated fish products with excellent rehydration capacity and minimal structural damage. What is the fundamental physical principle underlying this preservation method?",
+    "options": {
+      "A": "Evaporation of intracellular moisture under high pressure and elevated temperature",
+      "B": "Sublimation of ice directly into water vapour under high vacuum conditions",
+      "C": "Osmotic dehydration using super-saturated brine solutions",
+      "D": "Rapid moisture extraction using microwave-induced dielectric heating"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Freeze-drying works on the principle of sublimation. The fish is first frozen, and then placed in a high-vacuum chamber. Under low pressure, the ice transitions directly from the solid state into vapour without passing through the liquid phase, preserving the delicate tissue structure.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_oc8td",
+    "question": "Which of the following amino acids, abundantly present in the dark muscle of scombroid fishes like Tuna and Mackerel, is bacterially decarboxylated during spoilage to form a highly toxic compound responsible for 'Scombroid poisoning'?",
+    "options": {
+      "A": "Tyrosine",
+      "B": "Arginine",
+      "C": "Histidine",
+      "D": "Tryptophan"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Scombroid fishes have high levels of free histidine in their dark muscle. If the fish is poorly chilled, spoilage bacteria produce the enzyme histidine decarboxylase, which converts harmless histidine into Histamine, triggering severe allergic-like food poisoning in humans.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_vdq8l",
+    "question": "Ammonia ($NH_3$ / R-717) is heavily utilized as a primary refrigerant in large-scale industrial fish freezing plants. Which of the following is an INCORRECT characteristic of Ammonia as a refrigerant?",
+    "options": {
+      "A": "It has an exceptionally high latent heat of vaporization",
+      "B": "It possesses a zero Ozone Depletion Potential (ODP)",
+      "C": "It exhibits excellent compatibility with copper and brass tubings",
+      "D": "It is highly toxic and produces a pungent, irritating odour"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Statement C is incorrect. Ammonia is highly corrosive to copper, brass, and bronze, especially in the presence of moisture. Therefore, industrial ammonia refrigeration systems must exclusively use steel or iron pipes and fittings.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_gyjbv",
+    "question": "'Masmin' is a highly valued, traditional fish product known for its long shelf life. It is prepared through a rigorous process of boiling, smoking, and hard-drying. This specific product is predominantly prepared from Tuna in which of the following regions?",
+    "options": {
+      "A": "Coastal Kerala",
+      "B": "Andaman and Nicobar Islands",
+      "C": "Lakshadweep",
+      "D": "Coastal West Bengal"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "'Masmin' (or Mas meen) is a traditional, heavily smoked, and sun-dried product made from Skipjack tuna. It is a signature fishery product of the Lakshadweep islands and holds immense cultural and export significance.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_g2vie",
+    "question": "Among the various industrial freezers available, which type is exclusively designed and utilized for producing uniform, rectangular frozen blocks of fish fillets or mince by ensuring direct physical contact with the cooling surface under pressure?",
+    "options": {
+      "A": "Horizontal / Vertical Plate freezer",
+      "B": "Fluidized bed freezer",
+      "C": "Air blast room freezer",
+      "D": "Liquid Nitrogen immersion freezer"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Plate freezers consist of hollow, refrigerated metal plates. Fish packed in trays or cartons are placed between the plates, which are then hydraulically pressed together. This double-sided contact ensures rapid freezing and produces perfectly flat, easily stackable frozen blocks.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_f3pdg",
+    "question": "When calculating the total heat load to design a refrigeration plant for a fish processing unit, the 'Sensible Heat' of the fish refers to the:",
+    "options": {
+      "A": "Heat removed to change the liquid water in the fish tissue into solid ice at a constant temperature",
+      "B": "Heat removed to lower the temperature of the fish from its initial temperature down to its freezing point",
+      "C": "Heat generated continuously by the respiration of spoilage bacteria present on the fish gills",
+      "D": "Heat infiltrating the cold room through the insulated walls, roof, and floor"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In thermodynamics, 'Sensible heat' causes a change in temperature without a change in phase. Lowering the fish temperature to 0°C is sensible heat removal. Once freezing starts, the heat removed to turn water to ice (at a constant temperature) is called 'Latent heat'.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773168984894_s8ayk",
+    "question": "Retort pouches are rapidly replacing traditional tin cans in the thermal processing of fish due to their flexible nature and faster heat penetration. A standard retort pouch is a laminated three-layer film. What is the primary function of the middle Aluminium foil layer?",
+    "options": {
+      "A": "To provide a strong thermal seal when heated",
+      "B": "To impart high mechanical strength and puncture resistance to the pouch",
+      "C": "To act as an absolute barrier against light, gases, and moisture",
+      "D": "To prevent the migration of plasticizers and chemicals into the food"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "A retort pouch typically consists of: Outer Polyester (PET) for mechanical strength, middle Aluminium foil for an absolute barrier (preventing oxidation/spoilage), and inner Cast Polypropylene (CPP) which acts as the heat-sealable, food-contact layer.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_59gsz",
+    "question": "Among the various types of artificial ice manufactured for the chilling and onboard storage of fresh fish, which type is considered most ideal because it provides maximum surface contact area and lacks sharp edges that could physically damage the fish skin?",
+    "options": {
+      "A": "Block ice",
+      "B": "Flake ice",
+      "C": "Tube ice",
+      "D": "Plate ice"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Flake ice is flat, thin, and slightly sub-cooled. Because it has no sharp edges, it does not puncture or bruise the fish skin. Its flat shape also provides excellent surface contact for rapid heat exchange (cooling).",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_zszaw",
+    "question": "Heavily salted and dried fish are often susceptible to a specific spoilage condition called 'Dun', which is characterized by the appearance of brown or black pepper-like spots on the fleshy parts. This defect is primarily caused by:",
+    "options": {
+      "A": "Halotolerant bacteria like Staphylococcus aureus",
+      "B": "Halophilic moulds like Sporendonema epizoum",
+      "C": "Severe oxidation of highly unsaturated fatty acids",
+      "D": "Non-enzymatic Maillard browning reaction"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "'Dun' is a specific spoilage of dry salted fish caused by halophilic (salt-loving) moulds, primarily Sporendonema epizoum. It appears as brownish-black spots. It does not produce toxic byproducts or putrid smells, but it ruins the visual appeal and market value of the dried fish.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_vx0tc",
+    "question": "In the fish canning process, the unit operation called \"Exhausting\" is performed immediately prior to seaming (sealing) the cans. The primary objective of exhausting is to:",
+    "options": {
+      "A": "Cook the fish partially to release excess tissue water and oil",
+      "B": "Destroy the heat-resistant spores of Clostridium botulinum",
+      "C": "Create a vacuum inside the can by removing entrapped air",
+      "D": "Soften the pin-bones of the fish for better edibility"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Exhausting involves heating the open can to expand the contents and drive out the air before sealing. When the sealed can cools, the headspace contracts, creating a vacuum. This prevents the can from bulging during thermal processing and minimizes internal oxidative corrosion.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_wuzge",
+    "question": "The high susceptibility of fish lipids to oxidative rancidity (which causes a cardboard-like or paint-like odour) during frozen storage is primarily due to the abundant presence of:",
+    "options": {
+      "A": "Saturated fatty acids like Palmitic acid",
+      "B": "Omega-3 Polyunsaturated Fatty Acids (PUFA) like EPA and DHA",
+      "C": "Cholesterol and fat-soluble vitamins",
+      "D": "Free amino acids and volatile amines **"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fish oils are highly nutritious because they are rich in long-chain PUFAs (EPA and DHA). However, the multiple double bonds in these fatty acids make them highly unstable and prone to attack by free radicals and oxygen, leading to rapid oxidative rancidity even at sub-zero temperatures.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_pa6g2",
+    "question": "Shutterstock In a commercial fish freezing plant's refrigeration cycle, which component is responsible for abruptly lowering the pressure and temperature of the liquid refrigerant before it enters the evaporator coils?",
+    "options": {
+      "A": "Compressor",
+      "B": "Condenser",
+      "C": "Thermostatic Expansion Valve",
+      "D": "Liquid Receiver"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The expansion valve acts as a restriction in the refrigeration cycle. It receives high-pressure, warm liquid refrigerant from the condenser and meters it into the evaporator. This sudden drop in pressure causes a portion of the refrigerant to flash into vapour, drastically lowering its temperature.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_9zvl4",
+    "question": "When calculating the refrigeration heat load required to completely freeze a batch of fresh fish in a plate freezer, the 'Latent Heat of Freezing' required to be removed is directly proportional to the:",
+    "options": {
+      "A": "Initial temperature of the fish before entering the freezer",
+      "B": "Total fat content of the fish",
+      "C": "Total moisture (water) percentage of the fish",
+      "D": "Specific heat capacity of the completely frozen fish"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Latent heat is the heat removed to change the phase of water into ice without changing the temperature. Since fish muscle is composed of 70-80% water, the latent heat load of the freezing process depends almost entirely on how much water needs to be frozen into ice.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_fav5x",
+    "question": "Which of the following industrial thawing methods utilizes high-frequency alternating electromagnetic fields to generate heat internally within the frozen fish block, thereby drastically reducing the thawing time compared to conventional methods?",
+    "options": {
+      "A": "Air blast thawing",
+      "B": "Vacuum thawing",
+      "C": "Water immersion thawing",
+      "D": "Dielectric thawing"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Dielectric thawing uses high-frequency radio waves or microwaves. The rapidly alternating electric field causes the polar water molecules inside the frozen fish to oscillate rapidly. This internal friction generates uniform heat throughout the fish block, thawing it in minutes rather than hours.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_r5ext",
+    "question": "'Freezer burn' is a major quality defect in frozen fish characterized by dehydrated, opaque, and spongy patches on the surface. In the seafood industry, this defect is most effectively and economically prevented by:",
+    "options": {
+      "A": "Storing the frozen fish at fluctuating temperatures above -10°C",
+      "B": "Glazing the frozen fish with a thin, protective layer of ice before storage",
+      "C": "Continuously increasing the air velocity inside the cold storage room",
+      "D": "Thawing and refreezing the fish periodically to restore surface moisture"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Freezer burn is caused by the sublimation of ice directly into vapour from the surface of the fish in the dry air of a cold store. Dipping the frozen fish in chilled water forms an ice 'glaze'. This glaze sublimates instead of the fish's actual tissue moisture, protecting the product.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_gh49c",
+    "question": "The application of an intermediate dose of ionizing radiation (usually 5 to 8 kGy) to frozen fishery products specifically to eliminate pathogenic, non-spore-forming bacteria like Salmonella without achieving complete sterility is technically termed as:",
+    "options": {
+      "A": "Radurization",
+      "B": "Radicidation",
+      "C": "Radappertization",
+      "D": "Cold pasteurization"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In food irradiation, Radicidation (5-8 kGy) targets the elimination of specific non-spore-forming pathogens (like Salmonella or Vibrio). Radurization (1-5 kGy) is for extending shelf life (killing spoilage bacteria), and Radappertization (25-50 kGy) is for commercial sterility.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169007160_pc08p",
+    "question": "During the preparation of traditional fermented fish products (such as fish sauce or fish paste), a very high concentration of salt (usually 20-30%) is thoroughly mixed with the raw fish. What is the primary microbiological and biochemical role of this high salt concentration?",
+    "options": {
+      "A": "To act as a carbohydrate substrate for rapid yeast fermentation",
+      "B": "To accelerate the non-enzymatic browning reaction for dark colour development",
+      "C": "To inhibit putrefactive bacteria while allowing halotolerant lactic acid bacteria and endogenous tissue enzymes to act",
+      "D": "To completely denature the tissue proteins and immediately stop all autolytic enzyme activity"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In fermented fish, salt acts as a selective agent. It prevents the growth of normal spoilage and pathogenic (putrefactive) bacteria. This creates an environment where salt-tolerant (halophilic/halotolerant) lactic acid bacteria and the fish's own digestive enzymes (autolysis) can safely break down the proteins into flavourful peptides and amino acids over several months.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_x62gd",
+    "question": "In the traditional 'Colombo curing' method of fish preservation, widely practiced for species like mackerel in South India, which of the following natural ingredients is uniquely added along with salt to lower the pH, inhibit microbial growth, and impart a characteristic tart flavour?",
+    "options": {
+      "A": "Lactic acid starter cultures",
+      "B": "Malabar tamarind (Garcinia cambogia)",
+      "C": "Refined Acetic acid (Vinegar)",
+      "D": "Citrus aurantiifolia (Lime) juice"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Colombo curing is a traditional pickling method where fish (mainly mackerel or seer fish) is cured with salt and dried pieces of Malabar tamarind (Goraka). The high acidity of the tamarind lowers the pH, extending the shelf life and creating a distinct product.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_vv35z",
+    "question": "To prevent the formation of unsightly blue-black 'Iron sulphide' stains inside tin cans—caused by the release of sulphur from fish proteins during the high-heat retorting process—the interior of the cans is coated with a specific protective layer known as:",
+    "options": {
+      "A": "Acid-Resistant (AR) lacquer",
+      "B": "Epikote resin enamel",
+      "C": "Sulphur-Resistant (SR) lacquer",
+      "D": "Polyethylene terephthalate (PET) film"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Fish is a high-protein food containing sulphur amino acids. During thermal processing, hydrogen sulphide is released, which reacts with the tinplate to form black iron sulphide. Cans for fish are coated with SR lacquer (which contains zinc oxide) to trap the sulphur as white, invisible zinc sulphide instead.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_oa3xs",
+    "question": "The oxidative rancidity of highly unsaturated fish lipids during prolonged frozen storage results in the accumulation of secondary oxidation products, particularly malondialdehyde. The standard biochemical test used to quantify this specific spoilage compound is the:",
+    "options": {
+      "A": "Total Volatile Base Nitrogen (TVB-N) test",
+      "B": "Thiobarbituric Acid (TBA) value test",
+      "C": "Trimethylamine (TMA) test",
+      "D": "Peroxide Value (PV) test"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "While the Peroxide Value (PV) measures primary oxidation (peroxides), the TBA test specifically measures malondialdehyde, a secondary oxidation product that causes the actual rancid smell and taste in frozen fish lipids. TVB-N and TMA measure protein/microbial spoilage.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_ef0id",
+    "question": "The gradual loss of water-holding capacity and the development of a tough, rubbery, and spongy texture in fish fillets during extended frozen storage is primarily attributed to the freeze-induced denaturation of which of the following myofibrillar proteins?",
+    "options": {
+      "A": "Myoglobin",
+      "B": "Collagen",
+      "C": "Actomyosin",
+      "D": "Elastin"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Actomyosin constitutes the bulk of the structural myofibrillar proteins in fish muscle. During freezing and frozen storage, ice crystal formation concentrates cellular salts, causing actomyosin to denature, cross-link, and lose its ability to hold water, leading to a tough, dry texture (drip loss upon thawing).",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_ugi0e",
+    "question": "During the transportation of chilled fresh fish, crushed ice is extensively used as a cooling medium. What is the exact amount of heat energy (Latent Heat of Fusion) absorbed by 1 kg of ice at 0°C to completely melt into water at 0°C?",
+    "options": {
+      "A": "80 kcal",
+      "B": "100 kcal",
+      "C": "144 kcal",
+      "D": "540 kcal"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The latent heat of fusion of ice is 80 kilocalories per kilogram. This means 1 kg of ice at 0°C absorbs 80 kcal of heat from the surrounding fish to melt into 1 kg of water at 0°C, making it a highly effective and economically viable chilling medium.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_5un18",
+    "question": "Consider the following statements regarding Solar Tent Dryers used for fish dehydration:1. They operate on the principle of the greenhouse effect to trap solar radiation and raise the internal temperature.2. They eliminate the risk of contamination from dust, bird droppings, and blowfly infestation, which are common issues in open sun drying.Which of the statements given above is/are correct?",
+    "options": {
+      "A": "1 only",
+      "B": "2 only",
+      "C": "Both 1 and 2",
+      "D": "Neither 1 nor 2"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Solar tent dryers use clear polythene sheets over a wooden/bamboo frame. They trap heat via the greenhouse effect (raising temps 10-15°C above ambient) and physically protect the drying fish from rain, dust, insects (blowflies), and animals, vastly improving the hygienic quality over traditional sun drying.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_tt8dv",
+    "question": "In the calculation of the total heat load for designing a commercial frozen fish cold storage facility, the 'Transmission Load' specifically refers to the heat entering the refrigerated space through:",
+    "options": {
+      "A": "The infiltration of warm outside air when the cold room doors are repeatedly opened",
+      "B": "The insulated walls, roof, and floor due to the temperature difference between the outside and inside environments",
+      "C": "The operation of internal electrical equipment such as evaporator fans and forklift trucks",
+      "D": "The body heat generated by the personnel working inside the cold room"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Transmission load is the heat that conducts through the physical structure of the cold room (walls, ceiling, floor). Infiltration load relates to air entering through doors. Product load is from the fish itself, and Internal load is from lights, fans, and people.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_xair9",
+    "question": "'Belly burst' is a severe post-mortem quality defect often observed in heavily feeding pelagic fishes (like sardines and mackerel) if they are not immediately chilled after the catch. This condition is primarily caused by:",
+    "options": {
+      "A": "The expansion and rupture of the swim bladder due to rapid pressure changes during hauling",
+      "B": "Severe physical compression and crushing of the fish during trawling operations",
+      "C": "Powerful autolytic enzymes leaking from the gut and digesting the abdominal wall",
+      "D": "The rapid accumulation of massive amounts of histamine in the ventral muscle tissues"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Pelagic fish feeding heavily on plankton have a gut full of powerful digestive enzymes. Post-mortem, if the fish isn't chilled quickly, these enzymes (autolysis) digest the gut wall and the surrounding belly tissue, causing it to rupture (\"belly burst\").",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169027326_rf15n",
+    "question": "During the thermal processing of canned fish, the 'Cold Spot' is the specific point inside the can that takes the longest time to reach the required sterilizing temperature. In a solid-packed fishery product (e.g., solid Tuna in oil, where heat transfer is strictly by conduction), the cold spot is located at the:",
+    "options": {
+      "A": "Top surface just beneath the lid of the can",
+      "B": "Geometric centre of the can",
+      "C": "Bottom-most layer resting on the retort tray",
+      "D": "Peripheral walls closest to the heating medium"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "In solid-packed foods (like tuna in oil or fish paste), heat travels purely by conduction from the outside towards the inside. Therefore, the slowest heating point (the cold spot) is exactly at the geometric centre of the can. In liquid packs (convection), it is usually on the central axis but closer to the bottom",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907887_q1f65",
+    "question": "The ultimate end product of ATP breakdown in fish muscle, often used as a chemical indicator of spoilage, is:",
+    "options": {
+      "A": "Inosine monophosphate (IMP)",
+      "B": "Hypoxanthine (Hx)",
+      "C": "Urea",
+      "D": "Adenosine diphosphate (ADP)"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "ATP degradation follows the sequence: ATP → ADP → AMP → IMP → Inosine → Hypoxanthine. Hypoxanthine accumulates during spoilage and is widely used as a chemical freshness indicator.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_ykmr2",
+    "question": "Which of the following statements regarding Rigor Mortis in fish is correct?",
+    "options": {
+      "A": "High temperature during handling delays the onset of rigor mortis",
+      "B": "Fish in rigor mortis stage provides maximum extraction of Myofibrillar Protein (MGP)",
+      "C": "Small fish enter and leave rigor mortis slower than large fish",
+      "D": "Struggling of fish during harvest increases the duration of rigor mortis"
+    },
+    "correct": "B",
+    "unit": "Unit 3",
+    "difficulty": "medium",
+    "justification": "This is a classic conceptual trap. During rigor mortis, actin and myosin form a tight actomyosin complex, which actually reduces protein extractability. Such statements are commonly used in competitive exams to test deeper understanding.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_7ks0p",
+    "question": "The K-value or freshness index, used to measure the quality of fish during chilled storage, is primarily based on:",
+    "options": {
+      "A": "The ratio of TMA to TMAO",
+      "B": "The total volatile base nitrogen (TVB-N) content",
+      "C": "The relative concentrations of ATP and its breakdown products",
+      "D": "The rate of lipid oxidation and peroxide formation"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "The K-value is calculated as the ratio of spoilage products (inosine + hypoxanthine) to the total ATP-related compounds, making it a reliable freshness index.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_8rgui",
+    "question": "The defect in dried fish where the surface becomes hard and dry while the interior remains moist, preventing further moisture transfer, is known as:",
+    "options": {
+      "A": "Crystallization",
+      "B": "Case Hardening",
+      "C": "Denaturation",
+      "D": "Maillard Reaction"
+    },
+    "correct": "B",
+    "unit": "Unit 3",
+    "difficulty": "medium",
+    "justification": "Case hardening occurs when the outer layer dries too rapidly, forming a hard crust that traps moisture inside, preventing proper drying and leading to spoilage.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_bfpbf",
+    "question": "In a mechanical refrigeration cycle, the component where the refrigerant changes from a high-pressure liquid to a low-pressure mixture of liquid and vapor is the:",
+    "options": {
+      "A": "Condenser",
+      "B": "Evaporator",
+      "C": "Compressor",
+      "D": "Expansion Valve"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The expansion valve reduces the pressure of the liquid refrigerant, converting it into a low-pressure liquid-vapor mixture before it enters the evaporator.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_07h4b",
+    "question": "Identify the correctly matched pair of fishery products and their characteristic ingredient/source:",
+    "options": {
+      "A": "Masmin — Smoked and dried tuna",
+      "B": "Colombo Curing — Use of Tamarindus indica",
+      "C": "Fish Silage — Fermentation by Halophilic bacteria",
+      "D": "Fish Maws — Processed from fish liver"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Masmin is a traditional smoked and dried tuna product from Lakshadweep and the Maldives. Colombo curing uses Garcinia cambogia rather than tamarind.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_5qgoi",
+    "question": "According to Indian Standards (BIS), the maximum permissible moisture content for dry-salted mackerel is:",
+    "options": {
+      "A": "40%",
+      "B": "35%",
+      "C": "25%",
+      "D": "45%"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "According to BIS standards (IS 1490), the maximum moisture limit for dried salted mackerel is approximately 35% to maintain shelf stability.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_2ijah",
+    "question": "The Critical Zone in the freezing of fish, where the maximum quantity of water is turned into ice crystals, refers to the temperature range of:",
+    "options": {
+      "A": "0°C to -10°C",
+      "B": "-1°C to -5°C",
+      "C": "-18°C to -30°C",
+      "D": "-5°C to -15°C"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "This is called the zone of maximum ice crystal formation, where most of the water freezes. Rapid freezing aims to pass through this zone quickly to minimize tissue damage.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_c2r00",
+    "question": "The main compound responsible for the characteristic fishy smell in marine fish during spoilage is:",
+    "options": {
+      "A": "Ammonia",
+      "B": "Hydrogen sulphide",
+      "C": "Trimethylamine",
+      "D": "Dimethylamine"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "Marine fish contain trimethylamine oxide (TMAO). During spoilage, bacteria reduce TMAO into trimethylamine, producing the typical fishy odor.",
+    "addedOn": "2026-03-10"
+  },
+  {
+    "id": "q_1773169907888_904we",
+    "question": "In the context of seafood irradiation, the term Radicidation refers to a process equivalent to:",
+    "options": {
+      "A": "Commercial Sterilization",
+      "B": "Disinfestation",
+      "C": "Pasteurization",
+      "D": "Blanching ANSWER KEY & JUSTIFICATIONS (Q1–Q10)"
+    },
+    "correct": "C",
+    "unit": "Unit 6",
+    "difficulty": "medium",
+    "justification": "In irradiation terminology: Radappertization – Sterilization Radicidation – Pasteurization Radurization – Shelf-life extension",
+    "addedOn": "2026-03-10"
+  }
+]

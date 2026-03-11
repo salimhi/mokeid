@@ -3118,5 +3118,740 @@
     "difficulty": "hard",
     "justification": "*Scomber scombrus* (Atlantic mackerel) is a migratory transboundary stock distributed in the North Atlantic around Norway, Iceland and the Faroe Islands.",
     "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_ls794",
+    "question": "___ is a method of preserving food in which the food contents are processed and sealed in an airtight container.",
+    "options": {
+      "A": "Canning",
+      "B": "Appertization",
+      "C": "Rigor mortis",
+      "D": "Evisceration"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Canning preserves food by processing and sealing it in an airtight container.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_9x8m5",
+    "question": "Canning is also known as",
+    "options": {
+      "A": "Canning",
+      "B": "Appertization",
+      "C": "Rigor mortis",
+      "D": "Nobbing"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Canning is also referred to as Appertization.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_f1oax",
+    "question": "___ is the temporary stiffening of muscles after death, caused by a lack of adenosine triphosphate (ATP) energy, preventing muscle relaxation and leading to locked muscle fibers.",
+    "options": {
+      "A": "Rigor mortis",
+      "B": "Evisceration",
+      "C": "Nobbing",
+      "D": "Retorting"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Rigor mortis is temporary stiffening of muscles after death due to lack of ATP.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_8diny",
+    "question": "___ is the removal of viscera (internal organs) especially those of abdominal cavity.",
+    "options": {
+      "A": "Evisceration",
+      "B": "Rigor mortis",
+      "C": "Nobbing",
+      "D": "Retorting"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Evisceration is the removal of internal organs, especially from the abdominal cavity.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_5zgt9",
+    "question": "This process of removing head and gut in one operation is called",
+    "options": {
+      "A": "Nobbing",
+      "B": "Evisceration",
+      "C": "Rigor mortis",
+      "D": "Retorting"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Nobbing removes the head and gut in a single operation.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_m6xf7",
+    "question": "For the brining process during fish canning operations, the recommended salt concentration for the brine solution is",
+    "options": {
+      "A": "1-2%",
+      "B": "2-3%",
+      "C": "3-5%",
+      "D": "5-7%"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "A 2-3% salt concentration is recommended for brining during fish canning.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_znvtm",
+    "question": "___ in a can (or jar) is the empty gap between the food/liquid and the lid, crucial for safe home canning as it allows for expansion during heating, prevents lid damage, ensures proper vacuum sealing, and maintains food quality",
+    "options": {
+      "A": "Headspace",
+      "B": "Exhausting",
+      "C": "Retorting",
+      "D": "Nobbing"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Headspace allows expansion during heating and proper vacuum sealing in a can.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_jikox",
+    "question": "___ refers to the crucial food preservation step of removing air/gases from the headspace of a filled can before sealing",
+    "options": {
+      "A": "Exhausting of can",
+      "B": "Headspace",
+      "C": "Retorting",
+      "D": "Nobbing"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Exhausting removes air/gases from the can headspace before sealing.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_bqx3n",
+    "question": "Botulism in a can is a severe illness from the toxin of ___ bacteria, which thrives in low-oxygen, low-acid, improperly home-canned foods",
+    "options": {
+      "A": "Clostridium botulinum",
+      "B": "Salmonella",
+      "C": "Listeria",
+      "D": "E. coli"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Clostridium botulinum produces toxin causing botulism in improperly canned low-oxygen, low-acid foods.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225731537_3895t",
+    "question": "The process of ___ (pressure canning) kills the highly heat-resistant spores of Clostridium botulinum through the use of high temperature and pressure, which is necessary for the commercial sterility of low-acid canned foods.",
+    "options": {
+      "A": "Retorting",
+      "B": "Nobbing",
+      "C": "Evisceration",
+      "D": "Rigor mortis"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Retorting (pressure canning) kills heat-resistant Clostridium botulinum spores to ensure sterility.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_9fj7e",
+    "question": "The RFMO that manage non tuna resources of South Pacific region",
+    "options": {
+      "A": "SEAFOB",
+      "B": "SPRFMO",
+      "C": "CCSBT",
+      "D": "SPNRFMO"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "SPRFMO manages non-tuna resources in the South Pacific region.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_0w7f7",
+    "question": "GFCM stands for",
+    "options": {
+      "A": "Great Fisheries Commission for the Mediterranean",
+      "B": "Great Fisheries Committee for the Mediterranean",
+      "C": "General Fisheries Commission for the Mediterranean",
+      "D": "General Fisheries Committee for the Mediterranean"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "GFCM stands for General Fisheries Commission for the Mediterranean.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_5whsi",
+    "question": "Headquarters of South East Atlantic Fisheries Organisation is in",
+    "options": {
+      "A": "Italy",
+      "B": "Namibia",
+      "C": "Canada",
+      "D": "Peru"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "The headquarters of South East Atlantic Fisheries Organisation is located in Namibia.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_z2dvm",
+    "question": "RFMO that manages conservation of Atlantic tunas",
+    "options": {
+      "A": "IATTC",
+      "B": "IOTC",
+      "C": "CCSBT",
+      "D": "ICCAT"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "ICCAT manages conservation of Atlantic tunas.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_978xp",
+    "question": "Headquarters for the Commission for the Conservation of Southern Bluefin Tuna is at",
+    "options": {
+      "A": "Canberra",
+      "B": "Pohnpei",
+      "C": "Victoria",
+      "D": "Madrid"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "The Commission for the Conservation of Southern Bluefin Tuna is headquartered in Canberra.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_tud8f",
+    "question": "i. Tropical fisheries are multi-gear and multi-species ii. Stock assessment is easier in tropical fishery when compared to temperate fishery",
+    "options": {
+      "A": "i is true but ii is false",
+      "B": "ii is true and i is the reason for ii",
+      "C": "Both i and ii are false",
+      "D": "ii is true but not the true reason for i"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Tropical fisheries are multi-gear and multi-species, making stock assessment more complex; ii is false.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_ppqf7",
+    "question": "Age-structured assessment models are used in",
+    "options": {
+      "A": "Tropical fishery",
+      "B": "Temperate fishery",
+      "C": "Both A and B",
+      "D": "None of the above"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Age-structured assessment models are primarily applied in temperate fisheries.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_edah1",
+    "question": "Which of the following is fishery indicator",
+    "options": {
+      "A": "Catch",
+      "B": "Catch at age",
+      "C": "Size at maturity",
+      "D": "Catch Per Unit Effort"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Catch Per Unit Effort is a standard fishery indicator for monitoring effort and abundance.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_i2bm6",
+    "question": "Total weigh of fish that can be removed by fishing without changing the size of the population is called",
+    "options": {
+      "A": "Catch Per Unit Effort",
+      "B": "Surplus production",
+      "C": "Production rate",
+      "D": "Abundance"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Surplus production represents the total weight of fish that can be harvested without changing population size.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225821307_wqnpb",
+    "question": "The relationship between average production and fishing effort is",
+    "options": {
+      "A": "Production rate",
+      "B": "Production function",
+      "C": "Abundance",
+      "D": "Catch Per Unit Effort"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Production function describes the relationship between average production and fishing effort.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_4aoaz",
+    "question": "Method of drying utilizing atmospheric conditions like temp, humidity, airflow is called",
+    "options": {
+      "A": "Natural drying",
+      "B": "Sun",
+      "C": "Cabinet Dryer",
+      "D": "Tunnel dryer"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Natural drying uses atmospheric conditions like temperature, humidity, and airflow.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_cjhq2",
+    "question": "___ Drying carried out in open air using solar energy to evaporate water",
+    "options": {
+      "A": "Natural drying",
+      "B": "Sun",
+      "C": "Tunnel dryer",
+      "D": "Cabinet Dryer"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Sun drying uses solar energy in open air to evaporate water.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_f8j3f",
+    "question": "Choose the disadvantages of solar drying",
+    "options": {
+      "A": "Long duration of drying",
+      "B": "More time required",
+      "C": "Poor quality product",
+      "D": "Above all"
+    },
+    "correct": "D",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Solar drying disadvantages include long duration, more time required, and poor quality; above all applies.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_ptxiu",
+    "question": "RH above ___ is not desirable in natural drying",
+    "options": {
+      "A": "60%",
+      "B": "70%",
+      "C": "75%",
+      "D": "80%"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Relative humidity above 75% is undesirable in natural drying.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_t9e6g",
+    "question": "Air temp rises to ___ or more in tropical climate in solar tent drying",
+    "options": {
+      "A": "50°C",
+      "B": "55°C",
+      "C": "60°C",
+      "D": "65°C"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Air temperature in tropical solar tent drying can rise to 60°C or more.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_3mhiq",
+    "question": "2 classes of mechanical drying",
+    "options": {
+      "A": "Heat transferred to product through hot gas",
+      "B": "Heat transferred to product through a solid surface",
+      "C": "Both A and B",
+      "D": "None of the above"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Mechanical drying includes heat transfer through hot gas and through a solid surface.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_hxb71",
+    "question": "What are the basic controlling factors in hot air dryers",
+    "options": {
+      "A": "Temp, air velocity, humidity",
+      "B": "Temp, pressure, airflow",
+      "C": "Humidity, solar radiation, airflow",
+      "D": "Temp, RH, airflow"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Temperature, air velocity, and humidity are basic controlling factors in hot air dryers.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_3uyfz",
+    "question": "Cabinet Dryer is used for ___ scale operation",
+    "options": {
+      "A": "Small",
+      "B": "Medium",
+      "C": "Large",
+      "D": "Industrial"
+    },
+    "correct": "A",
+    "unit": "Unit 5",
+    "difficulty": "easy",
+    "justification": "Cabinet dryers are used for small-scale operations.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_sim7v",
+    "question": "___ is the most commonly used dryer for fish drying",
+    "options": {
+      "A": "Cabinet Dryer",
+      "B": "Tunnel dryer",
+      "C": "Solar dryer",
+      "D": "Natural drying"
+    },
+    "correct": "B",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "Tunnel dryer is the most commonly used dryer for fish drying.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773225944389_2y9en",
+    "question": "Avg. length of the tunnel dryer used for fish drying is",
+    "options": {
+      "A": "5-7 m long",
+      "B": "6-8 m long",
+      "C": "8-10 m long",
+      "D": "10-12 m long"
+    },
+    "correct": "C",
+    "unit": "Unit 5",
+    "difficulty": "medium",
+    "justification": "The average length of tunnel dryers used for fish drying is 8–10 m.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_59j6n",
+    "question": "Overall fish production in India during the year 2022-23 in million tonnes",
+    "options": {
+      "A": "19.5",
+      "B": "19.9",
+      "C": "17.5",
+      "D": "18.5"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Overall fish production in India during 2022-23 was 19.5 million tonnes.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_62la3",
+    "question": "Threadfin breams belongs to the family",
+    "options": {
+      "A": "Belontidae",
+      "B": "Scombridae",
+      "C": "Dorosomatidae",
+      "D": "Nemipteridae"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Threadfin breams belong to the family Nemipteridae.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_j71of",
+    "question": "Cistopus indicus is a species of",
+    "options": {
+      "A": "Lesser sardine",
+      "B": "Ribbon fish",
+      "C": "Octopus",
+      "D": "Squid"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Cistopus indicus is a species of octopus.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_zn5qa",
+    "question": "Which of the following is a ribbon fish species commonly seen in Indian coast",
+    "options": {
+      "A": "Nemipterus mesoprion",
+      "B": "Trichiurus lepturus",
+      "C": "Rastrelliger kanagurta",
+      "D": "Nemipterus japonicas"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Trichiurus lepturus is a commonly seen ribbon fish along the Indian coast.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_3xl98",
+    "question": "i. Production of Rastrelliger kanagurta was 3.43 Lakh Tonnes during the year 2023-24 ii. Production of mackerel surpassed the production of Indian oil sardine becoming the highest contributing single species fishery in India",
+    "options": {
+      "A": "Both i & ii are False",
+      "B": "i is True & ii is False",
+      "C": "i is False & ii is True",
+      "D": "Both i & ii are True"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Both statements about Rastrelliger kanagurta production and mackerel surpassing oil sardine are true.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_wut34",
+    "question": "State fish of Assam",
+    "options": {
+      "A": "Dugong",
+      "B": "Ayirai fish",
+      "C": "Ganga dolphin",
+      "D": "Indus river dolphin"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "Ganga dolphin is the state fish of Assam.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_d3zuu",
+    "question": "State fish of Kerala",
+    "options": {
+      "A": "Lepidocephalichthys thermalis",
+      "B": "Etroplus suratensis",
+      "C": "Platanista minor",
+      "D": "Etroplus maculatus"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "easy",
+    "justification": "Etroplus suratensis is the state fish of Kerala.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_4dl3i",
+    "question": "Sardinella longiceps belongs to the family",
+    "options": {
+      "A": "Dorosomatidae",
+      "B": "Trichuridae",
+      "C": "Loliginidae",
+      "D": "Scombridae"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Sardinella longiceps belongs to the family Dorosomatidae.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_9b6mn",
+    "question": "Which of the following shows a circumtropical distribution",
+    "options": {
+      "A": "Sardinella melanura",
+      "B": "Amphioctopus neglectus",
+      "C": "Trichiurus lepturus",
+      "D": "Acanthosepion pharaonis"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Trichiurus lepturus shows a circumtropical distribution.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226021859_90nux",
+    "question": "Total marine fish production in India in the year 2024 is",
+    "options": {
+      "A": "3.53 million tonnes",
+      "B": "3.47 million tonnes",
+      "C": "3.47 Lakh tonnes",
+      "D": "3.53 Lakh tonnes"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Total marine fish production in India in 2024 was 3.47 million tonnes.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_t16q4",
+    "question": "Highest producing marine fishing area",
+    "options": {
+      "A": "Area 34: Atlantic, Eastern Central",
+      "B": "Area 67: Pacific, Northeast",
+      "C": "Area 61: Pacific, Northwest",
+      "D": "Area 51: Indian Ocean, Western"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Area 61 (Pacific, Northwest) is the highest producing marine fishing area.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_dwfsv",
+    "question": "Arabian sea belongs to the fishing area",
+    "options": {
+      "A": "Area 18",
+      "B": "Area 68",
+      "C": "Area 71",
+      "D": "Area 51"
+    },
+    "correct": "D",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Arabian Sea falls under Area 51: Indian Ocean, Western.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_vtrcv",
+    "question": "Major fishery resource in the region Northwest Pacific",
+    "options": {
+      "A": "Alaska Pollock and Chub Mackerel",
+      "B": "Alaska Pollock and Atlantic Cod",
+      "C": "Alaska Pollock and European Hake",
+      "D": "Alaska Pollock and Haddock"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Alaska Pollock and Chub Mackerel are major fishery resources in Northwest Pacific.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_jnoc1",
+    "question": "Fishing region in which Tunas and tuna like fishes dominate the major fishery",
+    "options": {
+      "A": "Southeast Pacific",
+      "B": "Western Central Pacific",
+      "C": "Northwest Atlantic",
+      "D": "Northeast Atlantic"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Western Central Pacific is dominated by tunas and tuna-like fishes.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_876kk",
+    "question": "i. Off coast of west Africa belongs to Eastern Central Atlantic fishing region ii. European pilchard is one of the major fishery in Area 34",
+    "options": {
+      "A": "i is True ii Is False",
+      "B": "Both i. and ii are False",
+      "C": "i. and ii are True",
+      "D": "i. is False but ii is True"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Both statements about West Africa being in Eastern Central Atlantic and European pilchard in Area 34 are true.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_x8u3a",
+    "question": "Match the following 1. Sailfish a. Melanogrammus aeglefinus 2. Atlantic cod b. Istiophorus platypterus 3. Menhaden c. Gadus morhua 4. Haddock d. Clupea harengus 5. Brevoortia spp",
+    "options": {
+      "A": "1. e. 2. a. 3. d. 4. b",
+      "B": "1. b 2. c 3. e 4. a",
+      "C": "1. a 2. b 3. d 4. c",
+      "D": "1. b 2. d 3. a 4. e"
+    },
+    "correct": "B",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Matching species: Sailfish - Istiophorus platypterus, Atlantic cod - Gadus morhua, Menhaden - Brevoortia spp, Haddock - Melanogrammus aeglefinus.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_j0l0q",
+    "question": "Which of the following is known as Banana prawn",
+    "options": {
+      "A": "Penaeus semisulcatus",
+      "B": "Metapenaeus monoceros",
+      "C": "Fenneropenaeus merguiensis",
+      "D": "Fenneropenaeus indicus"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Fenneropenaeus merguiensis is commonly known as Banana prawn.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_t8fg5",
+    "question": "Acetes indicus belongs to the family",
+    "options": {
+      "A": "Sergestidae",
+      "B": "Palaemonidae",
+      "C": "Hippolytidae",
+      "D": "Asceitidae"
+    },
+    "correct": "A",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Acetes indicus belongs to the family Sergestidae.",
+    "addedOn": "2026-03-11"
+  },
+  {
+    "id": "q_1773226175020_l8tmm",
+    "question": "Dol net is used in which of the states in India",
+    "options": {
+      "A": "Maharashtra",
+      "B": "West Bengal",
+      "C": "Gujarat A. A, B & C B. A & C C. A & B",
+      "D": "A & C"
+    },
+    "correct": "C",
+    "unit": "Unit 1",
+    "difficulty": "medium",
+    "justification": "Dol net is used in West Bengal (along with Behundi Jaal), and Maharashtra.",
+    "addedOn": "2026-03-11"
   }
 ]

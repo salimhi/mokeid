@@ -2092,6 +2092,14 @@ body.pip-mode #exam-popup {
     </div>
     <div id="rm-q-warn" style="font-size:11px;color:var(--amber);margin-bottom:8px;display:none;"></div>
 
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Difficulty Filter <span style="font-weight:400;text-transform:none;opacity:0.6;">(optional, multi-select)</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+      <div class="rm-diff-chip selected" data-diff="easy" onclick="rmToggleDiff(this)" style="background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.4);color:#4ade80;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Easy</div>
+      <div class="rm-diff-chip selected" data-diff="medium" onclick="rmToggleDiff(this)" style="background:rgba(251,191,36,0.15);border:1.5px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Medium</div>
+      <div class="rm-diff-chip selected" data-diff="hard" onclick="rmToggleDiff(this)" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#f87171;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Hard</div>
+    </div>
+    <div id="rm-diff-error" style="font-size:11px;color:var(--red);margin-bottom:8px;display:none;">⚠ Select at least one difficulty</div>
+
     <div style="height:1px;background:var(--border);margin:16px 0;"></div>
     <div class="rm-modal-actions">
       <button class="btn btn-ghost" id="rm-modal-cancel-btn" style="flex:1;">Cancel</button>
@@ -2874,9 +2882,17 @@ window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); re
 
 // ─── IMPORT / EXPORT ───────────────────────────────────────
 function exportJSON() {
-  const h = localStorage.getItem('quizHistory');
-  if (!h || h === '[]') { alert("History is empty."); return; }
-  const blob = new Blob([h], { type: "application/json" });
+  const h = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+  if (!h.length) { alert("History is empty."); return; }
+  // Bundle: history + review questions + saved mocks
+  const bundle = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    quizHistory: h,
+    reviewQuestions: JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]'),
+    savedMock: JSON.parse(localStorage.getItem(RM_SAVED_KEY) || 'null'),
+  };
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = `MockIQ_History_${new Date().toISOString().split('T')[0]}.json`;
@@ -2886,19 +2902,46 @@ function exportJSON() {
   localStorage.removeItem('exportNeeded');
   updateExportImportLabels();
 }
+
 function importJSON(event) {
   const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const imp = JSON.parse(e.target.result);
-      if (!Array.isArray(imp)) throw new Error();
-      let ex = JSON.parse(localStorage.getItem('quizHistory')) || [];
-      localStorage.setItem('quizHistory', JSON.stringify(imp.concat(ex)));
+      // Support both new bundle format (v2) and legacy plain array
+      let incoming, reviewQ = null, savedMock = null;
+      if (Array.isArray(imp)) {
+        incoming = imp; // legacy
+      } else if (imp.version === 2 && Array.isArray(imp.quizHistory)) {
+        incoming = imp.quizHistory;
+        reviewQ = imp.reviewQuestions || null;
+        savedMock = imp.savedMock || null;
+      } else {
+        throw new Error();
+      }
+      // Merge history
+      const ex = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+      const exKeys = new Set(ex.map(h => h.date + '|' + h.name));
+      const newOnes = incoming.filter(h => !exKeys.has(h.date + '|' + h.name));
+      localStorage.setItem('quizHistory', JSON.stringify([...newOnes, ...ex]));
+      // Merge review questions
+      if (reviewQ && reviewQ.length) {
+        const exRev = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+        const exRevIds = new Set(exRev.map(q => q.id || q.question));
+        const newRev = reviewQ.filter(q => !exRevIds.has(q.id || q.question));
+        localStorage.setItem(RM_REVIEW_KEY, JSON.stringify([...exRev, ...newRev]));
+        renderReviewBtn();
+      }
+      // Restore saved mock only if none currently in progress
+      if (savedMock && !localStorage.getItem(RM_SAVED_KEY)) {
+        localStorage.setItem(RM_SAVED_KEY, JSON.stringify(savedMock));
+        loadSavedMocksUI();
+      }
       const nowImp = new Date().toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
       localStorage.setItem('lastImportTime', nowImp);
       updateExportImportLabels();
-      alert("Data imported successfully!");
+      alert(`Imported! ${newOnes.length} new history entries${reviewQ ? ', review questions' : ''}${savedMock ? ', saved mock' : ''}.`);
       renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
       if (appContainer.querySelector('#history-window').style.display === 'block') loadHistoryUI();
     } catch { alert("Invalid JSON file."); }
@@ -3998,8 +4041,12 @@ function rmGetSelectedUnits() {
 
 function rmUpdateAvailable() {
   const units = rmGetSelectedUnits();
+  const diffs = rmGetSelectedDiffs();
   const bank = getQB();
-  const avail = bank.filter(q => units.includes(q.unit)).length;
+  const avail = bank.filter(q =>
+    units.includes(q.unit) &&
+    (diffs.length === 0 || diffs.includes(q.difficulty || 'medium'))
+  ).length;
   const el = document.getElementById('rm-q-avail-label');
   const warn = document.getElementById('rm-q-warn');
   const inp = document.getElementById('rm-q-count-input');
@@ -4007,15 +4054,29 @@ function rmUpdateAvailable() {
   el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
   const requested = parseInt(inp.value) || 10;
   if (avail === 0) {
-    warn.textContent = '\u26a0 No questions in bank for selected units. Add via Admin \u2192 Paste & Parse.';
+    warn.textContent = '⚠ No questions match selected filters.';
     warn.style.display = 'block';
   } else if (requested > avail) {
-    warn.textContent = `\u26a0 Only ${avail} questions available. Mock will use all ${avail}.`;
+    warn.textContent = `⚠ Only ${avail} available. Mock will use all ${avail}.`;
     warn.style.display = 'block';
   } else {
     warn.style.display = 'none';
   }
 }
+
+function rmGetSelectedDiffs() {
+  return [...document.querySelectorAll('.rm-diff-chip.selected')].map(c => c.dataset.diff);
+}
+
+function rmToggleDiff(chip) {
+  chip.classList.toggle('selected');
+  document.querySelectorAll('.rm-diff-chip').forEach(c => {
+    c.style.opacity = c.classList.contains('selected') ? '1' : '0.35';
+  });
+  document.getElementById('rm-diff-error').style.display = 'none';
+  rmUpdateAvailable();
+}
+
 
 document.getElementById('rm-q-count-input').addEventListener('input', rmUpdateAvailable);
 document.getElementById('rm-modal-cancel-btn').addEventListener('click', () => {
@@ -4029,15 +4090,25 @@ document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
     return;
   }
   document.getElementById('rm-unit-error').style.display = 'none';
+
+  const diffs = rmGetSelectedDiffs();
+  if (!diffs.length) {
+    document.getElementById('rm-diff-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('rm-diff-error').style.display = 'none';
+
   const bank = getQB();
-  const pool = bank.filter(q => units.includes(q.unit));
+  const pool = bank.filter(q =>
+    units.includes(q.unit) &&
+    diffs.includes(q.difficulty || 'medium')
+  );
   if (!pool.length) {
-    alert('No questions found for selected units. Add questions via Admin panel first.');
+    alert('No questions match selected units + difficulty. Try different filters.');
     return;
   }
   const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
   const count = Math.min(requested, pool.length);
-  // Shuffle and pick
   const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
   document.getElementById('rm-mode-modal').classList.remove('active');
   rmLaunch(shuffled, units, count);
@@ -4181,8 +4252,11 @@ function rmPrevQ() {
 
 // \u2500\u2500 Timers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function rmStartTimers() {
+  // Always clear existing intervals first to prevent double-speed bug
+  if (rmQTimer) { clearInterval(rmQTimer); rmQTimer = null; }
+  if (rmTotalTimer) { clearInterval(rmTotalTimer); rmTotalTimer = null; }
+
   rmState.timeLeft = 60;
-  rmState.totalTime = 0;
   document.getElementById('rm-q-timer').textContent = '01:00';
   document.getElementById('rm-q-timer').classList.remove('danger');
 
@@ -4211,8 +4285,16 @@ function rmUpdateQTimerDisplay() {
 }
 
 function rmResetQTimer() {
+  // Clear old per-question interval and start fresh 60s
+  if (rmQTimer) { clearInterval(rmQTimer); rmQTimer = null; }
   rmState.timeLeft = 60;
   rmUpdateQTimerDisplay();
+  rmQTimer = setInterval(() => {
+    if (rmState.paused) return;
+    rmState.timeLeft--;
+    rmUpdateQTimerDisplay();
+    if (rmState.timeLeft <= 0) { rmAutoAdvance(); }
+  }, 1000);
 }
 
 function rmAutoAdvance() {
@@ -5122,17 +5204,54 @@ async function syncHistoryFromGitHub() {
     const res = await fetch('history.json?cb=' + Date.now());
     if (!res.ok) return;
     const remote = await res.json();
-    if (!Array.isArray(remote) || !remote.length) return;
-    const local = JSON.parse(localStorage.getItem('quizHistory')) || [];
-    const localKeys = new Set(local.map(h => h.date + '|' + h.name));
-    const newFromRemote = remote.filter(h => !localKeys.has(h.date + '|' + h.name));
-    if (newFromRemote.length) {
-      const merged = [...local, ...newFromRemote].sort((a,b) => b.date.localeCompare(a.date));
-      localStorage.setItem('quizHistory', JSON.stringify(merged));
-      console.log('MockIQ History: merged ' + newFromRemote.length + ' entries from GitHub');
+    if (!remote) return;
+
+    // Support v2 bundle (history + review + savedMock) and legacy plain array
+    let remoteHistory, remoteReview = [], remoteSavedMock = null;
+    if (Array.isArray(remote)) {
+      remoteHistory = remote;
+    } else if (remote.version === 2 && Array.isArray(remote.quizHistory)) {
+      remoteHistory = remote.quizHistory;
+      remoteReview = remote.reviewQuestions || [];
+      remoteSavedMock = remote.savedMock || null;
+    } else { return; }
+
+    let changed = false;
+
+    // Merge quiz history
+    if (remoteHistory.length) {
+      const local = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+      const localKeys = new Set(local.map(h => h.date + '|' + h.name));
+      const newOnes = remoteHistory.filter(h => !localKeys.has(h.date + '|' + h.name));
+      if (newOnes.length) {
+        const merged = [...local, ...newOnes].sort((a,b) => b.date.localeCompare(a.date));
+        localStorage.setItem('quizHistory', JSON.stringify(merged));
+        console.log('MockIQ: merged ' + newOnes.length + ' history entries from GitHub');
+        changed = true;
+      }
+    }
+
+    // Merge review questions
+    if (remoteReview.length) {
+      const localRev = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+      const localRevIds = new Set(localRev.map(q => q.id || q.question));
+      const newRev = remoteReview.filter(q => !localRevIds.has(q.id || q.question));
+      if (newRev.length) {
+        localStorage.setItem(RM_REVIEW_KEY, JSON.stringify([...localRev, ...newRev]));
+        renderReviewBtn();
+      }
+    }
+
+    // Restore saved mid-mock only if nothing currently in progress locally
+    if (remoteSavedMock && !localStorage.getItem(RM_SAVED_KEY)) {
+      localStorage.setItem(RM_SAVED_KEY, JSON.stringify(remoteSavedMock));
+      loadSavedMocksUI();
+    }
+
+    if (changed) {
       renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
     }
-  } catch(e) { /* history.json not on GitHub yet — that's fine */ }
+  } catch(e) { /* history.json not on GitHub yet — fine */ }
 }
 
 

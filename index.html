@@ -1880,6 +1880,7 @@ body.pip-mode #exam-popup {
             <label class="unit-option"><input type="checkbox" value="Unit 12"><span>Unit 12 — Fisheries Extension</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 13"><span>Unit 13 — Fishery Economics</span></label>
             <label class="unit-option"><input type="checkbox" value="Unit 14"><span>Unit 14 — Administration &amp; Legislation</span></label>
+            <label class="unit-option"><input type="checkbox" value="Unit 15"><span>Unit 15 — General</span></label>
           </div>
         </div>
         <button id="start-mock-btn" class="btn btn-primary">Start Exam →</button>
@@ -2325,7 +2326,6 @@ body.pip-mode #exam-popup {
       <button id="admin-export-qb-btn" class="icon-btn green">↓ Export Bank</button>
       <button id="admin-import-qb-btn" class="icon-btn teal">↑ Import Bank</button>
       <input type="file" id="admin-import-qb-file" accept=".json" style="display:none;">
-      <button id="admin-clear-qb-btn" class="icon-btn" style="color:var(--red);border-color:rgba(239,68,68,0.3);background:var(--red-dim);">🗑 Clear All</button>
       <button id="admin-back-btn" class="icon-btn">← Back to App</button>
     </div>
   </div>
@@ -2376,6 +2376,7 @@ body.pip-mode #exam-popup {
           <option value="Unit 12">Unit 12 — Extension</option>
           <option value="Unit 13">Unit 13 — Economics</option>
           <option value="Unit 14">Unit 14 — Legislation</option>
+          <option value="Unit 15">Unit 15 — General</option>
         </select>
       </div>
       <div>
@@ -2439,6 +2440,7 @@ body.pip-mode #exam-popup {
           <option value="Unit 12">Unit 12 — Extension</option>
           <option value="Unit 13">Unit 13 — Economics</option>
           <option value="Unit 14">Unit 14 — Legislation</option>
+          <option value="Unit 15">Unit 15 — General</option>
         </select>
       </div>
     </div>
@@ -2475,7 +2477,7 @@ body.pip-mode #exam-popup {
         <option value="Unit 7">Unit 7</option><option value="Unit 8">Unit 8</option>
         <option value="Unit 9">Unit 9</option><option value="Unit 10">Unit 10</option>
         <option value="Unit 11">Unit 11</option><option value="Unit 12">Unit 12</option>
-        <option value="Unit 13">Unit 13</option><option value="Unit 14">Unit 14</option>
+        <option value="Unit 13">Unit 13</option><option value="Unit 14">Unit 14</option><option value="Unit 15">Unit 15</option>
       </select>
       <select id="qb-filter-diff">
         <option value="">All Difficulty</option>
@@ -2525,7 +2527,7 @@ body.pip-mode #exam-popup {
           <option value="Unit 7">Unit 7</option><option value="Unit 8">Unit 8</option>
           <option value="Unit 9">Unit 9</option><option value="Unit 10">Unit 10</option>
           <option value="Unit 11">Unit 11</option><option value="Unit 12">Unit 12</option>
-          <option value="Unit 13">Unit 13</option><option value="Unit 14">Unit 14</option>
+          <option value="Unit 13">Unit 13</option><option value="Unit 14">Unit 14</option><option value="Unit 15">Unit 15</option>
         </select>
       </div>
     </div>
@@ -2582,7 +2584,8 @@ const UNIT_DATA = [
   { id: "Unit 11", name: "Fisheries Statistics" },
   { id: "Unit 12", name: "Fisheries Extension" },
   { id: "Unit 13", name: "Fishery Economics" },
-  { id: "Unit 14", name: "Administration & Legislation" }
+  { id: "Unit 14", name: "Administration & Legislation" },
+  { id: "Unit 15", name: "General" }
 ];
 
 // ─── DASHBOARD ──────────────────────────────────────────
@@ -4845,7 +4848,8 @@ const UNIT_KEYWORDS = {
   'Unit 11': ['statistics','sampling','survey','catch','cpue','data','regression','correlation','population','estimate','model','length','weight','growth','mortality rate','fishing effort'],
   'Unit 12': ['extension','kiosk','farmer','training','technology transfer','adoption','rural','communication','media','demonstration','field school','fao','nfdb','fisheries development'],
   'Unit 13': ['economics','cost','profit','market','price','demand','supply','export value','revenue','subsidy','credit','loan','insurance','income','expenditure','trade'],
-  'Unit 14': ['act','legislation','regulation','law','iuu','mfra','cwfpa','fisheries act','lisence','permit','penalty','enforcement','coast guard','maritime','international','unclos','convention']
+  'Unit 14': ['act','legislation','regulation','law','iuu','mfra','cwfpa','fisheries act','lisence','permit','penalty','enforcement','coast guard','maritime','international','unclos','convention'],
+  'Unit 15': ['general','miscellaneous','mixed','overview','introduction','basic','fundamental','common']
 };
 
 function detectUnit(text) {
@@ -5041,7 +5045,7 @@ function renderParsedPreview(questions) {
           <div>
             <label>Unit</label>
             <select id="pq-unit-${idx}" onchange="setParsedUnit(${idx},this.value)">
-              ${['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12','Unit 13','Unit 14'].map(u=>`<option value="${u}"${q.unit===u?' selected':''}>${u}</option>`).join('')}
+              ${['Unit 1','Unit 2','Unit 3','Unit 4','Unit 5','Unit 6','Unit 7','Unit 8','Unit 9','Unit 10','Unit 11','Unit 12','Unit 13','Unit 14','Unit 15'].map(u=>`<option value="${u}"${q.unit===u?' selected':''}>${u}</option>`).join('')}
             </select>
           </div>
         </div>
@@ -5321,16 +5325,6 @@ document.getElementById('admin-import-qb-file').addEventListener('change', funct
   };
   reader.readAsText(file);
   e.target.value = '';
-});
-
-document.getElementById('admin-clear-qb-btn').addEventListener('click', () => {
-  const bank = getQB();
-  if (!bank.length) { alert('Bank is already empty.'); return; }
-  if (!confirm('Delete ALL ' + bank.length + ' questions from the bank? This cannot be undone.')) return;
-  saveQB([]);
-  refreshAdminOverview();
-  renderQBBrowser();
-  alert('Question bank cleared.');
 });
 
 // ── Load questionbank.json from GitHub on startup ─────────────

@@ -11,131 +11,131 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<!-- Firebase Sync — REST API (no SDK imports, faster on mobile) -->
+<script>
+(function() {
+  const DB_URL = 'https://mockiq-dca74-default-rtdb.firebaseio.com/mockiq/data.json';
+  const TIMEOUT = 7000;
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDlVgt_fdoouIwggTCbD21tdOWrNWWhMGg",
-    authDomain: "mockiq-dca74.firebaseapp.com",
-    databaseURL: "https://mockiq-dca74-default-rtdb.firebaseio.com",
-    projectId: "mockiq-dca74",
-    storageBucket: "mockiq-dca74.firebasestorage.app",
-    messagingSenderId: "45019263088",
-    appId: "1:45019263088:web:b2f6ff6369e5f007e144b5"
-  };
+  function setStatus(text, color) {
+    const el = document.getElementById('fb-status');
+    if (el) { el.textContent = text; el.style.color = color || 'var(--text-muted)'; }
+  }
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  // Show status instantly — don't wait for anything
+  function initStatus() {
+    setStatus(navigator.onLine ? '☁ Syncing...' : '📵 Offline', 'var(--text-muted)');
+  }
+  // Run as early as possible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStatus);
+  } else {
+    initStatus();
+  }
 
-  // ── Expose Firebase helpers to global scope ──────────────
-  window._fbDb = db;
-  window._fbRef = ref;
-  window._fbSet = set;
-  window._fbGet = get;
+  function fetchWT(url, opts) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), TIMEOUT);
+    return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(t));
+  }
 
-  // ── Push all data to Firebase ────────────────────────────
+  // ── PUSH — PATCH only changed data ──────────────────────
   window.fbPush = async function() {
     if (!navigator.onLine) return;
+    setStatus('↑ Saving...', 'var(--text-muted)');
     try {
       const payload = {
-        quizHistory:       JSON.parse(localStorage.getItem('quizHistory')         || '[]'),
-        questionBank:      JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]'),
-        reviewQuestions:   JSON.parse(localStorage.getItem('rm_review_questions')  || '[]'),
-        savedMock:         JSON.parse(localStorage.getItem('rm_saved_mock')        || 'null'),
-        lastPush:          new Date().toISOString()
+        quizHistory:     JSON.parse(localStorage.getItem('quizHistory')          || '[]'),
+        questionBank:    JSON.parse(localStorage.getItem('mockiq_question_bank')  || '[]'),
+        reviewQuestions: JSON.parse(localStorage.getItem('rm_review_questions')   || '[]'),
+        savedMock:       JSON.parse(localStorage.getItem('rm_saved_mock')         || 'null'),
+        lastPush:        new Date().toISOString()
       };
-      await set(ref(db, 'mockiq/data'), payload);
-      window._fbLastPush = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      const el = document.getElementById('fb-status');
-      if (el) { el.textContent = '☁ Synced ' + window._fbLastPush; el.style.color = 'var(--green, #4ade80)'; }
-      console.log('MockIQ Firebase: pushed successfully');
+      const res = await fetchWT(DB_URL, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setStatus('☁ ' + t, '#4ade80');
     } catch(e) {
-      console.warn('MockIQ Firebase push failed:', e.message);
-      const el = document.getElementById('fb-status');
-      if (el) { el.textContent = '⚠ Sync failed'; el.style.color = 'var(--red, #f87171)'; }
+      setStatus(e.name === 'AbortError' ? '⏱ Timeout' : '⚠ Failed', '#f87171');
+      console.warn('fbPush:', e.message);
     }
   };
 
-  // ── Pull from Firebase and merge into localStorage ───────
+  // ── PULL — fetch + merge all keys ───────────────────────
   window.fbPull = async function() {
-    if (!navigator.onLine) return;
+    if (!navigator.onLine) { setStatus('📵 Offline', 'var(--text-muted)'); return; }
     try {
-      const snap = await get(ref(db, 'mockiq/data'));
-      if (!snap.exists()) { console.log('MockIQ Firebase: no data yet'); return; }
-      const remote = snap.val();
+      const res = await fetchWT(DB_URL, { method: 'GET' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const remote = await res.json();
+      if (!remote) { setStatus('☁ Ready', '#4ade80'); return; }
 
-      // Merge quiz history
+      let changed = false;
+
       if (Array.isArray(remote.quizHistory) && remote.quizHistory.length) {
         const local = JSON.parse(localStorage.getItem('quizHistory') || '[]');
-        const localKeys = new Set(local.map(h => h.date + '|' + h.name));
-        const newOnes = remote.quizHistory.filter(h => !localKeys.has(h.date + '|' + h.name));
-        if (newOnes.length) {
-          const merged = [...local, ...newOnes].sort((a,b) => b.date.localeCompare(a.date));
-          localStorage.setItem('quizHistory', JSON.stringify(merged));
+        const keys = new Set(local.map(h => h.date + '|' + h.name));
+        const add = remote.quizHistory.filter(h => !keys.has(h.date + '|' + h.name));
+        if (add.length) {
+          localStorage.setItem('quizHistory',
+            JSON.stringify([...local,...add].sort((a,b)=>b.date.localeCompare(a.date))));
+          changed = true;
         }
       }
-
-      // Merge question bank
       if (Array.isArray(remote.questionBank) && remote.questionBank.length) {
         const local = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
-        const localIds = new Set(local.map(q => q.id));
-        const newQs = remote.questionBank.filter(q => !localIds.has(q.id));
-        if (newQs.length) {
-          localStorage.setItem('mockiq_question_bank', JSON.stringify([...local, ...newQs]));
+        const ids = new Set(local.map(q => q.id));
+        const add = remote.questionBank.filter(q => !ids.has(q.id));
+        if (add.length) {
+          localStorage.setItem('mockiq_question_bank', JSON.stringify([...local,...add]));
+          changed = true;
         }
       }
-
-      // Merge review questions
       if (Array.isArray(remote.reviewQuestions) && remote.reviewQuestions.length) {
         const local = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
-        const localIds = new Set(local.map(q => q.id || q.question));
-        const newRev = remote.reviewQuestions.filter(q => !localIds.has(q.id || q.question));
-        if (newRev.length) {
-          localStorage.setItem('rm_review_questions', JSON.stringify([...local, ...newRev]));
+        const ids = new Set(local.map(q => q.id || q.question));
+        const add = remote.reviewQuestions.filter(q => !ids.has(q.id || q.question));
+        if (add.length) {
+          localStorage.setItem('rm_review_questions', JSON.stringify([...local,...add]));
+          changed = true;
         }
       }
-
-      // Restore saved mid-mock only if none in progress locally
       if (remote.savedMock && !localStorage.getItem('rm_saved_mock')) {
         localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
+        changed = true;
       }
 
-      console.log('MockIQ Firebase: pull + merge complete');
+      const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setStatus('☁ ' + t, '#4ade80');
 
-      // Refresh UI after merge
-      if (typeof migrateLegacyDates === 'function') migrateLegacyDates();
-      if (typeof renderCalendar === 'function') renderCalendar();
-      if (typeof updateSummaryCard === 'function') updateSummaryCard();
-      if (typeof updateUnitStatsCard === 'function') updateUnitStatsCard();
-      if (typeof updateOverallDashboardCard === 'function') updateOverallDashboardCard();
-      if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount();
-      if (typeof renderReviewBtn === 'function') renderReviewBtn();
-      if (typeof loadSavedMocksUI === 'function') loadSavedMocksUI();
-
+      if (changed) {
+        ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
+         'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI'
+        ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
+      }
     } catch(e) {
-      console.warn('MockIQ Firebase pull failed:', e.message);
+      setStatus(e.name === 'AbortError' ? '⏱ Timeout' : '⚠ Error', '#f87171');
+      console.warn('fbPull:', e.message);
     }
   };
 
-  // ── Auto-push when back online ───────────────────────────
-  window.addEventListener('online', () => {
-    console.log('MockIQ: back online — syncing to Firebase');
-    const el = document.getElementById('fb-status');
-    if (el) { el.textContent = '↑ Syncing...'; el.style.color = 'var(--text-muted)'; }
-    setTimeout(window.fbPush, 1500); // small delay to let connection stabilise
+  // Pull immediately on page load — don't wait for mockiq-ready
+  window.addEventListener('load', () => setTimeout(window.fbPull, 300));
+
+  // Back online: pull then push
+  window.addEventListener('online', async () => {
+    setStatus('↑ Reconnecting...', 'var(--text-muted)');
+    await window.fbPull();
+    await window.fbPush();
   });
 
-  window.addEventListener('offline', () => {
-    const el = document.getElementById('fb-status');
-    if (el) { el.textContent = '📵 Offline'; el.style.color = 'var(--text-muted)'; }
-  });
+  window.addEventListener('offline', () => setStatus('📵 Offline', 'var(--text-muted)'));
 
-  // ── Pull on page load (after app initialises) ────────────
-  window.addEventListener('mockiq-ready', () => {
-    window.fbPull();
-  });
+})();
 </script>
 <style>
 :root {
@@ -5424,16 +5424,6 @@ window.onload = () => {
       .then(r => console.log('MockIQ SW registered:', r.scope))
       .catch(e => console.warn('MockIQ SW failed:', e));
   }
-
-  // Set initial sync status
-  const el = document.getElementById('fb-status');
-  if (el) {
-    el.textContent = navigator.onLine ? '☁ Connecting...' : '📵 Offline';
-    el.style.color = 'var(--text-muted)';
-  }
-
-  // Fire event so Firebase module knows app is ready
-  window.dispatchEvent(new Event('mockiq-ready'));
 };
 
 

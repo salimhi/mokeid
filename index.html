@@ -22,16 +22,19 @@
     if (el) { el.textContent = text; el.style.color = color || 'var(--text-muted)'; }
   }
 
-  // Show status instantly — don't wait for anything
+  function refreshUI() {
+    ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
+     'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI'
+    ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
+  }
+
+  // Show status instantly
   function initStatus() {
     setStatus(navigator.onLine ? '☁ Syncing...' : '📵 Offline', 'var(--text-muted)');
   }
-  // Run as early as possible
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initStatus);
-  } else {
-    initStatus();
-  }
+  } else { initStatus(); }
 
   function fetchWT(url, opts) {
     const ctrl = new AbortController();
@@ -39,7 +42,7 @@
     return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(t));
   }
 
-  // ── PUSH — PATCH only changed data ──────────────────────
+  // ── PUSH — send local data TO Firebase ──────────────────
   window.fbPush = async function() {
     if (!navigator.onLine) return;
     setStatus('↑ Saving...', 'var(--text-muted)');
@@ -65,17 +68,17 @@
     }
   };
 
-  // ── PULL — fetch + merge all keys ───────────────────────
+  // ── PULL — get data FROM Firebase, merge, always refresh UI
   window.fbPull = async function() {
     if (!navigator.onLine) { setStatus('📵 Offline', 'var(--text-muted)'); return; }
+    setStatus('↓ Pulling...', 'var(--text-muted)');
     try {
       const res = await fetchWT(DB_URL, { method: 'GET' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const remote = await res.json();
-      if (!remote) { setStatus('☁ Ready', '#4ade80'); return; }
+      if (!remote) { setStatus('☁ Ready', '#4ade80'); refreshUI(); return; }
 
-      let changed = false;
-
+      // Merge quiz history
       if (Array.isArray(remote.quizHistory) && remote.quizHistory.length) {
         const local = JSON.parse(localStorage.getItem('quizHistory') || '[]');
         const keys = new Set(local.map(h => h.date + '|' + h.name));
@@ -83,50 +86,54 @@
         if (add.length) {
           localStorage.setItem('quizHistory',
             JSON.stringify([...local,...add].sort((a,b)=>b.date.localeCompare(a.date))));
-          changed = true;
         }
       }
+      // Merge question bank
       if (Array.isArray(remote.questionBank) && remote.questionBank.length) {
         const local = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
         const ids = new Set(local.map(q => q.id));
         const add = remote.questionBank.filter(q => !ids.has(q.id));
         if (add.length) {
           localStorage.setItem('mockiq_question_bank', JSON.stringify([...local,...add]));
-          changed = true;
         }
       }
+      // Merge review questions
       if (Array.isArray(remote.reviewQuestions) && remote.reviewQuestions.length) {
         const local = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
         const ids = new Set(local.map(q => q.id || q.question));
         const add = remote.reviewQuestions.filter(q => !ids.has(q.id || q.question));
         if (add.length) {
           localStorage.setItem('rm_review_questions', JSON.stringify([...local,...add]));
-          changed = true;
         }
       }
+      // Restore saved mid-mock
       if (remote.savedMock && !localStorage.getItem('rm_saved_mock')) {
         localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
-        changed = true;
       }
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       setStatus('☁ ' + t, '#4ade80');
 
-      if (changed) {
-        ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
-         'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI'
-        ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
-      }
+      // ALWAYS refresh UI after pull — not just when new data arrived
+      refreshUI();
+
     } catch(e) {
       setStatus(e.name === 'AbortError' ? '⏱ Timeout' : '⚠ Error', '#f87171');
       console.warn('fbPull:', e.message);
     }
   };
 
-  // Pull immediately on page load — don't wait for mockiq-ready
+  // ── SYNC — click button does PULL first then PUSH ────────
+  // This is what the status indicator calls on click
+  window.fbSync = async function() {
+    await window.fbPull();  // get latest from Firebase first
+    await window.fbPush();  // then push any local changes
+  };
+
+  // Pull on page load
   window.addEventListener('load', () => setTimeout(window.fbPull, 300));
 
-  // Back online: pull then push
+  // Back online: full sync
   window.addEventListener('online', async () => {
     setStatus('↑ Reconnecting...', 'var(--text-muted)');
     await window.fbPull();
@@ -1812,7 +1819,7 @@ body.pip-mode #exam-popup {
   <header class="topbar">
     <div class="brand">Mock<span>IQ</span></div>
     <div class="topbar-actions">
-      <span id="fb-status" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;cursor:pointer;" title="Firebase sync status — click to sync now" onclick="if(typeof window.fbPush==='function')window.fbPush()">☁ ...</span>
+      <span id="fb-status" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;cursor:pointer;" title="Click to sync now" onclick="if(typeof window.fbSync==='function')window.fbSync()">☁ ...</span>
       <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">🌙 Theme</button>
       <button id="pip-btn" class="icon-btn">⊞ PiP Mode</button>
       <button id="history-toggle-btn" class="icon-btn">🗃 History</button>

@@ -25,7 +25,7 @@
   function refreshUI() {
     ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
      'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI',
-     'renderSRSHomeCard','renderMistakeSummary'
+     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard'
     ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
   }
 
@@ -109,8 +109,8 @@
         const merged = [...remote.reviewQuestions, ...localOnly];
         localStorage.setItem('rm_review_questions', JSON.stringify(merged));
       }
-      // Restore saved mid-mock
-      if (remote.savedMock && !localStorage.getItem('rm_saved_mock')) {
+      // Restore saved mid-mock only if nothing in progress AND user hasn't dismissed
+      if (remote.savedMock && !localStorage.getItem('rm_saved_mock') && !localStorage.getItem('rm_saved_mock_dismissed')) {
         localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
       }
       // Merge SRS data — smart merge: keep the entry with the higher stage for each questionId
@@ -5304,6 +5304,7 @@ function rmSaveProgress() {
     savedAt: new Date().toISOString()
   };
   localStorage.setItem(RM_SAVED_KEY, JSON.stringify(save));
+  localStorage.removeItem('rm_saved_mock_dismissed'); // clear tombstone — new save supersedes dismiss
   const btn = document.getElementById('rm-save-btn');
   btn.textContent = '✓ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save'; }, 1500);
@@ -5331,6 +5332,7 @@ function rmFinish() {
   rmQTimer = null; rmTotalTimer = null;
   rmState.finished = true;
   localStorage.removeItem(RM_SAVED_KEY);
+  localStorage.removeItem('rm_saved_mock_dismissed'); // reset tombstone for next exam
 
   // In instant mode: only score up to the question the user reached
   const scoredCount = (rmState.mode === 'instant')
@@ -5563,11 +5565,25 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
 
 // \u2500\u2500 Saved Real Mock resume on homepage \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 (function initRMSavedCard() {
-  // Add resume card to home-wrapper if there's a saved real mock
+  const existing = document.getElementById('rm-resume-card');
   const saved = localStorage.getItem(RM_SAVED_KEY);
-  if (!saved) return;
+
+  // If no saved mock — remove card if it exists
+  if (!saved) {
+    if (existing) existing.remove();
+    return;
+  }
+
+  // If card already visible — just update the label
   try {
     const data = JSON.parse(saved);
+    if (existing) {
+      const label = document.getElementById('rm-resume-label');
+      if (label) label.textContent = `${data.state.mockName} \u2014 Q${data.state.currentIdx + 1}/${data.state.questions.length}`;
+      existing.style.display = 'block';
+      return;
+    }
+    // Create fresh card
     const card = document.createElement('div');
     card.id = 'rm-resume-card';
     card.className = 'card full-card';
@@ -5584,7 +5600,10 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
     `;
     const hw = document.getElementById('home-wrapper');
     if (hw) hw.prepend(card);
-  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+  } catch(e) {
+    localStorage.removeItem(RM_SAVED_KEY);
+    if (existing) existing.remove();
+  }
 })();
 
 function rmResumeMock() {
@@ -5606,8 +5625,11 @@ function rmResumeMock() {
 
 function rmDismissResume() {
   localStorage.removeItem(RM_SAVED_KEY);
+  localStorage.setItem('rm_saved_mock_dismissed', '1'); // tombstone so fbPull won't restore
   const card = document.getElementById('rm-resume-card');
   if (card) card.remove();
+  // Push null savedMock to Firebase so other devices clear the card too
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
 }
 
 // \u2500\u2500 Unit chip event for live avail update \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

@@ -81,24 +81,29 @@
       const remote = await res.json();
       if (!remote) { setStatus('☁ Ready', '#4ade80'); refreshUI(); return; }
 
-      // Merge quiz history
-      if (Array.isArray(remote.quizHistory) && remote.quizHistory.length) {
+      // Merge quiz history — remote is authoritative for deletions
+      // Keep remote as base, add any local-only entries not yet pushed to remote
+      if (Array.isArray(remote.quizHistory)) {
         const local = JSON.parse(localStorage.getItem('quizHistory') || '[]');
-        const keys = new Set(local.map(h => h.date + '|' + h.name));
-        const add = remote.quizHistory.filter(h => !keys.has(h.date + '|' + h.name));
-        if (add.length) {
-          localStorage.setItem('quizHistory',
-            JSON.stringify([...local,...add].sort((a,b)=>b.date.localeCompare(a.date))));
+        if (remote.quizHistory.length > 0) {
+          const remoteKeys = new Set(remote.quizHistory.map(h => h.date + '|' + h.name));
+          const localOnly  = local.filter(h => !remoteKeys.has(h.date + '|' + h.name));
+          const merged = [...remote.quizHistory, ...localOnly]
+            .sort((a,b) => b.date.localeCompare(a.date));
+          localStorage.setItem('quizHistory', JSON.stringify(merged));
+        } else if (remote.quizHistory.length === 0 && local.length > 0) {
+          // Remote is empty (clearHistory was called) — respect that
+          localStorage.setItem('quizHistory', '[]');
         }
       }
-      // Merge question bank
+      // Merge question bank — remote is authoritative for deletions
+      // Add local-only questions not yet pushed, but respect remote deletions
       if (Array.isArray(remote.questionBank) && remote.questionBank.length) {
         const local = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
-        const ids = new Set(local.map(q => q.id));
-        const add = remote.questionBank.filter(q => !ids.has(q.id));
-        if (add.length) {
-          localStorage.setItem('mockiq_question_bank', JSON.stringify([...local,...add]));
-        }
+        const remoteIds = new Set(remote.questionBank.map(q => q.id));
+        const localOnly = local.filter(q => !remoteIds.has(q.id));
+        const merged = [...remote.questionBank, ...localOnly];
+        localStorage.setItem('mockiq_question_bank', JSON.stringify(merged));
       }
       // Merge review questions — union of local + remote (cloud is source of truth)
       if (Array.isArray(remote.reviewQuestions)) {
@@ -112,6 +117,8 @@
       // Restore saved mid-mock only if nothing in progress AND user hasn't dismissed
       if (remote.savedMock && !localStorage.getItem('rm_saved_mock') && !localStorage.getItem('rm_saved_mock_dismissed')) {
         localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
+        // Show resume card immediately — don't wait for refreshUI
+        if (typeof window.initRMSavedCard === 'function') window.initRMSavedCard();
       }
       // Merge SRS data — smart merge: keep the entry with the higher stage for each questionId
       if (remote.srsData && typeof remote.srsData === 'object') {
@@ -3366,7 +3373,7 @@ function migrateLegacyDates() {
   if (changed) localStorage.setItem('quizHistory', JSON.stringify(history));
 }
 
-window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); renderSRSHomeCard(); renderMistakeSummary(); };
+window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); renderSRSHomeCard(); renderMistakeSummary(); initRMSavedCard(); };
 
 // ─── SRS + MISTAKE NOTEBOOK ──────────────────────────────────
 const SRS_KEY       = 'mockiq_srs';
@@ -5405,6 +5412,8 @@ function rmFinish() {
   renderReviewBtn();
   if (typeof renderSRSHomeCard === 'function') renderSRSHomeCard();
   if (typeof renderMistakeSummary === 'function') renderMistakeSummary();
+  // Push to Firebase: saves history + clears savedMock on cloud
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500);
 }
 
 
@@ -5461,17 +5470,8 @@ document.getElementById('rm-home-btn').addEventListener('click', () => {
 
 // \u2500\u2500 Saved mock resume check \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function rmCheckSavedMock() {
-  const saved = localStorage.getItem(RM_SAVED_KEY);
-  if (!saved) return;
-  try {
-    const data = JSON.parse(saved);
-    const card = document.getElementById('rm-resume-card');
-    if (card) {
-      card.style.display = 'block';
-      const label = document.getElementById('rm-resume-label');
-      if (label) label.textContent = `${data.state.mockName} \u2014 Q${data.state.currentIdx + 1}/${data.state.questions.length}`;
-    }
-  } catch(e) { localStorage.removeItem(RM_SAVED_KEY); }
+  // Delegate to initRMSavedCard which handles create/update/remove
+  initRMSavedCard();
 }
 
 // \u2500\u2500 Review Questions System \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

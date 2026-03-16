@@ -24,7 +24,8 @@
 
   function refreshUI() {
     ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
-     'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI'
+     'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI',
+     'renderSRSHomeCard','renderMistakeSummary'
     ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
   }
 
@@ -52,6 +53,8 @@
         questionBank:    JSON.parse(localStorage.getItem('mockiq_question_bank')  || '[]'),
         reviewQuestions: JSON.parse(localStorage.getItem('rm_review_questions')   || '[]'),
         savedMock:       JSON.parse(localStorage.getItem('rm_saved_mock')         || 'null'),
+        srsData:         JSON.parse(localStorage.getItem('mockiq_srs')            || '{}'),
+        mistakeData:     JSON.parse(localStorage.getItem('mockiq_mistakes')       || '[]'),
         lastPush:        new Date().toISOString()
       };
       const res = await fetchWT(DB_URL, {
@@ -109,6 +112,36 @@
       // Restore saved mid-mock
       if (remote.savedMock && !localStorage.getItem('rm_saved_mock')) {
         localStorage.setItem('rm_saved_mock', JSON.stringify(remote.savedMock));
+      }
+      // Merge SRS data — smart merge: keep the entry with the higher stage for each questionId
+      if (remote.srsData && typeof remote.srsData === 'object') {
+        const localSRS = JSON.parse(localStorage.getItem('mockiq_srs') || '{}');
+        const merged = Object.assign({}, localSRS);
+        Object.keys(remote.srsData).forEach(qId => {
+          const rem = remote.srsData[qId];
+          const loc = merged[qId];
+          if (!loc) {
+            // not in local — take remote
+            merged[qId] = rem;
+          } else {
+            // keep whichever has the higher stage (more progress)
+            // if stages equal, keep the one with the later nextReview (more recent activity)
+            if (rem.stage > loc.stage) {
+              merged[qId] = rem;
+            } else if (rem.stage === loc.stage && rem.nextReview > loc.nextReview) {
+              merged[qId] = rem;
+            }
+            // else keep local (already at higher or equal+later stage)
+          }
+        });
+        localStorage.setItem('mockiq_srs', JSON.stringify(merged));
+      }
+      // Merge mistake data — union
+      if (Array.isArray(remote.mistakeData)) {
+        const localM = JSON.parse(localStorage.getItem('mockiq_mistakes') || '[]');
+        const remoteIds = new Set(remote.mistakeData.map(m => m.id));
+        const localOnly = localM.filter(m => !remoteIds.has(m.id));
+        localStorage.setItem('mockiq_mistakes', JSON.stringify([...remote.mistakeData, ...localOnly]));
       }
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -1808,6 +1841,36 @@ body.pip-mode #exam-popup {
 .dash-filter-btn { font-size:11px;padding:3px 10px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-mono);transition:all 0.15s; }
 .dash-filter-btn.active,.dash-filter-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
 
+/* ─── SRS / MISTAKE NOTEBOOK ─────────────────────────── */
+.srs-card { }
+.srs-due-count { font-size:48px; font-weight:800; font-family:var(--font-display); color:var(--accent); line-height:1; }
+.srs-due-label { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.srs-empty { text-align:center; padding:20px 0 10px; color:var(--text-muted); font-size:13px; }
+
+/* Mistake Notebook screen */
+#mistake-screen { display:none; position:fixed; inset:0; z-index:9980; background:var(--bg); overflow-y:auto; animation:fadeUp 0.2s ease; }
+.mistake-topbar { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:10; }
+.mistake-unit-group { margin-bottom:18px; }
+.mistake-unit-header { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); padding:8px 0 6px; border-bottom:1px solid var(--border); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.mistake-q-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--red); border-radius:var(--radius-sm); margin-bottom:8px; overflow:hidden; }
+.mistake-q-card.mastered { border-left-color:var(--green); opacity:0.6; }
+.mistake-q-header { padding:11px 14px; background:var(--surface-2); display:flex; align-items:center; gap:10px; cursor:pointer; }
+.mistake-q-body { display:none; padding:14px 16px; border-top:1px solid var(--border); }
+.mistake-q-body.open { display:block; }
+.srs-stage-pill { font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; flex-shrink:0; }
+.srs-stage-1 { background:rgba(248,113,113,0.2); color:#f87171; }
+.srs-stage-2 { background:rgba(251,191,36,0.2); color:#fbbf24; }
+.srs-stage-3 { background:rgba(251,191,36,0.15); color:#fcd34d; }
+.srs-stage-4 { background:rgba(52,211,153,0.2); color:#34d399; }
+.srs-stage-5 { background:rgba(74,222,128,0.2); color:var(--green); }
+
+/* SRS Revision screen */
+#srs-revision-screen { display:none; position:fixed; inset:0; z-index:9983; background:var(--bg); overflow-y:auto; animation:fadeUp 0.2s ease; }
+.srs-rev-topbar { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:10; }
+.srs-rev-progress { height:4px; background:var(--surface-2); border-radius:2px; margin:0 20px 0; }
+.srs-rev-fill { height:100%; background:var(--accent); border-radius:2px; transition:width 0.3s; }
+.srs-result-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+
 /* History tag badges */
 .history-tag {
   display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px;
@@ -1913,6 +1976,31 @@ body.pip-mode #exam-popup {
         <button id="start-mock-btn" class="btn btn-primary">Start Exam →</button>
       </div>
     </div><!-- /grid-2 top row -->
+
+    <!-- ROW 1b: SRS + Mistake Notebook (full-width) -->
+    <div class="grid-2" style="margin-top:0;">
+      <!-- Today's Revision Card -->
+      <div class="card srs-card" id="srs-home-card" style="display:block;">
+        <div class="card-header" style="margin-bottom:12px;">
+          <span class="card-title">⭐ Today's Revision</span>
+          <button class="btn" onclick="openMistakeNotebook()" style="font-size:11px;padding:4px 10px;background:var(--surface-2);border:1px solid var(--border);">📕 Mistakes</button>
+        </div>
+        <div id="srs-due-display" class="srs-empty">Loading...</div>
+        <button class="btn btn-primary" id="srs-start-btn" style="width:100%;margin-top:12px;display:none;" onclick="startSRSRevision()">Start Revision →</button>
+      </div>
+
+      <!-- Mistake Summary Card -->
+      <div class="card" id="mistake-summary-card" style="display:block;">
+        <div class="card-header" style="margin-bottom:12px;">
+          <span class="card-title">📕 Mistake Notebook</span>
+          <span id="mistake-total-badge" style="font-size:11px;background:var(--red-dim);color:var(--red);border-radius:99px;padding:2px 9px;font-weight:700;">0</span>
+        </div>
+        <div id="mistake-summary-list" style="font-size:12px;color:var(--text-muted);">
+          <div class="srs-empty">No mistakes recorded yet.</div>
+        </div>
+        <button class="btn" onclick="openMistakeNotebook()" style="width:100%;margin-top:10px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;">View All →</button>
+      </div>
+    </div>
 
     <!-- ROW 2: Unit Analytics (full-width, below) -->
     <div id="unit-stats-window" class="card full-card" style="display:block;">
@@ -2194,6 +2282,7 @@ body.pip-mode #exam-popup {
         <div class="rm-total-timer" id="rm-total-timer">00:00</div>
         <div class="rm-q-timer" id="rm-q-timer">01:00</div>
         <button class="btn btn-amber" id="rm-pause-btn" style="padding:6px 14px;font-size:12px;">⏸</button>
+        <button class="btn btn-danger" id="rm-end-exam-btn" style="padding:6px 12px;font-size:12px;display:none;">⏹ End</button>
         <button class="btn" id="rm-save-btn" style="padding:6px 12px;font-size:12px;background:var(--surface-2);border:1px solid var(--border);">💾 Save</button>
         <button class="popup-tb-btn close" id="rm-close-btn" style="padding:6px 10px;">✕</button>
       </div>
@@ -2249,6 +2338,33 @@ body.pip-mode #exam-popup {
     </div>
   </div>
 
+  <!-- MISTAKE NOTEBOOK SCREEN -->
+  <div id="mistake-screen">
+    <div class="mistake-topbar">
+      <button class="btn" id="mistake-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">← Back</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text);">📕 Mistake Notebook</div>
+        <div id="mistake-screen-sub" style="font-size:11px;color:var(--text-muted);">—</div>
+      </div>
+      <span id="mistake-screen-badge" style="font-size:12px;background:var(--red-dim);color:var(--red);border-radius:99px;padding:3px 10px;font-weight:700;">0</span>
+    </div>
+    <div style="max-width:720px;margin:0 auto;padding:20px 16px 80px;" id="mistake-list-container"></div>
+  </div>
+
+  <!-- SRS REVISION SCREEN -->
+  <div id="srs-revision-screen">
+    <div class="srs-rev-topbar">
+      <button class="btn" id="srs-rev-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">✕ Exit</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);">⭐ Revision Session</div>
+        <div id="srs-rev-counter" style="font-size:11px;color:var(--text-muted);">Q 1 of 14</div>
+      </div>
+      <span id="srs-rev-score-badge" style="font-size:12px;background:var(--green-dim);color:var(--green);border-radius:99px;padding:3px 10px;font-weight:700;">✓ 0</span>
+    </div>
+    <div class="srs-rev-progress"><div class="srs-rev-fill" id="srs-rev-fill" style="width:0%"></div></div>
+    <div style="max-width:680px;margin:0 auto;padding:20px 16px 80px;" id="srs-rev-body"></div>
+  </div>
+
   <!-- REVIEW QUESTIONS SCREEN -->
   <div id="review-screen">
     <div class="review-topbar">
@@ -2294,8 +2410,8 @@ body.pip-mode #exam-popup {
     <div class="rm-q-count-row">
       <label>Questions:</label>
       <input type="number" id="rm-q-count-input" min="1" value="10" placeholder="10">
-      <div id="rm-q-avail-label" class="rm-q-avail">Available: 0</div>
     </div>
+    <div id="rm-q-avail-label" class="rm-q-avail" style="font-size:12px;margin-bottom:4px;">Available: 0</div>
     <div id="rm-q-warn" style="font-size:11px;color:var(--amber);margin-bottom:8px;display:none;"></div>
 
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Difficulty Filter <span style="font-weight:400;text-transform:none;opacity:0.6;">(optional, multi-select)</span></div>
@@ -2844,9 +2960,17 @@ function rmShowAnswerReview() {
     rmState.mockName + ' · ' + rmState.mockUnit;
   screen.style.display = 'block';
 
+  // In instant mode only show questions actually attended
+  const scoredCount = (rmState.mode === 'instant')
+    ? rmState.currentIdx + 1
+    : rmState.questions.length;
+
+  const attendedQs  = rmState.questions.slice(0, scoredCount);
+  const attendedAns = rmState.answers.slice(0, scoredCount);
+
   let correct = 0, wrong = 0, skipped = 0;
-  rmState.answers.forEach((ans, i) => {
-    const q = rmState.questions[i];
+  attendedAns.forEach((ans, i) => {
+    const q = attendedQs[i];
     if (!ans || !ans.selected) skipped++;
     else if (ans.selected === q.correct) correct++;
     else wrong++;
@@ -2856,8 +2980,8 @@ function rmShowAnswerReview() {
   document.getElementById('ar-skip-count').textContent    = '— ' + skipped;
 
   list.innerHTML = '';
-  rmState.questions.forEach((q, i) => {
-    const ans    = rmState.answers[i] || {};
+  attendedQs.forEach((q, i) => {
+    const ans    = attendedAns[i] || {};
     const sel    = ans.selected || null;
     const isOk   = sel && sel === q.correct;
     const isSkip = !sel;
@@ -3242,7 +3366,377 @@ function migrateLegacyDates() {
   if (changed) localStorage.setItem('quizHistory', JSON.stringify(history));
 }
 
-window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); };
+window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); renderSRSHomeCard(); renderMistakeSummary(); };
+
+// ─── SRS + MISTAKE NOTEBOOK ──────────────────────────────────
+const SRS_KEY       = 'mockiq_srs';
+const MISTAKE_KEY   = 'mockiq_mistakes';
+const SRS_INTERVALS = [1, 3, 7, 15, 30];
+
+function getSRSData()     { return JSON.parse(localStorage.getItem(SRS_KEY)     || '{}'); }
+function getMistakeData() { return JSON.parse(localStorage.getItem(MISTAKE_KEY) || '[]'); }
+function saveSRSData(d)   { localStorage.setItem(SRS_KEY, JSON.stringify(d)); if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500); }
+function saveMistakeData(d){ localStorage.setItem(MISTAKE_KEY, JSON.stringify(d)); if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500); }
+
+// Add a wrong question to SRS + Mistake Book
+function srsAddWrong(q) {
+  if (!q || !q.id) return;
+  const srs = getSRSData();
+  // Create/reset SRS entry
+  srs[q.id] = {
+    questionId: q.id,
+    stage:      1,
+    interval:   SRS_INTERVALS[0],
+    nextReview: srsDatePlus(1),
+    inMistakeBook: true,
+    question:   q.question,
+    options:    q.options,
+    correct:    q.correct,
+    unit:       q.unit,
+    justification: q.justification || '',
+    difficulty: q.difficulty || 'medium',
+  };
+  saveSRSData(srs);
+
+  // Add to mistake book if not already there
+  const mistakes = getMistakeData();
+  if (!mistakes.find(m => m.id === q.id)) {
+    mistakes.push({
+      id:         q.id,
+      question:   q.question,
+      options:    q.options,
+      correct:    q.correct,
+      unit:       q.unit,
+      justification: q.justification || '',
+      difficulty: q.difficulty || 'medium',
+      addedOn:    toDateKey(new Date()),
+    });
+    saveMistakeData(mistakes);
+  }
+}
+
+// Called when user answers a revision question
+function srsAnswerRevision(qId, isCorrect) {
+  const srs = getSRSData();
+  const entry = srs[qId];
+  if (!entry) return;
+
+  if (isCorrect) {
+    entry.stage = Math.min(entry.stage + 1, 5);
+    entry.interval   = SRS_INTERVALS[entry.stage - 1];
+    entry.nextReview = srsDatePlus(entry.interval);
+    if (entry.stage >= 5) {
+      entry.inMistakeBook = false; // mastered — remove from mistake book
+    }
+  } else {
+    entry.stage      = 1;
+    entry.interval   = SRS_INTERVALS[0];
+    entry.nextReview = srsDatePlus(1);
+    entry.inMistakeBook = true;
+  }
+  saveSRSData(srs);
+}
+
+// Get questions due today
+function srsDueToday() {
+  const srs  = getSRSData();
+  const today = toDateKey(new Date());
+  return Object.values(srs).filter(e => e.nextReview <= today);
+}
+
+function srsDatePlus(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return toDateKey(d);
+}
+
+// ── Render SRS home card ─────────────────────────────────
+function renderSRSHomeCard() {
+  const due = srsDueToday();
+  const el  = document.getElementById('srs-due-display');
+  const btn = document.getElementById('srs-start-btn');
+  if (!el) return;
+  if (!due.length) {
+    el.innerHTML = '<div class="srs-empty">🎉 Nothing due today!<br><span style="font-size:11px;">Keep up the daily practice.</span></div>';
+    btn.style.display = 'none';
+  } else {
+    el.innerHTML = `<div style="text-align:center;padding:10px 0 4px;">
+      <div class="srs-due-count">${due.length}</div>
+      <div class="srs-due-label">Question${due.length !== 1 ? 's' : ''} due for revision today</div>
+    </div>`;
+    btn.style.display = '';
+    btn.textContent = `Start Revision (${due.length}) →`;
+  }
+}
+
+// ── Render Mistake Summary (home card) ───────────────────
+function renderMistakeSummary() {
+  const srs      = getSRSData();
+  const mistakes = getMistakeData();
+  const active   = mistakes.filter(m => {
+    const e = srs[m.id];
+    return !e || e.inMistakeBook !== false;
+  });
+
+  const badge = document.getElementById('mistake-total-badge');
+  const list  = document.getElementById('mistake-summary-list');
+  if (!badge || !list) return;
+
+  badge.textContent = active.length;
+
+  if (!active.length) {
+    list.innerHTML = '<div class="srs-empty">✓ No active mistakes!</div>';
+    return;
+  }
+
+  // Group by unit
+  const byUnit = {};
+  active.forEach(m => {
+    byUnit[m.unit] = (byUnit[m.unit] || 0) + 1;
+  });
+
+  list.innerHTML = Object.entries(byUnit)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0, 6)
+    .map(([unit, count]) => `
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--text);font-size:12px;">${unit}</span>
+        <span style="color:var(--red);font-weight:700;font-size:12px;">${count}</span>
+      </div>`)
+    .join('') + (Object.keys(byUnit).length > 6
+      ? `<div style="font-size:11px;color:var(--text-muted);padding-top:6px;">+${Object.keys(byUnit).length - 6} more units</div>` : '');
+}
+
+// ── Mistake Notebook Screen ──────────────────────────────
+function openMistakeNotebook() {
+  document.getElementById('mistake-screen').style.display = 'block';
+  renderMistakeScreen();
+}
+
+function renderMistakeScreen() {
+  const srs      = getSRSData();
+  const mistakes = getMistakeData();
+  const active   = mistakes.filter(m => {
+    const e = srs[m.id];
+    return !e || e.inMistakeBook !== false;
+  });
+
+  const sub    = document.getElementById('mistake-screen-sub');
+  const badge2 = document.getElementById('mistake-screen-badge');
+  const cont   = document.getElementById('mistake-list-container');
+  if (!cont) return;
+
+  badge2.textContent = active.length;
+  sub.textContent    = `${active.length} question${active.length !== 1 ? 's' : ''} to master`;
+
+  if (!active.length) {
+    cont.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);">All mistakes mastered!</div>
+      <div style="font-size:13px;margin-top:6px;">Answer revision questions correctly 5 times to master them.</div>
+    </div>`;
+    return;
+  }
+
+  // Group by unit
+  const byUnit = {};
+  active.forEach(m => {
+    if (!byUnit[m.unit]) byUnit[m.unit] = [];
+    byUnit[m.unit].push(m);
+  });
+
+  cont.innerHTML = Object.entries(byUnit)
+    .sort((a,b) => b[1].length - a[1].length)
+    .map(([unit, qs]) => {
+      const cards = qs.map((q, qi) => {
+        const e = srs[q.id];
+        const stage = e ? e.stage : 1;
+        const next  = e ? e.nextReview : '—';
+        const stageLabel = ['','1d','3d','7d','15d','30d'][stage] || '?';
+        const optsHtml = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l => {
+          let cls = 'ar-opt';
+          if (l === q.correct) cls += ' correct';
+          return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span>${q.options[l]}</span>${l===q.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
+        }).join('');
+        const justHtml = q.justification
+          ? `<div class="ar-just"><b>Explanation:</b> ${q.justification}</div>` : '';
+        return `
+          <div class="mistake-q-card">
+            <div class="mistake-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+              <span class="srs-stage-pill srs-stage-${stage}">Stage ${stage} · ${stageLabel}</span>
+              <span style="flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.question.slice(0,60)}…</span>
+              <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">Next: ${next}</span>
+            </div>
+            <div class="mistake-q-body">
+              <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${q.question}</div>
+              ${optsHtml}
+              ${justHtml}
+            </div>
+          </div>`;
+      }).join('');
+
+      return `<div class="mistake-unit-group">
+        <div class="mistake-unit-header">
+          <span>${unit}</span>
+          <span style="background:var(--red-dim);color:var(--red);border-radius:99px;padding:1px 8px;font-size:10px;">${qs.length}</span>
+        </div>
+        ${cards}
+      </div>`;
+    }).join('');
+}
+
+// ── SRS Revision Session ─────────────────────────────────
+let srsRevState = { questions:[], idx:0, correct:0, wrong:0 };
+
+function startSRSRevision() {
+  const due = srsDueToday();
+  if (!due.length) return;
+  srsRevState = { questions: due.sort(() => Math.random()-0.5), idx:0, correct:0, wrong:0 };
+  document.getElementById('srs-revision-screen').style.display = 'block';
+  srsRevRender();
+}
+
+function srsRevRender() {
+  const st  = srsRevState;
+  const q   = st.questions[st.idx];
+  const total = st.questions.length;
+  const body  = document.getElementById('srs-rev-body');
+  const counter = document.getElementById('srs-rev-counter');
+  const fill    = document.getElementById('srs-rev-fill');
+  const scoreBadge = document.getElementById('srs-rev-score-badge');
+  if (!body) return;
+
+  counter.textContent = `Q ${st.idx + 1} of ${total}`;
+  fill.style.width = `${(st.idx / total) * 100}%`;
+  scoreBadge.textContent = `✓ ${st.correct}`;
+
+  const srs = getSRSData();
+  const entry = srs[q.questionId];
+  const stageLabel = entry ? `Stage ${entry.stage}` : 'Stage 1';
+
+  const optsHtml = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l =>
+    `<div class="ar-opt" style="cursor:pointer;" onclick="srsRevAnswer('${q.questionId}','${l}')">
+      <span class="ar-opt-ltr">${l}.</span>
+      <span style="flex:1;">${q.options[l]}</span>
+    </div>`
+  ).join('');
+
+  body.innerHTML = `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;gap:8px;">
+      <span>${q.unit}</span>
+      <span class="srs-stage-pill srs-stage-${entry ? entry.stage : 1}">${stageLabel}</span>
+    </div>
+    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${q.question}</div>
+    <div id="srs-rev-opts">${optsHtml}</div>
+    <div id="srs-rev-feedback" style="margin-top:14px;"></div>`;
+}
+
+function srsRevAnswer(qId, letter) {
+  const st  = srsRevState;
+  const q   = st.questions[st.idx];
+  const isCorrect = letter === q.correct;
+
+  // Lock options, highlight result
+  const optsContainer = document.getElementById('srs-rev-opts');
+  if (!optsContainer) return;
+  optsContainer.querySelectorAll('.ar-opt').forEach(el => {
+    el.onclick = null;
+    el.style.cursor = 'default';
+    const l = el.querySelector('.ar-opt-ltr').textContent.replace('.','');
+    if (l === q.correct) el.classList.add('correct');
+    else if (l === letter && !isCorrect) el.classList.add('user-wrong');
+  });
+
+  // Update SRS data FIRST so feedback shows the correct next-review date
+  if (isCorrect) st.correct++; else st.wrong++;
+  srsAnswerRevision(qId, isCorrect);
+  document.getElementById('srs-rev-score-badge').textContent = `\u2713 ${st.correct}`;
+
+  // Build feedback using the now-updated SRS entry
+  const updatedEntry = getSRSData()[qId];
+  const nextReview   = updatedEntry ? updatedEntry.nextReview : srsDatePlus(1);
+  const newStage     = updatedEntry ? updatedEntry.stage : 1;
+  const mastered     = newStage >= 5 && isCorrect;
+
+  const fb = document.getElementById('srs-rev-feedback');
+  if (fb) {
+    const justHtml = q.justification
+      ? `<div class="ar-just" style="margin-top:10px;"><b>Explanation:</b> ${q.justification}</div>` : '';
+    const msgText = isCorrect
+      ? (mastered ? '\ud83c\udf89 Mastered! Removed from Mistake Notebook.' : `\u2713 Correct! Next review: ${nextReview} (Stage ${newStage})`)
+      : `\u2717 Wrong! Reset to Stage 1 \u00b7 Review tomorrow`;
+    fb.innerHTML = `
+      <div style="padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;
+        background:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'};
+        color:${isCorrect ? 'var(--green)' : 'var(--red)'};margin-bottom:10px;">
+        ${msgText}
+      </div>
+      ${justHtml}
+      <button class="btn btn-primary" onclick="srsRevNext()" style="width:100%;margin-top:12px;">
+        ${st.idx + 1 < st.questions.length ? 'Next Question \u2192' : 'See Results \u2192'}
+      </button>`;
+  }
+}
+
+function srsRevNext() {
+  const st = srsRevState;
+  st.idx++;
+  if (st.idx >= st.questions.length) {
+    srsRevShowResults();
+    return;
+  }
+  srsRevRender();
+}
+
+function srsRevShowResults() {
+  const st    = srsRevState;
+  const total = st.questions.length;
+  const body  = document.getElementById('srs-rev-body');
+  const fill  = document.getElementById('srs-rev-fill');
+  if (fill) fill.style.width = '100%';
+
+  const score = total > 0 ? ((st.correct / total) * 100).toFixed(0) : 0;
+  const remaining = srsDueToday().length;
+
+  body.innerHTML = `
+    <div style="text-align:center;padding:20px 0 16px;">
+      <div style="font-size:52px;font-weight:800;font-family:var(--font-display);color:var(--accent);">${score}%</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">Revision Complete</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
+      <div style="text-align:center;background:var(--green-dim);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--green);">${st.correct}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Correct</div>
+      </div>
+      <div style="text-align:center;background:var(--red-dim);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--red);">${st.wrong}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Wrong</div>
+      </div>
+      <div style="text-align:center;background:var(--surface-2);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--text);">${remaining}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Still Due</div>
+      </div>
+    </div>
+    ${st.wrong > 0 ? `<div style="font-size:12px;color:var(--amber);text-align:center;margin-bottom:14px;">⚠ ${st.wrong} question${st.wrong>1?'s':''} reset to Stage 1 — review again tomorrow.</div>` : '<div style="font-size:12px;color:var(--green);text-align:center;margin-bottom:14px;">🎉 Perfect session!</div>'}
+    <button class="btn btn-primary" onclick="closeSRSRevision()" style="width:100%;">Done →</button>`;
+}
+
+function closeSRSRevision() {
+  document.getElementById('srs-revision-screen').style.display = 'none';
+  renderSRSHomeCard();
+  renderMistakeSummary();
+}
+
+document.getElementById('srs-rev-back-btn').addEventListener('click', () => {
+  if (srsRevState.idx > 0) {
+    if (!confirm('Exit revision? Progress is saved for completed questions.')) return;
+  }
+  closeSRSRevision();
+});
+
+document.getElementById('mistake-back-btn').addEventListener('click', () => {
+  document.getElementById('mistake-screen').style.display = 'none';
+});
 
 // ─── IMPORT / EXPORT ───────────────────────────────────────
 function exportJSON() {
@@ -3877,6 +4371,7 @@ function clearHistory() {
   if (confirm("Delete all saved mocks? This cannot be undone.")) {
     localStorage.removeItem('quizHistory');
     loadHistoryUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
+    if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
   }
 }
 
@@ -3887,6 +4382,7 @@ function deleteMock(idx) {
   history.splice(idx, 1);
   localStorage.setItem('quizHistory', JSON.stringify(history));
   loadHistoryUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
 }
 
 function resetAppData() {
@@ -4402,6 +4898,13 @@ function rmSelectMode(mode) {
   document.getElementById('rm-mode-stretch').style.background = mode === 'stretch' ? 'var(--accent-glow)' : '';
   document.getElementById('rm-mode-instant').style.border = mode === 'instant' ? '2px solid #a78bfa' : '2px solid var(--border)';
   document.getElementById('rm-mode-instant').style.background = mode === 'instant' ? 'rgba(124,58,237,0.1)' : '';
+  // Hide question count input for instant mode (unlimited)
+  const qCountRow = document.querySelector('.rm-q-count-row');
+  if (qCountRow) qCountRow.style.display = mode === 'instant' ? 'none' : '';
+  const qCountLabel = qCountRow ? qCountRow.previousElementSibling : null;
+  if (qCountLabel) qCountLabel.style.display = mode === 'instant' ? 'none' : '';
+  // Always refresh available count — avail label is now outside the hidden row
+  rmUpdateAvailable();
 }
 
 function rmGetSelectedUnits() {
@@ -4412,13 +4915,13 @@ function rmGetSelectedUnits() {
 function rmUpdateAvailable() {
   const units = rmGetSelectedUnits();
   const diffs = rmGetSelectedDiffs();
-  const bank = getQB();
+  const bank  = getQB();
+  const mode  = rmState.mode;
 
   let avail;
   if (!units.length && !diffs.length) {
     avail = 0;
   } else if (!units.length) {
-    // No units selected yet — show how many match the diff filter across all units
     avail = bank.filter(q => diffs.includes(q.difficulty || 'medium')).length;
   } else if (!diffs.length) {
     avail = 0;
@@ -4432,17 +4935,31 @@ function rmUpdateAvailable() {
   const el   = document.getElementById('rm-q-avail-label');
   const warn = document.getElementById('rm-q-warn');
   const inp  = document.getElementById('rm-q-count-input');
+  if (!el) return;
 
   if (!units.length) {
     el.textContent = diffs.length ? `${avail} total match difficulty` : 'Select units & difficulty';
     el.className = 'rm-q-avail';
-    warn.style.display = 'none';
+    if (warn) warn.style.display = 'none';
     return;
   }
 
+  if (mode === 'instant') {
+    // Instant = unlimited, show full pool size
+    el.textContent = avail === 0 ? 'No questions match filters' : `${avail} questions available (unlimited mode)`;
+    el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
+    if (warn) {
+      warn.textContent = avail === 0 ? '⚠ No questions match selected filters.' : '';
+      warn.style.display = avail === 0 ? 'block' : 'none';
+    }
+    return;
+  }
+
+  // Stretch mode — show count vs requested
   el.textContent = `Available: ${avail}`;
   el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
-  const requested = parseInt(inp.value) || 10;
+  const requested = parseInt(inp ? inp.value : 10) || 10;
+  if (!warn) return;
   if (avail === 0) {
     warn.textContent = '⚠ No questions match selected filters.';
     warn.style.display = 'block';
@@ -4511,11 +5028,18 @@ document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
     alert('No questions match selected units + difficulty. Try different filters.');
     return;
   }
-  const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
-  const count = Math.min(requested, pool.length);
-  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  let finalQuestions;
+  if (rmState.mode === 'instant') {
+    // Instant mode: unlimited — use entire shuffled pool
+    finalQuestions = shuffled;
+  } else {
+    const requested = Math.max(1, parseInt(document.getElementById('rm-q-count-input').value) || 10);
+    const count = Math.min(requested, shuffled.length);
+    finalQuestions = shuffled.slice(0, count);
+  }
   document.getElementById('rm-mode-modal').classList.remove('active');
-  rmLaunch(shuffled, units, count);
+  rmLaunch(finalQuestions, units, finalQuestions.length);
 });
 
 // \u2500\u2500 Launch real mock \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -4538,6 +5062,16 @@ function rmLaunch(questions, units, count) {
   hideAllWindows();
   document.getElementById('real-mock-screen').classList.add('active');
   document.getElementById('rm-mock-label').textContent = rmState.mockName;
+  // Show/hide End Exam button based on mode
+  const endBtn  = document.getElementById('rm-end-exam-btn');
+  const saveBtn = document.getElementById('rm-save-btn');
+  if (rmState.mode === 'instant') {
+    endBtn.style.display  = 'inline-flex';
+    saveBtn.style.display = 'none';
+  } else {
+    endBtn.style.display  = 'none';
+    saveBtn.style.display = '';
+  }
   rmRenderQuestion();
   rmStartTimers();
 }
@@ -4551,8 +5085,14 @@ function rmRenderQuestion() {
   const mode = rmState.mode;
   const revealed = mode === 'instant' && ans.selected !== null;
 
-  document.getElementById('rm-q-counter').textContent = `Q ${idx + 1} / ${total}`;
-  document.getElementById('rm-progress-fill').style.width = `${((idx) / total) * 100}%`;
+  // Update topbar counter and progress bar
+  if (mode === 'instant') {
+    document.getElementById('rm-q-counter').textContent = `Q ${idx + 1}`;
+    document.getElementById('rm-progress-fill').style.width = '0%'; // no progress bar in unlimited mode
+  } else {
+    document.getElementById('rm-q-counter').textContent = `Q ${idx + 1} / ${total}`;
+    document.getElementById('rm-progress-fill').style.width = `${((idx) / total) * 100}%`;
+  }
 
   const reviewMarked = ans.reviewed;
 
@@ -4593,11 +5133,17 @@ function rmRenderQuestion() {
   }
 
   const isLast = idx === total - 1;
-  const nextLabel = isLast ? '\u2713 Finish' : 'Next \u2192';
+  // Instant mode: Next never says Finish — End Exam button handles that
+  const nextLabel = (mode === 'instant') ? 'Next \u2192' : (isLast ? '\u2713 Finish' : 'Next \u2192');
   const canGoBack = idx > 0;
 
+  // Counter: instant mode hides total (unlimited)
+  const counterText = (mode === 'instant')
+    ? `Q ${idx + 1} \u00b7 ${q.unit}`
+    : `Question ${idx + 1} of ${total} \u00b7 ${q.unit}`;
+
   body.innerHTML = `
-    <div class="rm-q-counter">Question ${idx + 1} of ${total} \u00b7 ${q.unit}</div>
+    <div class="rm-q-counter">${counterText}</div>
     <div class="rm-question-text">${q.question}</div>
     ${feedbackHtml}
     <div class="rm-options">${optionsHtml}</div>
@@ -4641,6 +5187,16 @@ function rmSkipQ() {
 function rmNextQ() {
   if (rmState.paused) return;
   const isLast = rmState.currentIdx === rmState.questions.length - 1;
+  if (rmState.mode === 'instant') {
+    // Instant mode: never auto-finish — wrap or just stop at last until End Exam
+    if (!isLast) {
+      rmState.currentIdx++;
+      rmResetQTimer();
+      rmRenderQuestion();
+    }
+    // At last question in instant mode: do nothing (user hits End Exam button)
+    return;
+  }
   if (isLast) { rmFinish(); return; }
   rmState.currentIdx++;
   rmResetQTimer();
@@ -4702,9 +5258,14 @@ function rmResetQTimer() {
 }
 
 function rmAutoAdvance() {
-  // Time up for this question \u2014 mark as skipped and move on
+  // Time up for this question — mark as skipped and move on
   const ans = rmState.answers[rmState.currentIdx];
   if (ans.selected === null) ans.skipped = true;
+  // In instant mode at last question, timer expiry ends the exam
+  if (rmState.mode === 'instant' && rmState.currentIdx === rmState.questions.length - 1) {
+    rmFinish();
+    return;
+  }
   rmNextQ();
 }
 
@@ -4732,6 +5293,11 @@ function rmTogglePause() {
 
 // \u2500\u2500 Save progress \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 document.getElementById('rm-save-btn').addEventListener('click', rmSaveProgress);
+document.getElementById('rm-end-exam-btn').addEventListener('click', () => {
+  if (confirm('End exam now? Your score will be calculated up to this question.')) {
+    rmFinish();
+  }
+});
 function rmSaveProgress() {
   const save = {
     state: JSON.parse(JSON.stringify(rmState)),
@@ -4764,31 +5330,44 @@ function rmFinish() {
   clearInterval(rmQTimer); clearInterval(rmTotalTimer);
   rmQTimer = null; rmTotalTimer = null;
   rmState.finished = true;
-  localStorage.removeItem(RM_SAVED_KEY); // clear saved progress
+  localStorage.removeItem(RM_SAVED_KEY);
 
-  // Calculate score
+  // In instant mode: only score up to the question the user reached
+  const scoredCount = (rmState.mode === 'instant')
+    ? rmState.currentIdx + 1
+    : rmState.questions.length;
+
+  // Calculate score — only over scored questions
   let correct = 0, wrong = 0, skipped = 0;
-  rmState.answers.forEach((ans, i) => {
-    const q = rmState.questions[i];
+  for (let i = 0; i < scoredCount; i++) {
+    const ans = rmState.answers[i];
+    const q   = rmState.questions[i];
     if (!ans.selected) { skipped++; }
     else if (ans.selected === q.correct) { correct++; }
     else { wrong++; }
-  });
+  }
   const rawScore = correct - (wrong * 0.33);
-  const totalQ = rmState.questions.length;
+  const totalQ = scoredCount;
   const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
   const attempted = correct + wrong;
   const m = Math.floor(rmState.totalTime / 60);
   const s = rmState.totalTime % 60;
   const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
-  // Save reviewed questions to review bank
-  rmState.answers.forEach((ans, i) => {
-    if (ans.reviewed) {
-      const q = rmState.questions[i];
-      rmSaveReviewQuestion(q, ans);
+  // Save reviewed questions (only from attended range)
+  for (let i = 0; i < scoredCount; i++) {
+    const ans = rmState.answers[i];
+    if (ans.reviewed) rmSaveReviewQuestion(rmState.questions[i], ans);
+  }
+
+  // SRS: add wrong answers to spaced repetition + mistake notebook
+  for (let i = 0; i < scoredCount; i++) {
+    const ans = rmState.answers[i];
+    const q   = rmState.questions[i];
+    if (ans.selected && ans.selected !== q.correct) {
+      srsAddWrong(q);
     }
-  });
+  }
 
   // Save to history
   saveSessionToHistory(
@@ -4822,9 +5401,11 @@ function rmFinish() {
 
   rmUpdateQBCount();
   renderReviewBtn();
+  if (typeof renderSRSHomeCard === 'function') renderSRSHomeCard();
+  if (typeof renderMistakeSummary === 'function') renderMistakeSummary();
 }
 
-// In stretch mode show full Q&A review below result stats
+
 function rmShowStretchReview() {
   const rs = document.getElementById('real-mock-result-screen');
   const reviewDiv = document.createElement('div');

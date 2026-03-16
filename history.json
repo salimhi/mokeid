@@ -1,0 +1,219 @@
+{
+  "version": 2,
+  "exportedAt": "2026-03-16T17:41:06.160Z",
+  "quizHistory": [
+    {
+      "date": "2026-03-16 23:06 (16 Mar 2026)",
+      "name": "Real Mock 6",
+      "unit": "Unit 5",
+      "time": "01:27",
+      "score": "50.1",
+      "details": {
+        "totalQ": 8,
+        "attempted": 8,
+        "skipped": 0,
+        "correct": 5,
+        "wrong": 3,
+        "mode": "instant"
+      },
+      "mockType": "real"
+    },
+    {
+      "date": "2026-03-16 12:34 (16 Mar 2026)",
+      "details": {
+        "attempted": 10,
+        "correct": 7,
+        "mode": "instant",
+        "skipped": 0,
+        "totalQ": 10,
+        "wrong": 3
+      },
+      "mockType": "real",
+      "name": "Real Mock 6",
+      "score": "60.1",
+      "time": "06:26",
+      "unit": "Unit 5, Unit 6, Unit 15"
+    },
+    {
+      "date": "2026-03-14 14:11 (14 Mar 2026)",
+      "name": "Real Mock 5",
+      "unit": "Unit 15",
+      "time": "00:17",
+      "score": "100.0",
+      "details": {
+        "totalQ": 3,
+        "attempted": 3,
+        "skipped": 0,
+        "correct": 3,
+        "wrong": 0,
+        "mode": "instant"
+      },
+      "mockType": "real"
+    },
+    {
+      "date": "2026-03-14 02:55 (14 Mar 2026)",
+      "details": {
+        "attempted": 8,
+        "correct": 6,
+        "mode": "instant",
+        "skipped": 2,
+        "totalQ": 10,
+        "wrong": 2
+      },
+      "mockType": "real",
+      "name": "Real Mock 3",
+      "score": "53.4",
+      "time": "04:57",
+      "unit": "Unit 5"
+    },
+    {
+      "date": "2026-03-14 02:47 (14 Mar 2026)",
+      "details": {
+        "attempted": 10,
+        "correct": 6,
+        "mode": "instant",
+        "skipped": 0,
+        "totalQ": 10,
+        "wrong": 4
+      },
+      "mockType": "real",
+      "name": "Real Mock 2",
+      "score": "46.8",
+      "time": "05:46",
+      "unit": "Unit 5, Unit 6"
+    },
+    {
+      "date": "2026-03-13 00:14 (13 Mar 2026)",
+      "name": "Real Mock 1",
+      "unit": "Unit 15",
+      "time": "00:04",
+      "score": "100.0",
+      "details": {
+        "totalQ": 1,
+        "attempted": 1,
+        "skipped": 0,
+        "correct": 1,
+        "wrong": 0,
+        "mode": "instant"
+      },
+      "mockType": "real"
+    },
+    {
+      "date": "2026-03-04 09:13 pm (04 Mar 2026)",
+      "name": "Mock 3",
+      "unit": "Unit 5, Unit 6, Unit 9",
+      "time": "00:02",
+      "score": "89.18",
+      "details": {
+        "totalQ": "40",
+        "attempted": "37",
+        "skipped": "3",
+        "correct": "36",
+        "incorrect": "1"
+      }
+    },
+    {
+      "date": "2026-03-04 09:12 pm (04 Mar 2026)",
+      "name": "Mock 2",
+      "unit": "Unit 5",
+      "time": "00:06",
+      "score": "80.22",
+      "details": {
+        "totalQ": "40",
+        "attempted": "36",
+        "skipped": "4",
+        "correct": "33",
+        "incorrect": "3"
+      }
+    },
+    {
+      "date": "2026-03-04 09:12 pm (04 Mar 2026)",
+      "name": "Mock 1",
+      "unit": "Unit 9",
+      "time": "00:12",
+      "score": "69.34",
+      "details": {
+        "totalQ": "50",
+        "attempted": "40",
+        "skipped": "10",
+        "correct": "36",
+        "incorrect": "4"
+      }
+    }
+  ],
+  "reviewQuestions": [
+    {
+      "addedOn": "2026-03-10",
+      "correct": "B",
+      "id": "q_1773169907888_2ijah",
+      "justification": "This is called the zone of maximum ice crystal formation, where most of the water freezes. Rapid freezing aims to pass through this zone quickly to minimize tissue damage.",
+      "options": {
+        "A": "0°C to -10°C",
+        "B": "-1°C to -5°C",
+        "C": "-18°C to -30°C",
+        "D": "-5°C to -15°C"
+      },
+      "question": "The Critical Zone in the freezing of fish, where the maximum quantity of water is turned into ice crystals, refers to the temperature range of:",
+      "unit": "Unit 5"
+    },
+    {
+      "addedOn": "2026-03-13",
+      "correct": "C",
+      "id": "q_1773258695183_hvoqh",
+      "justification": "Lean fish such as tilapia generally have longer shelf life in ice compared with fatty fish like sardine and mackerel.",
+      "options": {
+        "A": "Sardine",
+        "B": "Mackerel",
+        "C": "Tilapia",
+        "D": "Pacu"
+      },
+      "question": "Among the following fishes, the maximum shelf life when stored in ice under temperate conditions is shown by:",
+      "unit": "Unit 5",
+      "yourAnswer": "A"
+    },
+    {
+      "addedOn": "2026-03-13",
+      "correct": "B",
+      "id": "q_1773168890565_seooh",
+      "justification": "The import of live aquatic animals, including ornamental fishes, falls under the strict purview of the DAHD (Ministry of Fisheries, Animal Husbandry and Dairying). They issue the Sanitary Import Permit (SIP) after risk analysis to prevent the introduction of exotic diseases into Indian waters.",
+      "options": {
+        "A": "Marine Products Export Development Authority (MPEDA)",
+        "B": "Department of Animal Husbandry and Dairying (DAHD)",
+        "C": "Coastal Aquaculture Authority (CAA)",
+        "D": "National Bureau of Fish Genetic Resources (NBFGR)"
+      },
+      "question": "In the global trade regulations for live ornamental fishes, an importer in India must obtain a 'Sanitary Import Permit' (SIP) to legally import exotic species. Which department/agency under the Government of India is the central authority responsible for issuing this permit?",
+      "unit": "Unit 6",
+      "yourAnswer": "A"
+    },
+    {
+      "addedOn": "2026-03-13",
+      "correct": "C",
+      "id": "q_1773339740397_ut69t",
+      "justification": "Freezing point depression is driven by solutes in true solution; since fats in pelagic fish exist as colloids, they do not depress the freezing point as effectively as salts.",
+      "options": {
+        "A": "Pelagic fishes have significantly higher salt concentrations in tissue.",
+        "B": "Demersal fishes contain a higher proportion of bound water.",
+        "C": "Pelagic fishes are usually fatty, and fats do not contribute to freezing point depression.",
+        "D": "Demersal fishes lack sarcoplasmic protein buffers."
+      },
+      "question": "Why do pelagic fishes generally exhibit higher initial freezing points compared to demersal species?",
+      "unit": "Unit 5"
+    },
+    {
+      "addedOn": "2026-03-13",
+      "correct": "D",
+      "id": "q_1773339391063_ou3ht",
+      "justification": "Vitamin E (tocopherol) is described as the most common natural antioxidant in cellular membranes that prevents lipid autoxidation by scavenging radicals.",
+      "options": {
+        "A": "Vitamin A",
+        "B": "Vitamin C",
+        "C": "Vitamin D",
+        "D": "Vitamin E"
+      },
+      "question": "Which vitamin is a natural antioxidant found in fish cell membranes that protects lipids from autoxidation?",
+      "unit": "Unit 5"
+    }
+  ],
+  "savedMock": null
+}

@@ -3422,6 +3422,43 @@ function srsAddWrong(q) {
   }
 }
 
+// Add a skipped question to SRS + Mistake Book (same as wrong answer)
+function srsAddSkipped(q) {
+  if (!q || !q.id) return;
+  const srs = getSRSData();
+  // Reset to stage 1 — skipped means not answered, treat same as wrong
+  srs[q.id] = {
+    questionId: q.id,
+    stage:      1,
+    interval:   SRS_INTERVALS[0],
+    nextReview: srsDatePlus(1),
+    inMistakeBook: true,
+    question:   q.question,
+    options:    q.options,
+    correct:    q.correct,
+    unit:       q.unit,
+    justification: q.justification || '',
+    difficulty: q.difficulty || 'medium',
+  };
+  saveSRSData(srs);
+
+  // Add to mistake book if not already there
+  const mistakes = getMistakeData();
+  if (!mistakes.find(m => m.id === q.id)) {
+    mistakes.push({
+      id:         q.id,
+      question:   q.question,
+      options:    q.options,
+      correct:    q.correct,
+      unit:       q.unit,
+      justification: q.justification || '',
+      difficulty: q.difficulty || 'medium',
+      addedOn:    toDateKey(new Date()),
+    });
+    saveMistakeData(mistakes);
+  }
+}
+
 // Called when user answers a revision question
 function srsAnswerRevision(qId, isCorrect) {
   const srs = getSRSData();
@@ -5369,12 +5406,17 @@ function rmFinish() {
     if (ans.reviewed) rmSaveReviewQuestion(rmState.questions[i], ans);
   }
 
-  // SRS: add wrong answers to spaced repetition + mistake notebook
+  // SRS: add wrong AND skipped answers to spaced repetition + mistake notebook
+  // In instant mode: only within scoredCount (questions actually attended)
   for (let i = 0; i < scoredCount; i++) {
     const ans = rmState.answers[i];
     const q   = rmState.questions[i];
     if (ans.selected && ans.selected !== q.correct) {
+      // Wrong answer
       srsAddWrong(q);
+    } else if (!ans.selected) {
+      // Skipped — add to SRS for revision but NOT to mistake book
+      srsAddSkipped(q);
     }
   }
 

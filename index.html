@@ -3514,7 +3514,7 @@ function migrateLegacyDates() {
   if (changed) localStorage.setItem('quizHistory', JSON.stringify(history));
 }
 
-window.onload = () => { migrateLegacyDates(); showHome(); loadSavedMocksUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard(); updateExportImportLabels(); rmUpdateQBCount(); renderReviewBtn(); renderSRSHomeCard(); renderMistakeSummary(); initRMSavedCard(); };
+;
 
 // ─── SRS + MISTAKE NOTEBOOK ──────────────────────────────────
 const SRS_KEY       = 'mockiq_srs';
@@ -6461,6 +6461,9 @@ window.onload = () => {
   updateExportImportLabels();
   rmUpdateQBCount();
   renderReviewBtn();
+  renderSRSHomeCard();
+  renderMistakeSummary();
+  initRMSavedCard();
   tryLoadQBFromGitHub();
   syncHistoryFromGitHub();
 

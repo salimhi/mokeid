@@ -2320,6 +2320,7 @@ body.pip-mode #exam-popup {
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
         <button class="btn btn-teal" id="rm-answers-btn" style="flex:1;max-width:220px;">📋 Review Answers</button>
         <button class="btn btn-teal" id="rm-review-after-btn" style="flex:1;max-width:220px;">🔖 Saved Reviews</button>
+        <button class="btn" id="rm-pdf-btn" style="flex:1;max-width:220px;background:var(--surface-2);border:1px solid var(--border);">📄 Download Report</button>
         <button class="btn btn-primary" id="rm-new-mock-btn" style="flex:1;max-width:220px;margin-top:0;">New Mock →</button>
         <button class="btn" id="rm-home-btn" style="flex:1;max-width:220px;background:var(--surface-2);border:1px solid var(--border);">🏠 Home</button>
       </div>
@@ -3026,6 +3027,146 @@ function rmShowAnswerReview() {
 document.getElementById('rm-answers-btn').addEventListener('click', () => {
   rmShowAnswerReview();
 });
+
+document.getElementById('rm-pdf-btn').addEventListener('click', () => {
+  rmGenerateReport();
+});
+
+function rmGenerateReport() {
+  const st = rmState;
+  const scoredCount = (st.mode === 'instant') ? st.currentIdx + 1 : st.questions.length;
+  const attendedQs  = st.questions.slice(0, scoredCount);
+  const attendedAns = st.answers.slice(0, scoredCount);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  attendedAns.forEach((ans, i) => {
+    const q = attendedQs[i];
+    if (!ans || !ans.selected) skipped++;
+    else if (ans.selected === q.correct) correct++;
+    else wrong++;
+  });
+  const rawScore   = correct - (wrong * 0.33);
+  const totalQ     = scoredCount;
+  const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
+  const m = Math.floor(st.totalTime / 60), s = st.totalTime % 60;
+  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const now = new Date().toLocaleString();
+
+  // Categorise questions
+  const wrongQs   = [];
+  const skippedQs = [];
+  const correctQs = [];
+  attendedQs.forEach((q, i) => {
+    const ans = attendedAns[i] || {};
+    if (!ans.selected) skippedQs.push({ q, ans });
+    else if (ans.selected === q.correct) correctQs.push({ q, ans });
+    else wrongQs.push({ q, ans });
+  });
+
+  const esc = s => (s || '').toString()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Build wrong/skipped question HTML (with options + what user chose)
+  function buildQCard(item, idx, type) {
+    const { q, ans } = item;
+    const opts = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l => {
+      let bg = '#f9f9f9', color = '#333', fw = 'normal', marker = '';
+      if (l === q.correct) { bg = '#d4edda'; color = '#155724'; fw = '700'; marker = ' ✓ Correct'; }
+      else if (l === ans.selected && l !== q.correct) { bg = '#f8d7da'; color = '#721c24'; fw = '600'; marker = ' ✗ Your Answer'; }
+      return `<div style="padding:6px 10px;margin:4px 0;border-radius:5px;background:${bg};color:${color};font-weight:${fw};font-size:13px;">
+        <b>${l}.</b> ${esc(q.options[l])}${marker}
+      </div>`;
+    }).join('');
+    const justHtml = q.justification ? `<div style="margin-top:8px;padding:8px 12px;background:#e8f0fe;border-left:3px solid #3b6bca;font-size:12px;color:#1a3a6b;border-radius:0 5px 5px 0;"><b>Explanation:</b> ${esc(q.justification)}</div>` : '';
+    const tag = type === 'skipped' ? '<span style="background:#fff3cd;color:#856404;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">SKIPPED</span>'
+                                   : '<span style="background:#f8d7da;color:#721c24;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">WRONG</span>';
+    return `<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:14px;overflow:hidden;">
+      <div style="background:#f8f9fa;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #dee2e6;">
+        <span style="font-weight:700;color:#555;font-size:13px;">Q${idx + 1}</span>
+        <span style="font-size:11px;color:#888;">${esc(q.unit)} · ${esc(q.difficulty || 'medium')}</span>
+        ${tag}
+      </div>
+      <div style="padding:12px 14px;">
+        <div style="font-size:14px;font-weight:600;color:#222;margin-bottom:10px;line-height:1.6;">${esc(q.question)}</div>
+        ${opts}
+        ${justHtml}
+      </div>
+    </div>`;
+  }
+
+  // Correct questions — just question text, no options
+  function buildCorrectCard(item, idx) {
+    const { q } = item;
+    return `<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:8px;overflow:hidden;">
+      <div style="background:#f8f9fa;padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #dee2e6;">
+        <span style="font-weight:700;color:#555;font-size:13px;">Q${idx + 1}</span>
+        <span style="font-size:11px;color:#888;">${esc(q.unit)}</span>
+        <span style="background:#d4edda;color:#155724;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">CORRECT</span>
+      </div>
+      <div style="padding:10px 14px;font-size:13px;color:#333;line-height:1.6;">${esc(q.question)}</div>
+    </div>`;
+  }
+
+  const wrongHtml   = wrongQs.map((item, i)   => buildQCard(item, i, 'wrong')).join('');
+  const skippedHtml = skippedQs.map((item, i) => buildQCard(item, i, 'skipped')).join('');
+  const correctHtml = correctQs.map((item, i) => buildCorrectCard(item, i)).join('');
+
+  const scoreColor = parseFloat(finalScore) >= 50 ? '#155724' : '#721c24';
+  const scoreBg    = parseFloat(finalScore) >= 50 ? '#d4edda' : '#f8d7da';
+
+  const html = `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>MockIQ Report — ${esc(st.mockName)}</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 30px 20px; color: #222; }
+  h1 { color: #1a3a6b; border-bottom: 2px solid #1a3a6b; padding-bottom: 10px; }
+  h2 { color: #1a3a6b; margin-top: 30px; border-left: 4px solid #1a3a6b; padding-left: 10px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+  .stat-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 14px; text-align: center; }
+  .stat-val { font-size: 26px; font-weight: 700; }
+  .stat-lbl { font-size: 12px; color: #666; margin-top: 4px; }
+  .score-hero { text-align:center; background:${scoreBg}; border-radius:12px; padding:20px; margin:20px 0; }
+  .score-big { font-size: 52px; font-weight: 800; color: ${scoreColor}; }
+  .meta { font-size: 12px; color: #888; margin-top: 4px; }
+  @media print { body { padding: 10px; } }
+</style>
+</head><body>
+<h1>📊 MockIQ Exam Report</h1>
+<div class="meta">Generated: ${now}</div>
+<div class="meta">Mock: <b>${esc(st.mockName)}</b> &nbsp;·&nbsp; Units: ${esc(st.mockUnit)} &nbsp;·&nbsp; Mode: ${st.mode === 'instant' ? 'Instant Feedback' : 'Single Stretch'}</div>
+
+<div class="score-hero">
+  <div class="score-big">${finalScore}<span style="font-size:24px;">/100</span></div>
+  <div style="font-size:14px;color:${scoreColor};font-weight:600;">${parseFloat(finalScore) >= 50 ? 'PASS' : 'FAIL'}</div>
+  <div class="meta" style="margin-top:8px;">Formula: (${correct} × 1) − (${wrong} × 0.33) = ${rawScore.toFixed(2)} raw → ${finalScore}/100</div>
+</div>
+
+<div class="summary-grid">
+  <div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">${totalQ}</div><div class="stat-lbl">Questions Attended</div></div>
+  <div class="stat-box"><div class="stat-val" style="color:#155724;">${correct}</div><div class="stat-lbl">Correct</div></div>
+  <div class="stat-box"><div class="stat-val" style="color:#721c24;">${wrong}</div><div class="stat-lbl">Wrong</div></div>
+  <div class="stat-box"><div class="stat-val" style="color:#856404;">${skipped}</div><div class="stat-lbl">Skipped</div></div>
+  <div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">${timeStr}</div><div class="stat-lbl">Total Time</div></div>
+  <div class="stat-box"><div class="stat-val" style="color:#555;">${totalQ > 0 ? Math.round(st.totalTime / totalQ) : 0}s</div><div class="stat-lbl">Avg per Question</div></div>
+</div>
+
+${wrongQs.length ? `<h2>✗ Wrong Answers (${wrongQs.length})</h2>${wrongHtml}` : '<h2 style="color:#155724;">✓ No Wrong Answers!</h2>'}
+${skippedQs.length ? `<h2>— Skipped Questions (${skippedQs.length})</h2>${skippedHtml}` : ''}
+${correctQs.length ? `<h2>✓ Correct Answers (${correctQs.length})</h2>${correctHtml}` : ''}
+
+<div style="margin-top:30px;padding:14px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#888;text-align:center;">
+  MockIQ \u00b7 Fisheries Exam Preparation \u00b7 Use browser Print \u2192 Save as PDF to download
+</div>
+</body></html>` + '<scr' + `ipt>window.onload=()=>window.print();</scr` + `ipt>`;
+
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  // Revoke after 60s — ephemeral, not stored
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
 
 document.getElementById('rm-answer-review-back').addEventListener('click', () => {
   document.getElementById('rm-answer-review-screen').style.display = 'none';

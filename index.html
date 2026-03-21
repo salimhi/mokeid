@@ -120,7 +120,7 @@
         // Show resume card immediately — don't wait for refreshUI
         if (typeof window.initRMSavedCard === 'function') window.initRMSavedCard();
       }
-      // Merge SRS data — smart merge: keep the entry with the higher stage for each questionId
+      // Merge SRS data — most recently updated entry wins per questionId
       if (remote.srsData && typeof remote.srsData === 'object') {
         const localSRS = JSON.parse(localStorage.getItem('mockiq_srs') || '{}');
         const merged = Object.assign({}, localSRS);
@@ -128,17 +128,13 @@
           const rem = remote.srsData[qId];
           const loc = merged[qId];
           if (!loc) {
-            // not in local — take remote
             merged[qId] = rem;
           } else {
-            // keep whichever has the higher stage (more progress)
-            // if stages equal, keep the one with the later nextReview (more recent activity)
-            if (rem.stage > loc.stage) {
-              merged[qId] = rem;
-            } else if (rem.stage === loc.stage && rem.nextReview > loc.nextReview) {
-              merged[qId] = rem;
-            }
-            // else keep local (already at higher or equal+later stage)
+            // Compare by lastUpdated timestamp — most recent edit wins
+            const remTs = rem.lastUpdated || '0';
+            const locTs = loc.lastUpdated || '0';
+            if (remTs > locTs) merged[qId] = rem;
+            // else keep local (local is more recent or equal)
           }
         });
         localStorage.setItem('mockiq_srs', JSON.stringify(merged));
@@ -3033,7 +3029,7 @@ function rmShowAnswerReview() {
         ${optsHtml}
         ${justHtml}
         <div class="ar-explain-row">
-          <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">✦ Open in Gemini</button>
+          <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}" title="Copies question prompt to clipboard and opens Gemini">✦ Open in Gemini</button>
           <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">↗ Open in ChatGPT</button>
         </div>
         
@@ -3199,18 +3195,20 @@ function arBuildPrompt(btn) {
 
 function arExplainGemini(btn) {
   const prompt = arBuildPrompt(btn);
-  const url = 'https://gemini.google.com/app?q=' + encodeURIComponent(prompt);
-  const a = document.createElement('a');
-  a.href = url; a.target = '_blank'; a.rel = 'noopener';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  // Gemini doesn't support ?q= pre-fill — copy prompt and open Gemini
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(() => {
+      btn.textContent = '\u2705 Prompt copied! Opening Gemini...';
+      setTimeout(() => { btn.textContent = '\u2746 Open in Gemini'; }, 3000);
+    }).catch(() => {});
+  }
+  window.open('https://gemini.google.com/app', '_blank');
 }
 
 function arExplainGPT(btn) {
   const prompt = arBuildPrompt(btn);
-  const url = 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
-  const a = document.createElement('a');
-  a.href = url; a.target = '_blank'; a.rel = 'noopener';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  // ChatGPT supports ?q= pre-fill
+  window.open('https://chatgpt.com/?q=' + encodeURIComponent(prompt), '_blank');
 }
 
 document.getElementById('rm-answer-review-back').addEventListener('click', () => {
@@ -3568,8 +3566,15 @@ const SRS_INTERVALS = [1, 3, 7, 15, 30];
 
 function getSRSData()     { return JSON.parse(localStorage.getItem(SRS_KEY)     || '{}'); }
 function getMistakeData() { return JSON.parse(localStorage.getItem(MISTAKE_KEY) || '[]'); }
-function saveSRSData(d)   { localStorage.setItem(SRS_KEY, JSON.stringify(d)); if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500); }
-function saveMistakeData(d){ localStorage.setItem(MISTAKE_KEY, JSON.stringify(d)); if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500); }
+function saveSRSData(d) {
+  localStorage.setItem(SRS_KEY, JSON.stringify(d));
+  // Push immediately — SRS progress must sync fast so other devices see updated due counts
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 300);
+}
+function saveMistakeData(d) {
+  localStorage.setItem(MISTAKE_KEY, JSON.stringify(d));
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 300);
+}
 
 // Add a wrong question to SRS + Mistake Book
 function srsAddWrong(q) {
@@ -3582,6 +3587,7 @@ function srsAddWrong(q) {
     interval:   SRS_INTERVALS[0],
     nextReview: srsDatePlus(1),
     inMistakeBook: true,
+    lastUpdated: new Date().toISOString(),
     question:   q.question,
     options:    q.options,
     correct:    q.correct,
@@ -3619,6 +3625,7 @@ function srsAddSkipped(q) {
     interval:   SRS_INTERVALS[0],
     nextReview: srsDatePlus(1),
     inMistakeBook: true,
+    lastUpdated: new Date().toISOString(),
     question:   q.question,
     options:    q.options,
     correct:    q.correct,
@@ -3656,7 +3663,7 @@ function srsAnswerRevision(qId, isCorrect) {
     entry.interval   = SRS_INTERVALS[entry.stage - 1];
     entry.nextReview = srsDatePlus(entry.interval);
     if (entry.stage >= 5) {
-      entry.inMistakeBook = false; // mastered — remove from mistake book
+      entry.inMistakeBook = false;
     }
   } else {
     entry.stage      = 1;
@@ -3664,7 +3671,11 @@ function srsAnswerRevision(qId, isCorrect) {
     entry.nextReview = srsDatePlus(1);
     entry.inMistakeBook = true;
   }
-  saveSRSData(srs);
+  entry.lastUpdated = new Date().toISOString(); // timestamp for cross-device merge
+  // Save locally first
+  localStorage.setItem(SRS_KEY, JSON.stringify(srs));
+  // Push to Firebase immediately — no delay — so other devices see progress right away
+  if (typeof window.fbPush === 'function') window.fbPush();
 }
 
 // Get questions due today
@@ -3905,7 +3916,7 @@ function srsRevAnswer(qId, letter) {
       </div>
       ${justHtml}
       <div class="ar-explain-row" style="margin-bottom:10px;">
-        <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">✦ Open in Gemini</button>
+        <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}" title="Copies question prompt to clipboard and opens Gemini">✦ Open in Gemini</button>
         <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">↗ Open in ChatGPT</button>
       </div>
       
@@ -5372,7 +5383,7 @@ function rmRenderQuestion() {
     const encOpts = encodeURIComponent(JSON.stringify(q.options));
     feedbackHtml += `
       <div class="ar-explain-row" style="margin-top:10px;">
-        <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">✦ Open in Gemini</button>
+        <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}" title="Copies question prompt to clipboard and opens Gemini">✦ Open in Gemini</button>
         <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">↗ Open in ChatGPT</button>
       </div>
       `;
@@ -5702,7 +5713,7 @@ function rmShowStretchReview() {
           ${optsHtml}
           ${expHtml}
           <div class="ar-explain-row">
-            <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">✦ Open in Gemini</button>
+            <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}" title="Copies question prompt to clipboard and opens Gemini">✦ Open in Gemini</button>
             <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">↗ Open in ChatGPT</button>
           </div>
           

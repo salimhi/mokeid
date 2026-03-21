@@ -1844,6 +1844,22 @@ body.pip-mode #exam-popup {
 .ar-opt.user-wrong .ar-opt-tag { background:rgba(248,113,113,0.2);color:var(--red); }
 .ar-just { margin-top:10px;padding:10px 14px;background:rgba(91,138,240,0.06);border-left:3px solid var(--accent);font-size:12px;color:var(--text-dim);line-height:1.6;border-radius:0 6px 6px 0; }
 
+/* AI Explain buttons + panel */
+.ar-explain-row { display:flex;gap:8px;margin-top:12px;flex-wrap:wrap; }
+.ar-explain-btn { font-size:11px;padding:5px 12px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);
+  font-family:var(--font-mono);transition:all 0.15s;display:flex;align-items:center;gap:5px; }
+.ar-explain-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
+.ar-explain-btn.gpt:hover { border-color:#10a37f;color:#10a37f;background:rgba(16,163,127,0.1); }
+.ar-explain-panel { margin-top:10px;padding:12px 14px;background:var(--surface);
+  border:1px solid var(--border-active);border-radius:8px;font-size:13px;color:var(--text);
+  line-height:1.7;display:none;animation:fadeUp 0.2s ease; }
+.ar-explain-panel.show { display:block; }
+.ar-explain-loading { color:var(--text-muted);font-size:12px;display:flex;align-items:center;gap:8px; }
+.ar-explain-loading::before { content:'';width:12px;height:12px;border:2px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
 /* Dashboard chart slide */
 .dash-filter-btn { font-size:11px;padding:3px 10px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-mono);transition:all 0.15s; }
 .dash-filter-btn.active,.dash-filter-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
@@ -3019,6 +3035,11 @@ function rmShowAnswerReview() {
         <div class="ar-qtext">${q.question}</div>
         ${optsHtml}
         ${justHtml}
+        <div class="ar-explain-row">
+          <button class="ar-explain-btn" onclick="arExplainClaude(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">✦ Explain with Claude</button>
+          <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">↗ Open in ChatGPT</button>
+        </div>
+        <div class="ar-explain-panel"></div>
       </div>`;
     list.appendChild(card);
   });
@@ -3166,6 +3187,71 @@ ${correctQs.length ? `<h2>✓ Correct Answers (${correctQs.length})</h2>${correc
   const win  = window.open(url, '_blank');
   // Revoke after 60s — ephemeral, not stored
   setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+// ── AI Explain functions ─────────────────────────────────
+
+function arBuildPrompt(btn) {
+  const q    = decodeURIComponent(btn.dataset.q);
+  const corr = btn.dataset.correct;
+  const opts = JSON.parse(decodeURIComponent(btn.dataset.opts));
+  const optText = ['A','B','C','D'].filter(l => opts[l])
+    .map(l => `${l}. ${opts[l]}${l === corr ? ' ✓' : ''}`).join('\n');
+  return `This is a fisheries exam question. Please explain clearly why the correct answer is correct, and briefly why the other options are wrong.\n\nQuestion:\n${q}\n\nOptions:\n${optText}\n\nCorrect Answer: ${corr}. ${opts[corr] || ''}\n\nPlease give a clear, concise explanation suitable for exam preparation.`;
+}
+
+async function arExplainClaude(btn) {
+  // Find the explain panel (sibling of explain-row)
+  const row   = btn.closest('.ar-explain-row');
+  const panel = row.nextElementSibling;
+  if (!panel) return;
+
+  // Toggle: if already showing, hide it
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    btn.textContent = '✦ Explain with Claude';
+    return;
+  }
+
+  btn.textContent = '✦ Loading...';
+  btn.disabled = true;
+  panel.classList.add('show');
+  panel.innerHTML = '<div class="ar-explain-loading">Claude is thinking...</div>';
+
+  const prompt = arBuildPrompt(btn);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    if (text) {
+      // Convert newlines to paragraphs for readability
+      panel.innerHTML = text.split('\n\n').filter(p => p.trim())
+        .map(p => `<p style="margin:0 0 10px;">${p.replace(/\n/g,'<br>')}</p>`).join('');
+    } else {
+      panel.innerHTML = '<span style="color:var(--red);">Could not get explanation. Try again.</span>';
+    }
+  } catch(e) {
+    panel.innerHTML = '<span style="color:var(--red);">Error reaching Claude API. Check your connection.</span>';
+  }
+
+  btn.textContent = '✦ Hide Explanation';
+  btn.disabled = false;
+}
+
+function arExplainGPT(btn) {
+  const prompt = arBuildPrompt(btn);
+  // ChatGPT deep link — opens with prompt pre-filled
+  const url = 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
+  window.open(url, '_blank');
 }
 
 document.getElementById('rm-answer-review-back').addEventListener('click', () => {
@@ -3850,6 +3936,8 @@ function srsRevAnswer(qId, letter) {
     const msgText = isCorrect
       ? (mastered ? '\ud83c\udf89 Mastered! Removed from Mistake Notebook.' : `\u2713 Correct! Next review: ${nextReview} (Stage ${newStage})`)
       : `\u2717 Wrong! Reset to Stage 1 \u00b7 Review tomorrow`;
+    const encQ    = encodeURIComponent(q.question);
+    const encOpts = encodeURIComponent(JSON.stringify(q.options));
     fb.innerHTML = `
       <div style="padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;
         background:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'};
@@ -3857,7 +3945,12 @@ function srsRevAnswer(qId, letter) {
         ${msgText}
       </div>
       ${justHtml}
-      <button class="btn btn-primary" onclick="srsRevNext()" style="width:100%;margin-top:12px;">
+      <div class="ar-explain-row" style="margin-bottom:10px;">
+        <button class="ar-explain-btn" onclick="arExplainClaude(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">✦ Explain with Claude</button>
+        <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">↗ Open in ChatGPT</button>
+      </div>
+      <div class="ar-explain-panel"></div>
+      <button class="btn btn-primary" onclick="srsRevNext()" style="width:100%;margin-top:4px;">
         ${st.idx + 1 < st.questions.length ? 'Next Question \u2192' : 'See Results \u2192'}
       </button>`;
   }
@@ -5315,6 +5408,15 @@ function rmRenderQuestion() {
     } else {
       feedbackHtml = `<div class="rm-feedback-row show skipped">\u2014 Skipped. No marks deducted.</div>`;
     }
+    // Add explain buttons below feedback (timers already paused at this point)
+    const encQ    = encodeURIComponent(q.question);
+    const encOpts = encodeURIComponent(JSON.stringify(q.options));
+    feedbackHtml += `
+      <div class="ar-explain-row" style="margin-top:10px;">
+        <button class="ar-explain-btn" onclick="arExplainClaude(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">✦ Explain with Claude</button>
+        <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encQ}" data-correct="${q.correct}" data-opts="${encOpts}">↗ Open in ChatGPT</button>
+      </div>
+      <div class="ar-explain-panel"></div>`;
   }
 
   const isLast = idx === total - 1;
@@ -5351,9 +5453,10 @@ function rmSelectOption(letter) {
   ans.selected = letter;
   ans.skipped = false;
   rmRenderQuestion();
-  // In instant mode, stop the per-question timer after answering
+  // In instant mode: stop both timers while user reads feedback + explain buttons
   if (rmState.mode === 'instant') {
-    clearInterval(rmQTimer); rmQTimer = null;
+    clearInterval(rmQTimer);   rmQTimer = null;
+    clearInterval(rmTotalTimer); rmTotalTimer = null;
   }
 }
 
@@ -5373,13 +5476,21 @@ function rmNextQ() {
   if (rmState.paused) return;
   const isLast = rmState.currentIdx === rmState.questions.length - 1;
   if (rmState.mode === 'instant') {
-    // Instant mode: never auto-finish — wrap or just stop at last until End Exam
+    // Restart total timer (was paused while user read feedback/explain)
+    if (!rmTotalTimer) {
+      rmTotalTimer = setInterval(() => {
+        if (rmState.paused) return;
+        rmState.totalTime++;
+        const m = String(Math.floor(rmState.totalTime / 60)).padStart(2,'0');
+        const s = String(rmState.totalTime % 60).padStart(2,'0');
+        document.getElementById('rm-total-timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
     if (!isLast) {
       rmState.currentIdx++;
       rmResetQTimer();
       rmRenderQuestion();
     }
-    // At last question in instant mode: do nothing (user hits End Exam button)
     return;
   }
   if (isLast) { rmFinish(); return; }
@@ -5631,6 +5742,11 @@ function rmShowStretchReview() {
           <div class="review-q-text">${q.question}</div>
           ${optsHtml}
           ${expHtml}
+          <div class="ar-explain-row">
+            <button class="ar-explain-btn" onclick="arExplainClaude(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">✦ Explain with Claude</button>
+            <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">↗ Open in ChatGPT</button>
+          </div>
+          <div class="ar-explain-panel"></div>
         </div>
       </div>`;
   });

@@ -25,7 +25,7 @@
   function refreshUI() {
     ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
      'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI',
-     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard'
+     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard','renderDRHomeCard'
     ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
   }
 
@@ -55,6 +55,7 @@
         savedMock:       JSON.parse(localStorage.getItem('rm_saved_mock')         || 'null'),
         srsData:         JSON.parse(localStorage.getItem('mockiq_srs')            || '{}'),
         mistakeData:     JSON.parse(localStorage.getItem('mockiq_mistakes')       || '[]'),
+        dailyRevision:   JSON.parse(localStorage.getItem('mockiq_daily_revision') || 'null'),
         lastPush:        new Date().toISOString()
       };
       const res = await fetchWT(DB_URL, {
@@ -146,6 +147,22 @@
         const localOnly = localM.filter(m => !remoteIds.has(m.id));
         localStorage.setItem('mockiq_mistakes', JSON.stringify([...remote.mistakeData, ...localOnly]));
       }
+      // Sync daily revision — remote wins if same date and more progress (more checked or mockDone)
+      if (remote.dailyRevision) {
+        const localDR = JSON.parse(localStorage.getItem('mockiq_daily_revision') || 'null');
+        const rem = remote.dailyRevision;
+        if (!localDR || localDR.date !== rem.date) {
+          localStorage.setItem('mockiq_daily_revision', JSON.stringify(rem));
+        } else {
+          // Same date — merge: union checked, mockDone = either true
+          const merged = Object.assign({}, localDR);
+          const remChecked = new Set(rem.checked || []);
+          const locChecked = new Set(localDR.checked || []);
+          merged.checked = [...new Set([...remChecked, ...locChecked])];
+          merged.mockDone = localDR.mockDone || rem.mockDone;
+          localStorage.setItem('mockiq_daily_revision', JSON.stringify(merged));
+        }
+      }
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       setStatus('☁ ' + t, '#4ade80');
@@ -227,7 +244,7 @@ body.light-theme {
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { overflow-x: hidden; }
+html { overflow-x: hidden; overscroll-behavior-y: contain; } /* disable pull-to-refresh, keep scrolling */
 
 body {
   font-family: var(--font-body);
@@ -1857,6 +1874,27 @@ body.pip-mode #exam-popup {
 .dash-filter-btn { font-size:11px;padding:3px 10px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-mono);transition:all 0.15s; }
 .dash-filter-btn.active,.dash-filter-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
 
+/* ─── DAILY REVISION ─────────────────────────────────── */
+.dr-q-card { background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s; }
+.dr-q-card.dr-checked { border-left:3px solid var(--green); }
+.dr-q-header { padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer; }
+.dr-q-num { font-size:11px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);min-width:24px;margin-top:2px; }
+.dr-q-text { font-size:13px;color:var(--text);line-height:1.6;flex:1; }
+.dr-tick-btn { width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;font-size:14px;color:transparent; }
+.dr-tick-btn.ticked { background:var(--green);border-color:var(--green);color:#fff; }
+.dr-q-body { display:none;padding:0 14px 14px; }
+.dr-q-body.open { display:block; }
+.dr-opts { margin-bottom:12px; }
+.dr-opt { padding:7px 10px;border-radius:6px;font-size:12px;color:var(--text-dim);border:1px solid var(--border);margin-bottom:5px;display:flex;gap:8px; }
+.dr-opt-ltr { font-weight:700;font-family:var(--font-mono);min-width:16px; }
+.dr-opt.correct { border-color:var(--green);background:var(--green-dim);color:var(--green);font-weight:600; }
+.dr-prompt-row { display:flex;gap:8px;flex-wrap:wrap;margin-top:10px; }
+.dr-prompt-btn { font-size:11px;padding:5px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-mono);transition:all 0.15s; }
+.dr-prompt-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
+.dr-prompt-btn.copy:hover { border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.1); }
+.dr-prompt-btn.gpt:hover { border-color:#10a37f;color:#10a37f;background:rgba(16,163,127,0.1); }
+.dr-prompt-btn.gemini:hover { border-color:#4285f4;color:#4285f4;background:rgba(66,133,244,0.1); }
+
 /* ─── SRS / MISTAKE NOTEBOOK ─────────────────────────── */
 .srs-card { }
 .srs-due-count { font-size:48px; font-weight:800; font-family:var(--font-display); color:var(--accent); line-height:1; }
@@ -2015,6 +2053,19 @@ body.pip-mode #exam-popup {
           <div class="srs-empty">No mistakes recorded yet.</div>
         </div>
         <button class="btn" onclick="openMistakeNotebook()" style="width:100%;margin-top:10px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;">View All →</button>
+      </div>
+    </div>
+
+    <!-- ROW 1c: Daily Revision -->
+    <div id="daily-revision-home-card" class="card full-card" style="display:none;border:1.5px solid var(--accent);background:var(--accent-glow);">
+      <div class="card-header" style="margin-bottom:10px;">
+        <span class="card-title">📖 Daily Revision</span>
+        <span id="dr-home-unit" style="font-size:11px;color:var(--text-muted);"></span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;" id="dr-home-status">10 questions ready for today</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="openDailyRevision()" style="flex:1;margin-top:0;">📖 Start Revision</button>
+        <button class="btn" onclick="drGenerate()" style="margin-top:0;background:var(--surface-2);border:1px solid var(--border);font-size:12px;">↺ New Set</button>
       </div>
     </div>
 
@@ -2518,7 +2569,46 @@ body.pip-mode #exam-popup {
 <!-- ─── /EXAM POPUP ────────────────────────────────────────── -->
 
 
-<!-- ═══ ADMIN SCREEN ═════════════════════════════════════════ -->
+
+
+<!-- ═══ DAILY REVISION SCREEN ════════════════════════════════ -->
+<div id="daily-revision-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:120;overflow-y:auto;">
+  <div style="max-width:700px;margin:0 auto;padding:16px 14px 40px;">
+    <!-- Topbar -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:10;border-bottom:1px solid var(--border);">
+      <button onclick="closeDailyRevision()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">←</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text);">📖 Daily Revision</div>
+        <div id="dr-unit-label" style="font-size:11px;color:var(--text-muted);margin-top:2px;"></div>
+      </div>
+      <div id="dr-progress-label" style="font-size:12px;color:var(--accent);font-weight:600;"></div>
+    </div>
+
+    <!-- Completion banner -->
+    <div id="dr-complete-banner" style="display:none;background:var(--green-dim);border:1px solid var(--green);border-radius:10px;padding:14px 16px;margin-bottom:18px;text-align:center;">
+      <div style="font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px;">🎉 You have completed today's revision!</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">Mock exam also completed. Wrong & skipped questions added to Mistake Book.</div>
+      <button onclick="drGenerate()" class="btn btn-primary" style="margin-top:0;">↺ Generate More (New Unit)</button>
+    </div>
+
+    <!-- Mock done banner (revision done, mock not yet taken) -->
+    <div id="dr-mock-done-banner" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:18px;text-align:center;">
+      <div style="font-size:13px;color:var(--text);margin-bottom:10px;">✅ Revision read. Now test yourself!</div>
+      <button onclick="drStartMock()" class="btn btn-primary" style="margin-top:0;">🧪 Take Mock (10 Qs)</button>
+    </div>
+
+    <!-- Question list -->
+    <div id="dr-question-list"></div>
+
+    <!-- Bottom actions -->
+    <div id="dr-bottom-actions" style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="drStartMock()" class="btn btn-primary" style="flex:1;margin-top:0;" id="dr-mock-btn">🧪 Take Mock (10 Qs)</button>
+      <button onclick="drGenerate()" class="btn" style="flex:1;margin-top:0;background:var(--surface-2);border:1px solid var(--border);display:none;" id="dr-generate-btn">↺ Generate More</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN SCREEN ════════════════════════════════════════════ -->
 <div id="admin-screen">
   <!-- Topbar -->
   <div class="admin-topbar">
@@ -3215,7 +3305,251 @@ document.getElementById('rm-answer-review-back').addEventListener('click', () =>
   document.getElementById('rm-answer-review-screen').style.display = 'none';
 });
 
-// ─── CALENDAR ────────────────────────────────────────────
+// ─── DAILY REVISION ──────────────────────────────────────────
+const DR_KEY = 'mockiq_daily_revision';
+
+function getDR() { return JSON.parse(localStorage.getItem(DR_KEY) || 'null'); }
+function saveDR(d) {
+  localStorage.setItem(DR_KEY, JSON.stringify(d));
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+}
+
+function drBuildPrompt(q) {
+  return `You are an expert mentor for Kerala Fisheries PSC exam.\nExplain the following MCQ in a highly exam-oriented way:\n\nQuestion:\n${q.question}\n\nOptions:\nA) ${q.options.A||''}\nB) ${q.options.B||''}\nC) ${q.options.C||''}\nD) ${q.options.D||''}\n\nCorrect Answer:\n${q.correct}) ${q.options[q.correct]||''}\n\nDo the following:\n1. Give the correct answer with a precise explanation.\n2. Eliminate all wrong options with reasoning.\n3. Explain the underlying concept in simple language.\n4. Add key facts, values, and points important for PSC exams.\n5. Give 2–3 similar possible MCQs that can be asked from this topic.\n6. Mention common traps or confusing points.\n7. Add a memory trick if possible.\n8. Keep it crisp, structured, and revision-friendly.`;
+}
+
+function drGenerate() {
+  const bank = getQB();
+  if (!bank.length) { alert('Question bank is empty. Add questions in Admin first.'); return; }
+  const today = toDateKey(new Date());
+  // Pick a random unit that has at least 1 question
+  const units = [...new Set(bank.map(q => q.unit))].filter(u => u);
+  if (!units.length) { alert('No unit data found in question bank.'); return; }
+  const unit = units[Math.floor(Math.random() * units.length)];
+  const pool = bank.filter(q => q.unit === unit);
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const chosen = shuffled.slice(0, Math.min(10, shuffled.length));
+  const dr = {
+    date: today,
+    unit,
+    questionIds: chosen.map(q => q.id),
+    checked: [],
+    mockDone: false,
+  };
+  saveDR(dr);
+  renderDRHomeCard();
+  openDailyRevision();
+}
+
+function renderDRHomeCard() {
+  const card = document.getElementById('daily-revision-home-card');
+  if (!card) return;
+  const dr = getDR();
+  const today = toDateKey(new Date());
+
+  // No DR today — show "tap to start" always
+  if (!dr || dr.date !== today) {
+    card.style.display = 'block';
+    document.getElementById('dr-home-unit').textContent = '';
+    document.getElementById('dr-home-status').textContent = 'Tap to generate today\'s 10-question revision';
+    return;
+  }
+
+  // DR exists today
+  const unitName = UNIT_DATA.find(u => u.id === dr.unit)?.name || dr.unit;
+  const checked  = (dr.checked || []).length;
+  const total    = dr.questionIds.length;
+
+  if (dr.mockDone) {
+    // Fully done — show card with completed status + option to generate more
+    card.style.display = 'block';
+    document.getElementById('dr-home-unit').textContent = unitName;
+    document.getElementById('dr-home-status').textContent = '✅ Today\'s revision & mock completed! Tap to generate more.';
+  } else {
+    // In progress — show card with progress
+    card.style.display = 'block';
+    document.getElementById('dr-home-unit').textContent = unitName;
+    document.getElementById('dr-home-status').textContent = `${checked}/${total} reviewed · Mock pending — tap to continue`;
+  }
+}
+
+function openDailyRevision() {
+  const today = toDateKey(new Date());
+  let dr = getDR();
+  if (!dr || dr.date !== today) { drGenerate(); return; }
+  hideAllWindows();
+  document.getElementById('daily-revision-screen').style.display = 'block';
+  drRenderScreen(dr);
+}
+
+function closeDailyRevision() {
+  document.getElementById('daily-revision-screen').style.display = 'none';
+  showHome();
+  renderDRHomeCard();
+}
+
+function drRenderScreen(dr) {
+  const bank = getQB();
+  const questions = dr.questionIds.map(id => bank.find(q => q.id === id)).filter(Boolean);
+  const unitName = UNIT_DATA.find(u => u.id === dr.unit)?.name || dr.unit;
+  document.getElementById('dr-unit-label').textContent = unitName;
+
+  const checked = dr.checked || [];
+  document.getElementById('dr-progress-label').textContent = `${checked.length}/${questions.length} ✓`;
+
+  // Show/hide banners and bottom actions
+  const completeBanner  = document.getElementById('dr-complete-banner');
+  const mockDoneBanner  = document.getElementById('dr-mock-done-banner');
+  const bottomActions   = document.getElementById('dr-bottom-actions');
+
+  if (dr.mockDone) {
+    // Mock completed — show completion banner + Generate More only
+    completeBanner.style.display  = 'block';
+    mockDoneBanner.style.display  = 'none';
+    bottomActions.style.display   = 'flex';
+    document.getElementById('dr-mock-btn').style.display     = 'none';
+    document.getElementById('dr-generate-btn').style.display = 'flex';
+  } else if (checked.length === questions.length && questions.length > 0) {
+    // All ticked, mock not yet taken — show Take Mock banner + button only
+    completeBanner.style.display  = 'none';
+    mockDoneBanner.style.display  = 'block';
+    bottomActions.style.display   = 'flex';
+    document.getElementById('dr-mock-btn').style.display     = 'block';
+    document.getElementById('dr-generate-btn').style.display = 'none';
+  } else {
+    // Still reading — show Take Mock button, hide Generate More
+    completeBanner.style.display  = 'none';
+    mockDoneBanner.style.display  = 'none';
+    bottomActions.style.display   = 'flex';
+    document.getElementById('dr-mock-btn').style.display     = 'block';
+    document.getElementById('dr-generate-btn').style.display = 'none';
+  }
+
+  // Render question cards
+  const list = document.getElementById('dr-question-list');
+  list.innerHTML = '';
+  questions.forEach((q, i) => {
+    const isTicked = checked.includes(q.id);
+    const prompt   = drBuildPrompt(q);
+    const encPrompt = encodeURIComponent(prompt);
+    const optsHtml = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l =>
+      `<div class="dr-opt${l === q.correct ? ' correct' : ''}"><span class="dr-opt-ltr">${l}.</span><span>${q.options[l]}</span></div>`
+    ).join('');
+
+    const card = document.createElement('div');
+    card.className = `dr-q-card${isTicked ? ' dr-checked' : ''}`;
+    card.id = `dr-card-${q.id}`;
+    card.innerHTML = `
+      <div class="dr-q-header" onclick="drToggleBody('${q.id}')">
+        <span class="dr-q-num">Q${i+1}</span>
+        <span class="dr-q-text">${q.question}</span>
+        <button class="dr-tick-btn${isTicked ? ' ticked' : ''}" id="dr-tick-${q.id}"
+          onclick="event.stopPropagation();drToggleTick('${q.id}')" title="Mark as revised">✓</button>
+      </div>
+      <div class="dr-q-body" id="dr-body-${q.id}">
+        <div class="dr-opts">${optsHtml}</div>
+        <div class="dr-prompt-row">
+          <button class="dr-prompt-btn gpt" onclick="drOpenGPT('${encPrompt}')">↗ Ask ChatGPT</button>
+          <button class="dr-prompt-btn gemini" onclick="drOpenGemini('${encPrompt}')">✦ Open in Gemini</button>
+          <button class="dr-prompt-btn copy" onclick="drCopyPrompt(this,'${encPrompt}')">📋 Copy Prompt</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function drToggleBody(qId) {
+  const body = document.getElementById(`dr-body-${qId}`);
+  if (body) body.classList.toggle('open');
+}
+
+function drToggleTick(qId) {
+  const dr = getDR();
+  if (!dr) return;
+  const checked = dr.checked || [];
+  const idx = checked.indexOf(qId);
+  if (idx >= 0) checked.splice(idx, 1);
+  else checked.push(qId);
+  dr.checked = checked;
+  saveDR(dr);
+
+  // Update UI
+  const tickBtn = document.getElementById(`dr-tick-${qId}`);
+  const card    = document.getElementById(`dr-card-${qId}`);
+  const isTicked = checked.includes(qId);
+  if (tickBtn) tickBtn.className = `dr-tick-btn${isTicked ? ' ticked' : ''}`;
+  if (card)    card.className    = `dr-q-card${isTicked ? ' dr-checked' : ''}`;
+
+  // Update progress label
+  const bank = getQB();
+  const total = dr.questionIds.length;
+  document.getElementById('dr-progress-label').textContent = `${checked.length}/${total} ✓`;
+
+  // Show mock-done banner when all ticked
+  if (checked.length === total && !dr.mockDone) {
+    document.getElementById('dr-mock-done-banner').style.display = 'block';
+  }
+}
+
+function drOpenGPT(encPrompt) {
+  window.open('https://chatgpt.com/?q=' + encPrompt, '_blank');
+}
+
+function drOpenGemini(encPrompt) {
+  const prompt = decodeURIComponent(encPrompt);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(() => {}).catch(() => {});
+  }
+  window.open('https://gemini.google.com/app', '_blank');
+}
+
+function drCopyPrompt(btn, encPrompt) {
+  const prompt = decodeURIComponent(encPrompt);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+}
+
+function drStartMock() {
+  const dr = getDR();
+  if (!dr) return;
+  const bank  = getQB();
+  const questions = dr.questionIds.map(id => bank.find(q => q.id === id)).filter(Boolean);
+  if (!questions.length) { alert('Questions not found in bank.'); return; }
+
+  // Close DR screen first
+  document.getElementById('daily-revision-screen').style.display = 'none';
+
+  // Mark DR mode so rmFinish knows to come back
+  window._drMockActive = true;
+
+  // Use stretch mode for daily mock
+  const prevMode = rmState.mode;
+  rmState.mode = 'stretch';
+  rmLaunch(questions, [dr.unit], questions.length);
+}
+
+// Called from rmFinish when daily revision mock completes
+function drMockCompleted() {
+  const dr = getDR();
+  if (!dr) return;
+  dr.mockDone = true;
+  saveDR(dr);
+  window._drMockActive = false;
+  renderDRHomeCard();
+  // Re-open DR screen to show completion banner
+  setTimeout(() => {
+    hideAllWindows();
+    document.getElementById('daily-revision-screen').style.display = 'block';
+    drRenderScreen(dr);
+  }, 300);
+}
+
+// ─── CALENDAR ──────────────────────────────────────────────
 let calendarDate = new Date();
 
 // Returns a stable YYYY-MM-DD key regardless of locale
@@ -4065,6 +4399,7 @@ function hideAllWindows() {
   document.getElementById('real-mock-screen').classList.remove('active');
   document.getElementById('real-mock-result-screen').style.display = 'none';
   document.getElementById('review-screen').classList.remove('active');
+  document.getElementById('daily-revision-screen').style.display = 'none';
 }
 function showHome() {
   hideAllWindows();
@@ -5676,6 +6011,8 @@ function rmFinish() {
   renderReviewBtn();
   if (typeof renderSRSHomeCard === 'function') renderSRSHomeCard();
   if (typeof renderMistakeSummary === 'function') renderMistakeSummary();
+  // If this was a daily revision mock, notify DR system
+  if (window._drMockActive && typeof drMockCompleted === 'function') drMockCompleted();
   // Push to Firebase: saves history + clears savedMock on cloud
   if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500);
 }
@@ -6550,6 +6887,7 @@ window.onload = () => {
   renderSRSHomeCard();
   renderMistakeSummary();
   initRMSavedCard();
+  renderDRHomeCard();
   tryLoadQBFromGitHub();
   syncHistoryFromGitHub();
 

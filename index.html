@@ -57,6 +57,8 @@
         mistakeData:     JSON.parse(localStorage.getItem('mockiq_mistakes')       || '[]'),
         dailyRevision:   JSON.parse(localStorage.getItem('mockiq_daily_revision') || 'null'),
         drCycle:         JSON.parse(localStorage.getItem('mockiq_dr_cycle')        || '{}'),
+        drAttended:      JSON.parse(localStorage.getItem('mockiq_dr_attended')     || '[]'),
+        rmAttended:      JSON.parse(localStorage.getItem('mockiq_rm_attended')     || '[]'),
         lastPush:        new Date().toISOString()
       };
       const res = await fetchWT(DB_URL, {
@@ -98,23 +100,42 @@
           localStorage.setItem('quizHistory', '[]');
         }
       }
-      // Merge question bank — remote is authoritative for deletions
-      // Add local-only questions not yet pushed, but respect remote deletions
+      // Merge question bank — lastUpdated wins for existing IDs, local-only new questions appended
       if (Array.isArray(remote.questionBank) && remote.questionBank.length) {
         const local = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
-        const remoteIds = new Set(remote.questionBank.map(q => q.id));
-        const localOnly = local.filter(q => !remoteIds.has(q.id));
-        const merged = [...remote.questionBank, ...localOnly];
+        const remoteMap = {};
+        remote.questionBank.forEach(q => { remoteMap[q.id] = q; });
+        // For questions existing on both: keep newer version by lastUpdated
+        const merged = local.map(q => {
+          const rem = remoteMap[q.id];
+          if (!rem) return q; // local-only, keep it
+          const remTs = rem.lastUpdated || '0';
+          const locTs = q.lastUpdated || '0';
+          return remTs > locTs ? rem : q; // newer wins
+        });
+        // Add remote-only questions not in local at all
+        const localIds = new Set(local.map(q => q.id));
+        remote.questionBank.forEach(q => { if (!localIds.has(q.id)) merged.push(q); });
         localStorage.setItem('mockiq_question_bank', JSON.stringify(merged));
       }
-      // Merge review questions — union of local + remote (cloud is source of truth)
+      // Merge review questions — lastUpdated timestamp wins per id (handles deletion sync via tombstone)
       if (Array.isArray(remote.reviewQuestions)) {
         const local = JSON.parse(localStorage.getItem('rm_review_questions') || '[]');
-        // Build union: start from remote, add any local-only entries not in remote
-        const remoteIds = new Set(remote.reviewQuestions.map(q => q.id || q.question));
-        const localOnly = local.filter(q => !remoteIds.has(q.id || q.question));
-        const merged = [...remote.reviewQuestions, ...localOnly];
-        localStorage.setItem('rm_review_questions', JSON.stringify(merged));
+        // Build a map keyed by id — most recently updated entry wins
+        const map = {};
+        local.forEach(q => { map[q.id || q.question] = q; });
+        remote.reviewQuestions.forEach(q => {
+          const key = q.id || q.question;
+          const existing = map[key];
+          if (!existing) {
+            map[key] = q;
+          } else {
+            const remTs = q.lastUpdated || '0';
+            const locTs = existing.lastUpdated || '0';
+            if (remTs > locTs) map[key] = q; // remote is newer — includes deletions
+          }
+        });
+        localStorage.setItem('rm_review_questions', JSON.stringify(Object.values(map)));
       }
       // Restore saved mid-mock only if nothing in progress AND user hasn't dismissed
       if (remote.savedMock && !localStorage.getItem('rm_saved_mock') && !localStorage.getItem('rm_saved_mock_dismissed')) {
@@ -180,6 +201,10 @@
             const locTs = loc.lastUpdated || '0';
             if (remTs > locTs) {
               merged[qId] = rem;
+              // Even though remote is newer, union completedDays and done from both sides
+              const allDays = new Set([...(rem.completedDays || []), ...(loc.completedDays || [])]);
+              merged[qId].completedDays = [...allDays];
+              if (loc.done || merged[qId].completedDays.includes(5)) merged[qId].done = true;
             } else {
               // Keep local but merge done flag — if remote says done, respect it
               if (rem.done) merged[qId].done = true;
@@ -191,6 +216,20 @@
           }
         });
         localStorage.setItem('mockiq_dr_cycle', JSON.stringify(merged));
+      }
+
+      // Merge DR Attended — union (once attended, always attended on all devices)
+      if (Array.isArray(remote.drAttended) && remote.drAttended.length) {
+        const localAtt = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+        const merged = [...new Set([...localAtt, ...remote.drAttended])];
+        localStorage.setItem('mockiq_dr_attended', JSON.stringify(merged));
+      }
+
+      // Merge RM Attended — union
+      if (Array.isArray(remote.rmAttended) && remote.rmAttended.length) {
+        const localRMAtt = JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]');
+        const merged = [...new Set([...localRMAtt, ...remote.rmAttended])];
+        localStorage.setItem('mockiq_rm_attended', JSON.stringify(merged));
       }
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -2683,6 +2722,7 @@ body.pip-mode #exam-popup {
     <div class="admin-topbar-actions">
       <button id="admin-export-qb-btn" class="icon-btn green">↓ Export Bank</button>
       <button id="admin-import-qb-btn" class="icon-btn teal">↑ Import Bank</button>
+      <button id="admin-github-sync-btn" class="icon-btn" style="background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.3);color:var(--amber);">⬇ GitHub Sync</button>
       <input type="file" id="admin-import-qb-file" accept=".json" style="display:none;">
       <button id="admin-back-btn" class="icon-btn">← Back to App</button>
     </div>
@@ -3394,8 +3434,19 @@ function drGenerate() {
   if (!units.length) { alert('No unit data found in question bank.'); return; }
   const unit = units[Math.floor(Math.random() * units.length)];
   const pool = bank.filter(q => q.unit === unit);
-  const shuffled = pool.sort(() => Math.random() - 0.5);
-  const chosen = shuffled.slice(0, Math.min(10, shuffled.length));
+
+  // DR attended filter — fresh questions first, attended as fallback
+  const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const attendedSet = new Set(attended);
+  const fresh = pool.filter(q => !attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
+  const used  = pool.filter(q =>  attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
+  const chosen = [...fresh.slice(0, 10), ...used.slice(0, Math.max(0, 10 - fresh.length))].slice(0, 10);
+
+  if (!chosen.length) {
+    alert('No questions available for the selected unit. Please add questions in Admin first.');
+    return;
+  }
+
   const dr = {
     date: today,
     unit,
@@ -3622,6 +3673,14 @@ function drMockCompleted() {
   saveDR(dr);
   window._drMockActive = false;
   renderDRHomeCard();
+
+  // Mark all questions from this DR session as attended (permanent, DR-only filter)
+  const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const attendedSet = new Set(attended);
+  dr.questionIds.forEach(id => attendedSet.add(id));
+  localStorage.setItem('mockiq_dr_attended', JSON.stringify([...attendedSet]));
+  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+
   // Add correct answers to DR cycle (day 1, 3, 5 review)
   drCycleAddCorrect(rmState.questions, rmState.answers);
   renderDRCycleBadge();
@@ -4141,12 +4200,10 @@ function migrateLegacyDates() {
   if (changed) localStorage.setItem('quizHistory', JSON.stringify(history));
 }
 
-;
-
 // ─── SRS + MISTAKE NOTEBOOK ──────────────────────────────────
 const SRS_KEY       = 'mockiq_srs';
 const MISTAKE_KEY   = 'mockiq_mistakes';
-const SRS_INTERVALS = [1, 3, 7, 15, 30];
+const SRS_INTERVALS = [1, 1, 2, 3, 3];
 
 function getSRSData()     { return JSON.parse(localStorage.getItem(SRS_KEY)     || '{}'); }
 function getMistakeData() { return JSON.parse(localStorage.getItem(MISTAKE_KEY) || '[]'); }
@@ -5670,7 +5727,8 @@ const RM_HISTORY_KEY = 'quizHistory';
 document.getElementById('review-btn').addEventListener('click', openReviewScreen);
 
 function renderReviewBtn() {
-  const marked = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const all = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const marked = all.filter(q => !q.deleted);
   const btn = document.getElementById('review-btn');
   if (btn) btn.innerHTML = `🔖 Review${marked.length ? ` <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>` : ''}`;
 }
@@ -6228,7 +6286,7 @@ function rmFinish() {
       // Wrong answer
       srsAddWrong(q);
     } else if (!ans.selected) {
-      // Skipped — add to SRS for revision but NOT to mistake book
+      // Skipped — add to SRS + Mistake Book (same as wrong)
       srsAddSkipped(q);
     }
   }
@@ -6242,6 +6300,11 @@ function rmFinish() {
       { totalQ, attempted, skipped, correct, wrong, mode: rmState.mode },
       'real'
     );
+    // Tag all attended questions as rm_attended (real mock only, not DR/cycle)
+    const rmAtt = JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]');
+    const rmAttSet = new Set(rmAtt);
+    rmState.questions.slice(0, scoredCount).forEach(q => { if (q.id) rmAttSet.add(q.id); });
+    localStorage.setItem('mockiq_rm_attended', JSON.stringify([...rmAttSet]));
   }
 
   // Show result screen
@@ -6361,6 +6424,8 @@ function rmSaveReviewQuestion(q, ans) {
     justification: q.justification || '',
     yourAnswer: ans.selected,
     addedOn: new Date().toISOString().split('T')[0],
+    lastUpdated: new Date().toISOString(),
+    deleted: false,
   });
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   // Push to Firebase
@@ -6374,7 +6439,8 @@ function openReviewScreen() {
 }
 
 function renderReviewList() {
-  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const allBank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const bank = allBank.filter(q => !q.deleted); // exclude tombstones
   const container = document.getElementById('review-list-container');
   const countLabel = document.getElementById('review-count-label');
   countLabel.textContent = `${bank.length} question${bank.length !== 1 ? 's' : ''} marked for review`;
@@ -6414,8 +6480,15 @@ function renderReviewList() {
 }
 
 function rmRemoveReview(idx) {
-  let bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
-  bank.splice(idx, 1);
+  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const active = bank.filter(q => !q.deleted);
+  const target = active[idx];
+  if (!target) return;
+  const fullIdx = bank.findIndex(q => (q.id || q.question) === (target.id || target.question));
+  if (fullIdx >= 0) {
+    bank[fullIdx].deleted = true;
+    bank[fullIdx].lastUpdated = new Date().toISOString();
+  }
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   renderReviewList();
   if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
@@ -6426,7 +6499,10 @@ document.getElementById('review-back-btn').addEventListener('click', () => {
 });
 document.getElementById('review-clear-btn').addEventListener('click', () => {
   if (!confirm('Clear all review questions?')) return;
-  localStorage.removeItem(RM_REVIEW_KEY);
+  const bank = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
+  const now = new Date().toISOString();
+  bank.forEach(q => { q.deleted = true; q.lastUpdated = now; });
+  localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   renderReviewList();
   renderReviewBtn();
   if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
@@ -6438,7 +6514,7 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
 // No additional changes needed for dashboard \u2014 it works automatically.
 
 // \u2500\u2500 Saved Real Mock resume on homepage \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-(function initRMSavedCard() {
+function initRMSavedCard() {
   const existing = document.getElementById('rm-resume-card');
   const saved = localStorage.getItem(RM_SAVED_KEY);
 
@@ -6478,7 +6554,8 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
     localStorage.removeItem(RM_SAVED_KEY);
     if (existing) existing.remove();
   }
-})();
+}
+initRMSavedCard(); // run once on definition (replaces the old IIFE auto-call)
 
 function rmResumeMock() {
   const saved = localStorage.getItem(RM_SAVED_KEY);
@@ -6523,6 +6600,23 @@ function closeAdminPanel() {
 }
 document.getElementById('admin-back-btn').addEventListener('click', closeAdminPanel);
 
+document.getElementById('admin-github-sync-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('admin-github-sync-btn');
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Syncing...';
+  btn.disabled = true;
+  try {
+    await tryLoadQBFromGitHub();
+    await syncHistoryFromGitHub();
+    refreshAdminOverview();
+    renderQBBrowser();
+    btn.textContent = '✓ Synced!';
+  } catch(e) {
+    btn.textContent = '⚠ Failed';
+  }
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+});
+
 // ── Admin tabs ───────────────────────────────────────────────
 function switchAdminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
@@ -6554,14 +6648,24 @@ function refreshAdminOverview() {
     el.innerHTML = '<div class="qb-empty-state"><div>📭</div>No questions in the bank yet. Use Paste & Parse or Add Single to get started.</div>';
     return;
   }
+
+  // Build attended sets for the display count
+  const drAtt = new Set(JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]'));
+  const rmAtt = new Set(JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]'));
+
   el.innerHTML = Object.entries(breakdown).sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true})).map(([unit, count]) => {
     const pct = Math.round((count / bank.length) * 100);
+    // Count questions in this unit that have at least one tag (dr or rm attended)
+    const attendedCount = bank.filter(q => q.unit === unit && (drAtt.has(q.id) || rmAtt.has(q.id))).length;
+    const attendedDisplay = `<span style="font-family:var(--font-mono);font-size:11px;color:var(--green);margin-left:2px;">/${attendedCount}</span>`;
     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
       <span style="font-size:12px;font-weight:600;color:var(--text);min-width:90px;">${unit}</span>
       <div style="flex:1;background:var(--surface-2);border-radius:99px;height:8px;overflow:hidden;">
         <div style="width:${pct}%;height:100%;background:#7c3aed;border-radius:99px;transition:width 0.4s ease;"></div>
       </div>
-      <span style="font-family:var(--font-mono);font-size:12px;color:#a78bfa;min-width:32px;text-align:right;">${count}</span>
+      <div style="display:flex;align-items:center;min-width:56px;justify-content:flex-end;flex-shrink:0;">
+        <span style="font-family:var(--font-mono);font-size:12px;color:#a78bfa;">${count}</span>${attendedDisplay}
+      </div>
     </div>`;
   }).join('');
 }
@@ -6849,7 +6953,8 @@ document.getElementById('save-all-parsed-btn').addEventListener('click', () => {
       unit: q.unit || 'Unit 1',
       difficulty: q.difficulty || 'medium',
       justification: (q.justification || '').trim(),
-      addedOn: new Date().toISOString().split('T')[0]
+      addedOn: new Date().toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString()
     });
     saved++;
   });
@@ -6887,7 +6992,7 @@ document.getElementById('single-save-btn').addEventListener('click', () => {
     return;
   }
   const bank = getQB();
-  bank.push({ id: genQBId(), question: q, options: {A:a,B:b,C:c,D:d}, correct: singleCorrect, unit, difficulty: diff, justification: just, addedOn: new Date().toISOString().split('T')[0] });
+  bank.push({ id: genQBId(), question: q, options: {A:a,B:b,C:c,D:d}, correct: singleCorrect, unit, difficulty: diff, justification: just, addedOn: new Date().toISOString().split('T')[0], lastUpdated: new Date().toISOString() });
   saveQB(bank);
   // Reset form
   ['single-q-text','single-opt-a','single-opt-b','single-opt-c','single-opt-d','single-justification'].forEach(id => document.getElementById(id).value = '');
@@ -7017,6 +7122,7 @@ document.getElementById('modal-save-btn').addEventListener('click', () => {
     unit: document.getElementById('modal-unit').value,
     difficulty: document.getElementById('modal-diff').value,
     justification: document.getElementById('modal-justification').value.trim(),
+    lastUpdated: new Date().toISOString(),
   };
   saveQB(bank);
   closeQBEditModal();
@@ -7157,10 +7263,8 @@ window.onload = () => {
   initRMSavedCard();
   renderDRHomeCard();
   renderDRCycleBadge();
-  tryLoadQBFromGitHub();
-  syncHistoryFromGitHub();
 
-  // Register service worker for offline PWA support
+  // Register service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
       .then(r => console.log('MockIQ SW registered:', r.scope))

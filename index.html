@@ -15,7 +15,15 @@
 <script>
 (function() {
   const DB_URL = 'https://mockiq-dca74-default-rtdb.firebaseio.com/mockiq/data.json';
-  const TIMEOUT = 7000;
+  const TIMEOUT = 15000;
+  const PUSH_DEBOUNCE = 3000; // ms — all push triggers within this window collapse to 1 push
+  let _pushTimer = null;
+
+  // ── SCHEDULED PUSH — debounced, replaces all direct setTimeout(fbPush) calls ──
+  window.fbSchedulePush = function() {
+    clearTimeout(_pushTimer);
+    _pushTimer = setTimeout(() => { window.fbPush(); }, PUSH_DEBOUNCE);
+  };
 
   function setStatus(text, color) {
     const el = document.getElementById('fb-status');
@@ -3418,7 +3426,7 @@ const DR_KEY = 'mockiq_daily_revision';
 function getDR() { return JSON.parse(localStorage.getItem(DR_KEY) || 'null'); }
 function saveDR(d) {
   localStorage.setItem(DR_KEY, JSON.stringify(d));
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 function drBuildPrompt(q) {
@@ -3679,7 +3687,7 @@ function drMockCompleted() {
   const attendedSet = new Set(attended);
   dr.questionIds.forEach(id => attendedSet.add(id));
   localStorage.setItem('mockiq_dr_attended', JSON.stringify([...attendedSet]));
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 
   // Add correct answers to DR cycle (day 1, 3, 5 review)
   drCycleAddCorrect(rmState.questions, rmState.answers);
@@ -3716,7 +3724,7 @@ function getDRCycle() {
 }
 function saveDRCycle(data) {
   localStorage.setItem(DR_CYCLE_KEY, JSON.stringify(data));
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 // Add a date string + N days
@@ -4210,11 +4218,11 @@ function getMistakeData() { return JSON.parse(localStorage.getItem(MISTAKE_KEY) 
 function saveSRSData(d) {
   localStorage.setItem(SRS_KEY, JSON.stringify(d));
   // Push immediately — SRS progress must sync fast so other devices see updated due counts
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 300);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 function saveMistakeData(d) {
   localStorage.setItem(MISTAKE_KEY, JSON.stringify(d));
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 300);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 // Add a wrong question to SRS + Mistake Book
@@ -4315,8 +4323,8 @@ function srsAnswerRevision(qId, isCorrect) {
   entry.lastUpdated = new Date().toISOString(); // timestamp for cross-device merge
   // Save locally first
   localStorage.setItem(SRS_KEY, JSON.stringify(srs));
-  // Push to Firebase immediately — no delay — so other devices see progress right away
-  if (typeof window.fbPush === 'function') window.fbPush();
+  // Schedule push — debounced so rapid answers collapse to one upload
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 // Get questions due today
@@ -5203,7 +5211,7 @@ function saveSessionToHistory(name, unit, time, score, details, mockType) {
   renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
   setTimeout(showAfterMockReminder, 800);
   // Push to Firebase (silent background sync)
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 function toggleHistoryView() {
@@ -5267,7 +5275,7 @@ function clearHistory() {
   if (confirm("Delete all saved mocks? This cannot be undone.")) {
     localStorage.removeItem('quizHistory');
     loadHistoryUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
-    if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
+    if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
   }
 }
 
@@ -5278,7 +5286,7 @@ function deleteMock(idx) {
   history.splice(idx, 1);
   localStorage.setItem('quizHistory', JSON.stringify(history));
   loadHistoryUI(); renderCalendar(); updateSummaryCard(); updateUnitStatsCard(); updateOverallDashboardCard();
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 function resetAppData() {
@@ -5711,7 +5719,7 @@ function saveQB(bank) {
   localStorage.setItem(QB_KEY, JSON.stringify(bank));
   if (typeof rmUpdateQBCount === 'function') rmUpdateQBCount();
   // Push to Firebase (silent background sync)
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 function genQBId() { return 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
 
@@ -6224,7 +6232,7 @@ function rmSaveProgress() {
   btn.textContent = '✓ Saved!';
   setTimeout(() => { btn.textContent = '💾 Save'; }, 1500);
   // Push to Firebase so mid-exam progress is backed up
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 // \u2500\u2500 Close mid-exam \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -6339,7 +6347,7 @@ function rmFinish() {
   // If this was a DR cycle mock, notify cycle system
   if (window._drCycleMockActive && typeof drCycleMockCompleted === 'function') drCycleMockCompleted();
   // Push to Firebase: saves history + clears savedMock on cloud
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1500);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 
@@ -6429,7 +6437,7 @@ function rmSaveReviewQuestion(q, ans) {
   });
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   // Push to Firebase
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 2000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 function openReviewScreen() {
@@ -6491,7 +6499,7 @@ function rmRemoveReview(idx) {
   }
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   renderReviewList();
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 document.getElementById('review-back-btn').addEventListener('click', () => {
@@ -6505,7 +6513,7 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
   localStorage.setItem(RM_REVIEW_KEY, JSON.stringify(bank));
   renderReviewList();
   renderReviewBtn();
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 1000);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 });
 
 // \u2500\u2500 Dashboard: include real mock data \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -6580,7 +6588,7 @@ function rmDismissResume() {
   const card = document.getElementById('rm-resume-card');
   if (card) card.remove();
   // Push null savedMock to Firebase so other devices clear the card too
-  if (typeof window.fbPush === 'function') setTimeout(window.fbPush, 500);
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
 // \u2500\u2500 Unit chip event for live avail update \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

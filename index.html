@@ -15,7 +15,7 @@
 <script>
 (function() {
   const DB_URL = 'https://mockiq-dca74-default-rtdb.firebaseio.com/mockiq/data.json';
-  const TIMEOUT = 15000;
+  const TIMEOUT = 20000;
   const PUSH_DEBOUNCE = 3000; // ms — all push triggers within this window collapse to 1 push
   let _pushTimer = null;
 
@@ -184,11 +184,12 @@
         if (!localDR || localDR.date !== rem.date) {
           localStorage.setItem('mockiq_daily_revision', JSON.stringify(rem));
         } else {
-          // Same date — merge: union checked, mockDone = either true
+          // Same date — merge: union checked filtered to current questionIds, mockDone = either true
           const merged = Object.assign({}, localDR);
+          const validIds = new Set(merged.questionIds || []);
           const remChecked = new Set(rem.checked || []);
           const locChecked = new Set(localDR.checked || []);
-          merged.checked = [...new Set([...remChecked, ...locChecked])];
+          merged.checked = [...new Set([...remChecked, ...locChecked])].filter(id => validIds.has(id));
           merged.mockDone = localDR.mockDone || rem.mockDone;
           localStorage.setItem('mockiq_daily_revision', JSON.stringify(merged));
         }
@@ -212,14 +213,18 @@
               // Even though remote is newer, union completedDays and done from both sides
               const allDays = new Set([...(rem.completedDays || []), ...(loc.completedDays || [])]);
               merged[qId].completedDays = [...allDays];
-              if (loc.done || merged[qId].completedDays.includes(5)) merged[qId].done = true;
+              if (loc.done || merged[qId].completedDays.includes(5) ||
+                  (merged[qId].scheduledDays || [1,3,5]).every(d => merged[qId].completedDays.includes(d)))
+                merged[qId].done = true;
             } else {
               // Keep local but merge done flag — if remote says done, respect it
               if (rem.done) merged[qId].done = true;
               // Union completedDays
               const allDays = new Set([...(loc.completedDays || []), ...(rem.completedDays || [])]);
               merged[qId].completedDays = [...allDays];
-              if (merged[qId].completedDays.includes(5)) merged[qId].done = true;
+              if (merged[qId].completedDays.includes(5) ||
+                  (merged[qId].scheduledDays || [1,3,5]).every(d => merged[qId].completedDays.includes(d)))
+                merged[qId].done = true;
             }
           }
         });
@@ -2529,6 +2534,19 @@ body.pip-mode #exam-popup {
     <div style="max-width:720px;margin:0 auto;padding:20px 16px 80px;" id="mistake-list-container"></div>
   </div>
 
+  <!-- DR CYCLE BOOK SCREEN -->
+  <div id="drcycle-screen" style="display:none;position:fixed;inset:0;z-index:9995;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeUp 0.2s ease;">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;">
+      <button class="btn" id="drcycle-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">← Back</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text);">🔄 DR Cycle Book</div>
+        <div id="drcycle-screen-sub" style="font-size:11px;color:var(--text-muted);">—</div>
+      </div>
+      <span id="drcycle-screen-badge" style="font-size:12px;background:rgba(45,212,191,0.15);color:var(--teal);border-radius:99px;padding:3px 10px;font-weight:700;">0</span>
+    </div>
+    <div style="max-width:720px;margin:0 auto;padding:20px 16px 80px;" id="drcycle-list-container"></div>
+  </div>
+
   <!-- SRS REVISION SCREEN -->
   <div id="srs-revision-screen">
     <div class="srs-rev-topbar">
@@ -2731,6 +2749,7 @@ body.pip-mode #exam-popup {
       <button id="admin-export-qb-btn" class="icon-btn green">↓ Export Bank</button>
       <button id="admin-import-qb-btn" class="icon-btn teal">↑ Import Bank</button>
       <button id="admin-github-sync-btn" class="icon-btn" style="background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.3);color:var(--amber);">⬇ GitHub Sync</button>
+      <button id="admin-drcycle-btn" class="icon-btn" style="background:rgba(45,212,191,0.12);border-color:rgba(45,212,191,0.3);color:var(--teal);">🔄 DR Cycle</button>
       <input type="file" id="admin-import-qb-file" accept=".json" style="display:none;">
       <button id="admin-back-btn" class="icon-btn">← Back to App</button>
     </div>
@@ -3745,7 +3764,7 @@ function drCycleAddCorrect(questions, answers) {
       cycle[q.id] = {
         questionId: q.id, question: q.question, options: q.options,
         correct: q.correct, unit: q.unit, justification: q.justification || '',
-        addedOn: today, scheduledDays: [1, 3, 5],
+        addedOn: today, scheduledDays: [1, 3, 5, 10],
         completedDays: [], done: false,
         lastUpdated: new Date().toISOString(),
       };
@@ -3843,8 +3862,9 @@ function drCycleMockCompleted() {
       const bankQ = getQB().find(b => b.id === q.id) || q;
       if (typeof srsAddWrong === 'function') srsAddWrong(bankQ);
     }
-    // Done after day 5 completed
-    if (cycle[q.id].completedDays.includes(5)) cycle[q.id].done = true;
+    // Done when all scheduled days are completed (supports both [1,3,5] and [1,3,5,10])
+    const allDone = (cycle[q.id].scheduledDays || [1,3,5]).every(d => cycle[q.id].completedDays.includes(d));
+    if (allDone) cycle[q.id].done = true;
     cycle[q.id].lastUpdated = new Date().toISOString();
   });
   saveDRCycle(cycle);
@@ -4442,7 +4462,7 @@ function renderMistakeScreen() {
         const e = srs[q.id];
         const stage = e ? e.stage : 1;
         const next  = e ? e.nextReview : '—';
-        const stageLabel = ['','1d','3d','7d','15d','30d'][stage] || '?';
+        const stageLabel = ['','1d','1d','2d','3d','3d'][stage] || '?';
         const optsHtml = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l => {
           let cls = 'ar-opt';
           if (l === q.correct) cls += ' correct';
@@ -4634,6 +4654,111 @@ document.getElementById('srs-rev-back-btn').addEventListener('click', () => {
 document.getElementById('mistake-back-btn').addEventListener('click', () => {
   document.getElementById('mistake-screen').style.display = 'none';
 });
+
+// ── DR CYCLE BOOK ─────────────────────────────────────────────
+function openDRCycleBook() {
+  document.getElementById('drcycle-screen').style.display = 'block';
+  renderDRCycleBook();
+}
+
+function renderDRCycleBook() {
+  const cycle  = getDRCycle();
+  const today  = toDateKey(new Date());
+  const entries = Object.values(cycle);
+  const active  = entries.filter(e => !e.done);
+  const done    = entries.filter(e => e.done);
+
+  const sub   = document.getElementById('drcycle-screen-sub');
+  const badge = document.getElementById('drcycle-screen-badge');
+  const cont  = document.getElementById('drcycle-list-container');
+  if (!cont) return;
+
+  badge.textContent = active.length;
+  sub.textContent   = `${active.length} active · ${done.length} completed`;
+
+  if (!entries.length) {
+    cont.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+      <div style="font-size:48px;margin-bottom:12px;">🔄</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);">No cycle questions yet</div>
+      <div style="font-size:13px;margin-top:6px;">Complete a Daily Revision mock to add questions here.</div>
+    </div>`;
+    return;
+  }
+
+  // Group by unit
+  const byUnit = {};
+  entries.forEach(e => {
+    const unit = e.unit || 'Unknown';
+    if (!byUnit[unit]) byUnit[unit] = [];
+    byUnit[unit].push(e);
+  });
+
+  cont.innerHTML = Object.entries(byUnit)
+    .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
+    .map(([unit, qs]) => {
+      const cards = qs.map(e => {
+        const scheduledDays = e.scheduledDays || [1, 3, 5, 10];
+        const completedDays = e.completedDays || [];
+
+        // Day pills
+        const dayPills = scheduledDays.map(d => {
+          const isDone     = completedDays.includes(d);
+          const dueDate    = drDatePlus(e.addedOn, d);
+          const isOverdue  = !isDone && dueDate <= today;
+          const isPending  = !isDone && dueDate > today;
+          let bg, color, label;
+          if (isDone)      { bg = 'var(--green-dim)';           color = 'var(--green)';      label = `D${d} ✓`; }
+          else if (isOverdue) { bg = 'var(--red-dim)';          color = 'var(--red)';        label = `D${d} ⚠`; }
+          else              { bg = 'var(--surface-2)';           color = 'var(--text-muted)'; label = `D${d}`; }
+          return `<span title="Day ${d} · Due: ${dueDate}" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:${bg};color:${color};margin-right:4px;">${label}</span>`;
+        }).join('');
+
+        const statusPill = e.done
+          ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-dim);color:var(--green);">✓ Done</span>`
+          : `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">Active</span>`;
+
+        const optsHtml = ['A','B','C','D'].filter(l => e.options && e.options[l]).map(l => {
+          let cls = 'ar-opt';
+          if (l === e.correct) cls += ' correct';
+          return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${e.options[l]}</span>${l===e.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
+        }).join('');
+        const justHtml = e.justification
+          ? `<div class="ar-just"><b>Explanation:</b> ${e.justification}</div>` : '';
+
+        return `
+          <div class="mistake-q-card${e.done ? ' mastered' : ''}">
+            <div class="mistake-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+              <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;flex:1;min-width:0;">
+                ${statusPill}
+                <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:6px;">${e.question.slice(0,55)}…</span>
+              </div>
+              <div style="flex-shrink:0;margin-left:8px;">${dayPills}</div>
+            </div>
+            <div class="mistake-q-body">
+              <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${e.question}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Added: ${e.addedOn}</div>
+              ${optsHtml}
+              ${justHtml}
+            </div>
+          </div>`;
+      }).join('');
+
+      const unitActive = qs.filter(e => !e.done).length;
+      return `<div class="mistake-unit-group">
+        <div class="mistake-unit-header">
+          <span>${unit}</span>
+          <span style="background:rgba(45,212,191,0.15);color:var(--teal);border-radius:99px;padding:1px 8px;font-size:10px;">${unitActive} active / ${qs.length} total</span>
+        </div>
+        ${cards}
+      </div>`;
+    }).join('');
+}
+
+document.getElementById('drcycle-back-btn').addEventListener('click', () => {
+  document.getElementById('drcycle-screen').style.display = 'none';
+});
+
+document.getElementById('admin-drcycle-btn').addEventListener('click', openDRCycleBook);
 
 // ─── IMPORT / EXPORT ───────────────────────────────────────
 function exportJSON() {
@@ -6238,13 +6363,34 @@ function rmSaveProgress() {
 // \u2500\u2500 Close mid-exam \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 document.getElementById('rm-close-btn').addEventListener('click', () => {
   if (rmState.finished) { hideAllWindows(); showHome(); return; }
+
+  // DR mock or Cycle mock — cannot save as resumable, just discard and return
+  if (window._drMockActive || window._drCycleMockActive) {
+    if (!confirm('Exit this revision mock? Progress will be lost and it won\'t count as completed.')) return;
+    clearInterval(rmQTimer); clearInterval(rmTotalTimer);
+    rmQTimer = null; rmTotalTimer = null;
+    window._drMockActive      = false;
+    window._drCycleMockActive = false;
+    window._drCycleQuestions  = [];
+    document.getElementById('real-mock-screen').classList.remove('active');
+    const dr = getDR();
+    const today = toDateKey(new Date());
+    if (dr && dr.date === today) {
+      document.getElementById('daily-revision-screen').style.display = 'block';
+      drRenderScreen(dr);
+    } else {
+      hideAllWindows(); showHome();
+    }
+    return;
+  }
+
+  // Regular real mock — offer to save progress
   if (confirm('Save progress and exit Real Mock?')) {
     rmSaveProgress();
     clearInterval(rmQTimer); clearInterval(rmTotalTimer);
     rmQTimer = null; rmTotalTimer = null;
     hideAllWindows(); showHome();
     loadSavedMocksUI();
-    // Show saved mock resume card
     setTimeout(rmCheckSavedMock, 300);
   }
 });
@@ -7255,7 +7401,38 @@ async function syncHistoryFromGitHub() {
 }
 
 
+// ── Storage integrity check — runs on every load, silent unless corrupt ──
+function repairStorage() {
+  const checks = {
+    quizHistory:           { type: 'array',  default: [] },
+    mockiq_question_bank:  { type: 'array',  default: [] },
+    rm_review_questions:   { type: 'array',  default: [] },
+    mockiq_mistakes:       { type: 'array',  default: [] },
+    mockiq_dr_attended:    { type: 'array',  default: [] },
+    mockiq_rm_attended:    { type: 'array',  default: [] },
+    savedMocks:            { type: 'array',  default: [] },
+    mockiq_srs:            { type: 'object', default: {} },
+    mockiq_dr_cycle:       { type: 'object', default: {} },
+    mockiq_daily_revision: { type: 'object', default: null },
+    rm_saved_mock:         { type: 'object', default: null },
+  };
+  let fixed = false;
+  for (const [key, cfg] of Object.entries(checks)) {
+    let val;
+    try { val = JSON.parse(localStorage.getItem(key)); } catch(e) { val = null; }
+    const isArray  = cfg.type === 'array'  && !Array.isArray(val);
+    const isObject = cfg.type === 'object' && (Array.isArray(val) || (val !== null && typeof val !== 'object'));
+    if (isArray || isObject) {
+      localStorage.setItem(key, JSON.stringify(cfg.default));
+      fixed = true;
+      console.warn(`MockIQ repairStorage: reset ${key} (was ${val === null ? 'null/missing' : typeof val})`);
+    }
+  }
+  if (fixed) { console.log('MockIQ: storage repaired — reloading.'); location.reload(); }
+}
+
 window.onload = () => {
+  repairStorage(); // must run first — fixes corrupt keys before anything else reads them
   migrateLegacyDates();
   showHome();
   loadSavedMocksUI();

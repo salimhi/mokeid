@@ -2740,6 +2740,26 @@ body.pip-mode #exam-popup {
   </div>
 </div>
 
+<!-- ═══ ADMIN PASSWORD MODAL ════════════════════════════════ -->
+<div id="admin-auth-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="background:var(--surface);border:1px solid var(--border-active);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:340px;box-shadow:var(--shadow-lg);animation:loginPop 0.25s cubic-bezier(0.34,1.4,0.64,1);">
+    <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;">🔒 Admin Access</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">Enter password to continue</div>
+    <div style="margin-bottom:14px;">
+      <input type="password" id="admin-password-input" placeholder="Password"
+        style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:16px;outline:none;box-sizing:border-box;transition:border-color 0.15s;"
+        onkeydown="if(event.key==='Enter')verifyAdminPassword()">
+    </div>
+    <div id="admin-auth-error" style="display:none;background:var(--red-dim);border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:12px;font-weight:600;padding:8px 12px;margin-bottom:12px;text-align:center;">
+      ❌ Incorrect password
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeAdminAuthModal()" class="btn btn-ghost" style="flex:1;margin-top:0;">Cancel</button>
+      <button onclick="verifyAdminPassword()" class="btn btn-primary" style="flex:1;margin-top:0;">Unlock →</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ADMIN SCREEN ════════════════════════════════════════════ -->
 <div id="admin-screen">
   <!-- Topbar -->
@@ -5848,7 +5868,48 @@ function saveQB(bank) {
 }
 function genQBId() { return 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
 
-document.getElementById('admin-btn').addEventListener('click', openAdminPanel);
+document.getElementById('admin-btn').addEventListener('click', () => {
+  // Already authenticated this session — open directly
+  if (sessionStorage.getItem('mockiq_admin_auth') === '1') {
+    openAdminPanel();
+    return;
+  }
+  // Show password modal
+  const modal = document.getElementById('admin-auth-modal');
+  modal.style.display = 'flex';
+  document.getElementById('admin-password-input').value = '';
+  document.getElementById('admin-auth-error').style.display = 'none';
+  setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+});
+
+function closeAdminAuthModal() {
+  document.getElementById('admin-auth-modal').style.display = 'none';
+  document.getElementById('admin-password-input').value = '';
+  document.getElementById('admin-auth-error').style.display = 'none';
+}
+
+async function verifyAdminPassword() {
+  const input = document.getElementById('admin-password-input').value;
+  if (!input) return;
+  const ADMIN_HASH = 'c84a82376e398e6ae3a8099feaeca4a5f45b2c9a410872f3c548bfaf90047f99';
+  try {
+    const encoded = new TextEncoder().encode(input);
+    const hashBuf = await crypto.subtle.digest('SHA-256', encoded);
+    const hashArr = Array.from(new Uint8Array(hashBuf));
+    const hashHex = hashArr.map(b => b.toString(16).padStart(2,'0')).join('');
+    if (hashHex === ADMIN_HASH) {
+      sessionStorage.setItem('mockiq_admin_auth', '1');
+      closeAdminAuthModal();
+      openAdminPanel();
+    } else {
+      document.getElementById('admin-auth-error').style.display = 'block';
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('admin-password-input').focus();
+    }
+  } catch(e) {
+    console.warn('Auth error:', e);
+  }
+}
 
 // ═══════════════════════════════════════════════════════
 // REAL MOCK ENGINE — Constants + Review Button

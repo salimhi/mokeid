@@ -2561,7 +2561,19 @@ body.pip-mode #exam-popup {
     <div style="max-width:680px;margin:0 auto;padding:20px 16px 80px;" id="srs-rev-body"></div>
   </div>
 
-  <!-- REVIEW QUESTIONS SCREEN -->
+  <!-- DR CYCLE REVISION SCREEN -->
+  <div id="drc-rev-screen" style="display:none;position:fixed;inset:0;z-index:9984;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeUp 0.2s ease;">
+    <div class="srs-rev-topbar">
+      <button class="btn" id="drc-rev-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">✕ Exit</button>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);">🔄 Cycle Revision</div>
+        <div id="drc-rev-counter" style="font-size:11px;color:var(--text-muted);">Q 1 of —</div>
+      </div>
+      <span id="drc-rev-score-badge" style="font-size:12px;background:var(--green-dim);color:var(--green);border-radius:99px;padding:3px 10px;font-weight:700;">✓ 0</span>
+    </div>
+    <div class="srs-rev-progress"><div class="srs-rev-fill" id="drc-rev-fill" style="width:0%"></div></div>
+    <div style="max-width:680px;margin:0 auto;padding:20px 16px 80px;" id="drc-rev-body"></div>
+  </div>
   <div id="review-screen">
     <div class="review-topbar">
       <button class="btn" id="review-back-btn" style="background:var(--surface-2);border:1px solid var(--border);padding:7px 14px;font-size:13px;">← Back</button>
@@ -3843,68 +3855,190 @@ function renderDRCycleBadge() {
   }
 }
 
-// Open cycle mock from home card
+// Open cycle revision — SRS-style, one question at a time, immediate save per answer
 function openDRCycleMock() {
   const due = drCycleDueToday();
   if (!due.length) { alert('No cycle questions due today!'); return; }
-  window._drCycleMockActive = true;
-  window._drCycleQuestions  = due;
-  const questions = due.map(e => ({
-    id: e.questionId, question: e.question, options: e.options,
-    correct: e.correct, unit: e.unit, justification: e.justification,
-  }));
-  const units = [...new Set(questions.map(q => q.unit))];
+  // drcRevState holds session state; answers saved immediately so exit/resume works
+  window.drcRevState = {
+    questions: due,  // full due list for this session
+    idx: 0,
+    correct: 0,
+    wrong: 0,
+  };
   document.getElementById('daily-revision-screen').style.display = 'none';
-  rmState.mode = 'stretch';
-  rmLaunch(questions, units, questions.length);
+  document.getElementById('drc-rev-screen').style.display = 'block';
+  drcRevRender();
 }
 
-// Called from rmFinish after cycle mock
-function drCycleMockCompleted() {
-  const cycleQs  = window._drCycleQuestions || [];
-  const answers  = rmState.answers;
-  const questions = rmState.questions;
-  window._drCycleMockActive = false;
-  window._drCycleQuestions  = [];
+function drcRevRender() {
+  const st    = window.drcRevState;
+  const entry = st.questions[st.idx];
+  const total = st.questions.length;
+  const body  = document.getElementById('drc-rev-body');
+  const counter = document.getElementById('drc-rev-counter');
+  const fill    = document.getElementById('drc-rev-fill');
+  const badge   = document.getElementById('drc-rev-score-badge');
+  if (!body || !entry) return;
 
+  counter.textContent = `Q ${st.idx + 1} of ${total}`;
+  fill.style.width    = `${(st.idx / total) * 100}%`;
+  badge.textContent   = `✓ ${st.correct}`;
+
+  const dayLabel = `Day ${entry.currentDay} check`;
+  const optsHtml = ['A','B','C','D'].filter(l => entry.options && entry.options[l]).map(l =>
+    `<div class="ar-opt" style="cursor:pointer;" onclick="drcRevAnswer('${entry.questionId}','${l}',${entry.currentDay})">
+      <span class="ar-opt-ltr">${l}.</span>
+      <span style="flex:1;">${entry.options[l]}</span>
+    </div>`
+  ).join('');
+
+  body.innerHTML = `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;gap:8px;align-items:center;">
+      <span>${entry.unit}</span>
+      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">${dayLabel}</span>
+    </div>
+    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${entry.question}</div>
+    <div id="drc-rev-opts">${optsHtml}</div>
+    <div id="drc-rev-feedback" style="margin-top:14px;"></div>`;
+}
+
+function drcRevAnswer(qId, letter, currentDay) {
+  const st      = window.drcRevState;
+  const entry   = st.questions[st.idx];
+  const isCorrect = letter === entry.correct;
+
+  // Lock options, highlight result
+  const optsContainer = document.getElementById('drc-rev-opts');
+  if (!optsContainer) return;
+  optsContainer.querySelectorAll('.ar-opt').forEach(el => {
+    el.onclick = null;
+    el.style.cursor = 'default';
+    const l = el.querySelector('.ar-opt-ltr').textContent.replace('.','');
+    if (l === entry.correct) el.classList.add('correct');
+    else if (l === letter && !isCorrect) el.classList.add('user-wrong');
+  });
+
+  if (isCorrect) st.correct++; else st.wrong++;
+  document.getElementById('drc-rev-score-badge').textContent = `✓ ${st.correct}`;
+
+  // Save result immediately to drCycle — so exit/resume works
   const cycle = getDRCycle();
-  questions.forEach((q, i) => {
-    const entry  = cycleQs.find(e => e.questionId === q.id);
-    if (!entry) return;
-    const ans     = answers[i];
-    const correct = ans && ans.selected === q.correct;
-    // Mark day completed
-    if (!cycle[q.id]) return;
-    if (!cycle[q.id].completedDays.includes(entry.currentDay))
-      cycle[q.id].completedDays.push(entry.currentDay);
-    // Wrong/skipped → add to SRS + Mistake Book (DR cycle not affected)
-    if (!correct) {
-      const bankQ = getQB().find(b => b.id === q.id) || q;
+  if (cycle[qId]) {
+    if (!cycle[qId].completedDays.includes(currentDay))
+      cycle[qId].completedDays.push(currentDay);
+    // Wrong → add to SRS + Mistake Book
+    if (!isCorrect) {
+      const bankQ = getQB().find(b => b.id === qId) || entry;
       if (typeof srsAddWrong === 'function') srsAddWrong(bankQ);
     }
-    // Done when all scheduled days are completed (supports both [1,3,5] and [1,3,5,10])
-    const allDone = (cycle[q.id].scheduledDays || [1,3,5]).every(d => cycle[q.id].completedDays.includes(d));
-    if (allDone) cycle[q.id].done = true;
-    cycle[q.id].lastUpdated = new Date().toISOString();
-  });
-  saveDRCycle(cycle);
-  renderDRCycleBadge();
+    // Check if all days done
+    const allDone = (cycle[qId].scheduledDays || [1,3,5,10]).every(d => cycle[qId].completedDays.includes(d));
+    if (allDone) cycle[qId].done = true;
+    cycle[qId].lastUpdated = new Date().toISOString();
+    saveDRCycle(cycle);
+  }
 
-  // Return to DR screen or home after result screen
-  setTimeout(() => {
-    document.getElementById('real-mock-result-screen').style.display = 'none';
-    hideAllWindows();
-    const dr = getDR();
-    const today = toDateKey(new Date());
-    if (dr && dr.date === today) {
-      document.getElementById('daily-revision-screen').style.display = 'block';
-      drRenderScreen(dr);
-    } else {
-      showHome();
-    }
-    renderDRCycleBadge();
-  }, 400);
+  // Feedback
+  const fb = document.getElementById('drc-rev-feedback');
+  if (fb) {
+    const justHtml = entry.justification
+      ? `<div class="ar-just" style="margin-top:10px;"><b>Explanation:</b> ${entry.justification}</div>` : '';
+    const msgText = isCorrect
+      ? `✓ Correct! Day ${currentDay} confirmed.`
+      : `✗ Wrong! Added to SRS for revision.`;
+    const encQ    = encodeURIComponent(entry.question);
+    const encOpts = encodeURIComponent(JSON.stringify(entry.options));
+    fb.innerHTML = `
+      <div style="padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;
+        background:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'};
+        color:${isCorrect ? 'var(--green)' : 'var(--red)'};margin-bottom:10px;">
+        ${msgText}
+      </div>
+      ${justHtml}
+      <div class="ar-explain-row" style="margin-bottom:10px;">
+        <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encQ}" data-correct="${entry.correct}" data-opts="${encOpts}">✦ Open in Gemini</button>
+        <button class="ar-explain-btn gpt" onclick="arExplainGPT(this)" data-q="${encQ}" data-correct="${entry.correct}" data-opts="${encOpts}">↗ Open in ChatGPT</button>
+      </div>
+      <button class="btn btn-primary" onclick="drcRevNext()" style="width:100%;margin-top:4px;">
+        ${st.idx + 1 < st.questions.length ? 'Next Question →' : 'See Results →'}
+      </button>`;
+  }
 }
+
+function drcRevNext() {
+  const st = window.drcRevState;
+  st.idx++;
+  if (st.idx >= st.questions.length) {
+    drcRevShowResults();
+    return;
+  }
+  drcRevRender();
+}
+
+function drcRevShowResults() {
+  const st   = window.drcRevState;
+  const total = st.questions.length;
+  const fill  = document.getElementById('drc-rev-fill');
+  const body  = document.getElementById('drc-rev-body');
+  if (fill) fill.style.width = '100%';
+  const score = total > 0 ? ((st.correct / total) * 100).toFixed(0) : 0;
+  const remaining = drCyclePendingCount();
+
+  body.innerHTML = `
+    <div style="text-align:center;padding:20px 0 16px;">
+      <div style="font-size:52px;font-weight:800;font-family:var(--font-display);color:var(--accent);">${score}%</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">Cycle Revision Complete</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
+      <div style="text-align:center;background:var(--green-dim);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--green);">${st.correct}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Correct</div>
+      </div>
+      <div style="text-align:center;background:var(--red-dim);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--red);">${st.wrong}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Wrong</div>
+      </div>
+      <div style="text-align:center;background:var(--surface-2);border-radius:8px;padding:12px 20px;">
+        <div style="font-size:22px;font-weight:700;color:var(--text);">${remaining}</div>
+        <div style="font-size:11px;color:var(--text-muted);">Still Due</div>
+      </div>
+    </div>
+    ${st.wrong > 0
+      ? `<div style="font-size:12px;color:var(--amber);text-align:center;margin-bottom:14px;">⚠ ${st.wrong} wrong question${st.wrong>1?'s':''} added to SRS for revision.</div>`
+      : `<div style="font-size:12px;color:var(--green);text-align:center;margin-bottom:14px;">🎉 Perfect session!</div>`}
+    <button class="btn btn-primary" onclick="closeDRCRevision()" style="width:100%;">Done →</button>`;
+}
+
+function closeDRCRevision() {
+  document.getElementById('drc-rev-screen').style.display = 'none';
+  renderDRCycleBadge();
+  renderSRSHomeCard();
+  renderMistakeSummary();
+  // Return to DR screen if open today, else home
+  const dr = getDR();
+  const today = toDateKey(new Date());
+  if (dr && dr.date === today) {
+    document.getElementById('daily-revision-screen').style.display = 'block';
+    drRenderScreen(dr);
+  } else {
+    showHome();
+  }
+}
+
+document.getElementById('drc-rev-back-btn').addEventListener('click', () => {
+  // Progress already saved per-answer — safe to exit anytime
+  document.getElementById('drc-rev-screen').style.display = 'none';
+  renderDRCycleBadge();
+  const dr = getDR();
+  const today = toDateKey(new Date());
+  if (dr && dr.date === today) {
+    document.getElementById('daily-revision-screen').style.display = 'block';
+    drRenderScreen(dr);
+  } else {
+    showHome();
+  }
+});
 
 // ─── CALENDAR ──────────────────────────────────────────────
 let calendarDate = new Date();
@@ -6425,14 +6559,12 @@ function rmSaveProgress() {
 document.getElementById('rm-close-btn').addEventListener('click', () => {
   if (rmState.finished) { hideAllWindows(); showHome(); return; }
 
-  // DR mock or Cycle mock — cannot save as resumable, just discard and return
-  if (window._drMockActive || window._drCycleMockActive) {
+  // DR mock — cannot save as resumable, discard and return
+  if (window._drMockActive) {
     if (!confirm('Exit this revision mock? Progress will be lost and it won\'t count as completed.')) return;
     clearInterval(rmQTimer); clearInterval(rmTotalTimer);
     rmQTimer = null; rmTotalTimer = null;
-    window._drMockActive      = false;
-    window._drCycleMockActive = false;
-    window._drCycleQuestions  = [];
+    window._drMockActive = false;
     document.getElementById('real-mock-screen').classList.remove('active');
     const dr = getDR();
     const today = toDateKey(new Date());
@@ -6506,16 +6638,15 @@ function rmFinish() {
     }
   }
 
-  // Save to history — skip for DR daily mock and SRS cycle mock (not for analytics)
-  const isDRMock    = !!window._drMockActive;
-  const isCycleMock = !!window._drCycleMockActive;
-  if (!isDRMock && !isCycleMock) {
+  // Save to history — skip for DR daily mock (not for analytics)
+  const isDRMock = !!window._drMockActive;
+  if (!isDRMock) {
     saveSessionToHistory(
       rmState.mockName, rmState.mockUnit, timeStr, finalScore,
       { totalQ, attempted, skipped, correct, wrong, mode: rmState.mode },
       'real'
     );
-    // Tag all attended questions as rm_attended (real mock only, not DR/cycle)
+    // Tag all attended questions as rm_attended (real mock only, not DR mock)
     const rmAtt = JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]');
     const rmAttSet = new Set(rmAtt);
     rmState.questions.slice(0, scoredCount).forEach(q => { if (q.id) rmAttSet.add(q.id); });
@@ -6551,8 +6682,6 @@ function rmFinish() {
   if (typeof renderMistakeSummary === 'function') renderMistakeSummary();
   // If this was a daily revision mock, notify DR system
   if (window._drMockActive && typeof drMockCompleted === 'function') drMockCompleted();
-  // If this was a DR cycle mock, notify cycle system
-  if (window._drCycleMockActive && typeof drCycleMockCompleted === 'function') drCycleMockCompleted();
   // Push to Firebase: saves history + clears savedMock on cloud
   if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
@@ -6607,15 +6736,11 @@ document.getElementById('rm-review-after-btn').addEventListener('click', () => {
 });
 document.getElementById('rm-new-mock-btn').addEventListener('click', () => {
   window._drMockActive = false;
-  window._drCycleMockActive = false;
-  window._drCycleQuestions  = [];
   document.getElementById('real-mock-result-screen').style.display = 'none';
   openRMModal();
 });
 document.getElementById('rm-home-btn').addEventListener('click', () => {
   window._drMockActive = false;
-  window._drCycleMockActive = false;
-  window._drCycleQuestions  = [];
   document.getElementById('real-mock-result-screen').style.display = 'none';
   showHome();
 });

@@ -6595,8 +6595,8 @@ function rmRenderQuestion() {
   body.innerHTML = `
     <div class="rm-q-counter">${counterText}</div>
     <div class="rm-question-text">${q.question}</div>
-    ${feedbackHtml}
     <div class="rm-options">${optionsHtml}</div>
+    ${feedbackHtml}
     <div class="rm-nav-row">
       ${canGoBack ? `<button class="btn" onclick="rmPrevQ()" style="background:var(--surface-2);border:1px solid var(--border);padding:9px 16px;font-size:13px;">\u2190 Prev</button>` : ''}
       <button class="rm-review-btn${reviewMarked ? ' marked' : ''}" onclick="rmToggleReview()" id="rm-review-flag-btn">

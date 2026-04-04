@@ -2825,6 +2825,19 @@ body.pip-mode #exam-popup {
   </div>
 </div>
 
+<!-- CLEAR DR TAGS MODAL -->
+<div id="clear-dr-tags-modal" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="background:var(--surface);border:1px solid var(--border-active);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);animation:loginPop 0.25s cubic-bezier(0.34,1.4,0.64,1);">
+    <div style="font-family:var(--font-display);font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px;">🗑 Clear DR Attended Tags</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px;">Select units to reset — questions will appear as fresh in DR again.</div>
+    <div id="clear-dr-unit-list" style="max-height:280px;overflow-y:auto;margin-bottom:18px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeClearDRTagsModal()" class="btn btn-ghost" style="flex:1;margin-top:0;">Cancel</button>
+      <button onclick="confirmClearDRTags()" class="btn" style="flex:1;margin-top:0;background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-weight:700;">Clear Selected</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ADMIN SCREEN ════════════════════════════════════════════ -->
 <div id="admin-screen">
   <!-- Topbar -->
@@ -2835,6 +2848,7 @@ body.pip-mode #exam-popup {
       <button id="admin-import-qb-btn" class="icon-btn teal">↑ Import Bank</button>
       <button id="admin-github-sync-btn" class="icon-btn" style="background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.3);color:var(--amber);">⬇ GitHub Sync</button>
       <button id="admin-drcycle-btn" class="icon-btn" style="background:rgba(45,212,191,0.12);border-color:rgba(45,212,191,0.3);color:var(--teal);">🔄 DR Cycle</button>
+      <button id="admin-clear-dr-tags-btn" class="icon-btn" style="background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.3);color:var(--red);">🗑 Clear DR Tags</button>
       <input type="file" id="admin-import-qb-file" accept=".json" style="display:none;">
       <button id="admin-back-btn" class="icon-btn">← Back to App</button>
     </div>
@@ -5121,6 +5135,71 @@ document.getElementById('drcycle-back-btn').addEventListener('click', () => {
 });
 
 document.getElementById('admin-drcycle-btn').addEventListener('click', openDRCycleBook);
+
+// ── Clear DR Tags ─────────────────────────────────────────────
+document.getElementById('admin-clear-dr-tags-btn').addEventListener('click', openClearDRTagsModal);
+
+function openClearDRTagsModal() {
+  const bank     = getQB();
+  const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const attendedSet = new Set(attended);
+
+  // Build per-unit counts of attended questions
+  const unitCounts = {};
+  bank.forEach(q => {
+    if (q.unit && attendedSet.has(q.id)) {
+      unitCounts[q.unit] = (unitCounts[q.unit] || 0) + 1;
+    }
+  });
+
+  const list = document.getElementById('clear-dr-unit-list');
+  if (!Object.keys(unitCounts).length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No DR attended tags found.<br>Complete a DR session first.</div>';
+  } else {
+    list.innerHTML = Object.entries(unitCounts)
+      .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
+      .map(([unit, count]) => `
+        <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;">
+          <input type="checkbox" value="${unit}" checked style="width:16px;height:16px;accent-color:var(--red);flex-shrink:0;">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--text);">${unit}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${count} question${count!==1?'s':''} tagged as attended</div>
+          </div>
+        </label>`).join('');
+  }
+
+  document.getElementById('clear-dr-tags-modal').style.display = 'flex';
+}
+
+function closeClearDRTagsModal() {
+  document.getElementById('clear-dr-tags-modal').style.display = 'none';
+}
+
+document.getElementById('clear-dr-tags-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('clear-dr-tags-modal')) closeClearDRTagsModal();
+});
+
+function confirmClearDRTags() {
+  const checked = [...document.querySelectorAll('#clear-dr-unit-list input[type="checkbox"]:checked')]
+    .map(cb => cb.value);
+  if (!checked.length) { alert('No units selected.'); return; }
+
+  const bank        = getQB();
+  const attended    = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const clearSet    = new Set(checked);
+
+  // Build set of question IDs to remove (those belonging to selected units)
+  const removeIds = new Set(bank.filter(q => clearSet.has(q.unit)).map(q => q.id));
+
+  // Keep only attended IDs not in removeIds
+  const updated = attended.filter(id => !removeIds.has(id));
+  localStorage.setItem('mockiq_dr_attended', JSON.stringify(updated));
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
+
+  closeClearDRTagsModal();
+  refreshAdminOverview(); // refresh attended counts in overview
+  alert(`✅ DR tags cleared for: ${checked.join(', ')}\n${removeIds.size} question${removeIds.size!==1?'s':''} reset to fresh.`);
+}
 
 // ─── IMPORT / EXPORT ───────────────────────────────────────
 function exportJSON() {

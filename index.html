@@ -205,28 +205,25 @@
           if (!loc) {
             merged[qId] = rem;
           } else {
-            // Keep most recently updated; if done on either device, mark done
             const remTs = rem.lastUpdated || '0';
             const locTs = loc.lastUpdated || '0';
-            if (remTs > locTs) {
-              merged[qId] = rem;
-              // Even though remote is newer, union completedDays and done from both sides
-              const allDays = new Set([...(rem.completedDays || []), ...(loc.completedDays || [])]);
-              merged[qId].completedDays = [...allDays];
-              if (loc.done || merged[qId].completedDays.includes(5) ||
-                  (merged[qId].scheduledDays || [1,3,5]).every(d => merged[qId].completedDays.includes(d)))
-                merged[qId].done = true;
-            } else {
-              // Keep local but merge done flag — if remote says done, respect it
-              if (rem.done) merged[qId].done = true;
-              // Union completedDays
-              const allDays = new Set([...(loc.completedDays || []), ...(rem.completedDays || [])]);
-              merged[qId].completedDays = [...allDays];
-              if (merged[qId].completedDays.includes(5) ||
-                  (merged[qId].scheduledDays || [1,3,5]).every(d => merged[qId].completedDays.includes(d)))
-                merged[qId].done = true;
-            }
+            // Take whichever side is newer as the base
+            merged[qId] = remTs > locTs ? { ...rem } : { ...loc };
+            // Always union completedDays from both sides
+            const allDays = new Set([...(loc.completedDays || []), ...(rem.completedDays || [])]);
+            merged[qId].completedDays = [...allDays];
           }
+          // Recompute done strictly from completedDays vs scheduledDays — never trust stored done flag
+          const sched = merged[qId].scheduledDays || [1, 3, 5, 10];
+          merged[qId].scheduledDays = sched; // ensure it's stored
+          merged[qId].done = sched.every(d => (merged[qId].completedDays || []).includes(d));
+        });
+        // Also recompute done for local-only entries (not in remote) in case they were wrong
+        Object.keys(merged).forEach(qId => {
+          const e = merged[qId];
+          const sched = e.scheduledDays || [1, 3, 5, 10];
+          e.scheduledDays = sched;
+          e.done = sched.every(d => (e.completedDays || []).includes(d));
         });
         localStorage.setItem('mockiq_dr_cycle', JSON.stringify(merged));
       }
@@ -8130,7 +8127,35 @@ function repairStorage() {
   if (fixed) { console.log('MockIQ: storage repaired — reloading.'); location.reload(); }
 }
 
-// ── EXAM COUNTDOWN CHARACTER ─────────────────────────────────
+// ── Repair DR Cycle done flags — runs on every load ──────────
+// Fixes entries where done:true was set before all scheduledDays were completed.
+// Safe to run repeatedly — only writes if something changed.
+function repairDRCycleDoneFlags() {
+  const cycle = JSON.parse(localStorage.getItem('mockiq_dr_cycle') || '{}');
+  let changed = false;
+  for (const [id, entry] of Object.entries(cycle)) {
+    const sched     = entry.scheduledDays && entry.scheduledDays.length ? entry.scheduledDays : [1, 3, 5, 10];
+    const completed = entry.completedDays || [];
+    const correct   = sched.every(d => completed.includes(d));
+    // Ensure scheduledDays is always stored (old entries may have [1,3,5])
+    if (!entry.scheduledDays || entry.scheduledDays.length !== sched.length) {
+      entry.scheduledDays = sched;
+      changed = true;
+    }
+    if (entry.done !== correct) {
+      entry.done = correct;
+      entry.lastUpdated = new Date().toISOString();
+      changed = true;
+      console.log(`MockIQ repairDRCycle: fixed "${(entry.question||'').slice(0,50)}" done=${correct} (completed=${JSON.stringify(completed)}, sched=${JSON.stringify(sched)})`);
+    }
+  }
+  if (changed) {
+    localStorage.setItem('mockiq_dr_cycle', JSON.stringify(cycle));
+    // Push fix to Firebase immediately so all devices get corrected state
+    if (typeof window.fbPush === 'function') window.fbPush();
+    console.log('MockIQ: DR cycle done flags repaired and pushed to Firebase.');
+  }
+}
 (function() {
   const EXAM_DATE  = new Date('2026-06-01T00:00:00');
   const IDLE_MS    = 60000;   // 1 min idle → drop board
@@ -8224,6 +8249,7 @@ function repairStorage() {
 
 window.onload = () => {
   repairStorage(); // must run first — fixes corrupt keys before anything else reads them
+  repairDRCycleDoneFlags(); // fix incorrectly set done:true flags in DR cycle
   migrateLegacyDates();
   showHome();
   loadSavedMocksUI();

@@ -189,8 +189,10 @@
           const validIds = new Set(merged.questionIds || []);
           const remChecked = new Set(rem.checked || []);
           const locChecked = new Set(localDR.checked || []);
-          merged.checked = [...new Set([...remChecked, ...locChecked])].filter(id => validIds.has(id));
+          merged.checked  = [...new Set([...remChecked, ...locChecked])].filter(id => validIds.has(id));
           merged.mockDone = localDR.mockDone || rem.mockDone;
+          // Merge answers — union, remote wins on conflict (more recent device)
+          merged.answers  = Object.assign({}, localDR.answers || {}, rem.answers || {});
           localStorage.setItem('mockiq_daily_revision', JSON.stringify(merged));
         }
       }
@@ -2955,6 +2957,19 @@ body.pip-mode #exam-popup {
   </div>
 </div>
 
+<!-- DR UNIT PICKER MODAL -->
+<div id="dr-unit-picker-modal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--border-active);border-radius:var(--radius);padding:24px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);animation:loginPop 0.22s cubic-bezier(0.34,1.4,0.64,1);">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;">📖 Choose Unit</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Select a unit for today's 10 questions</div>
+    <div id="dr-unit-picker-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeDRUnitPicker()" class="btn btn-ghost" style="flex:1;margin-top:0;">Cancel</button>
+      <button onclick="confirmDRUnitPicker()" class="btn btn-primary" style="flex:1;margin-top:0;">Generate →</button>
+    </div>
+  </div>
+</div>
+
 <!-- CLEAR DR TAGS MODAL -->
 <div id="clear-dr-tags-modal" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
   <div style="background:var(--surface);border:1px solid var(--border-active);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);animation:loginPop 0.25s cubic-bezier(0.34,1.4,0.64,1);">
@@ -3757,21 +3772,23 @@ function drBuildPrompt(q) {
   return `You are an expert mentor for Kerala Fisheries PSC exam.\nExplain the following MCQ in a highly exam-oriented way:\n\nQuestion:\n${q.question}\n\nOptions:\nA) ${q.options.A||''}\nB) ${q.options.B||''}\nC) ${q.options.C||''}\nD) ${q.options.D||''}\n\nCorrect Answer:\n${q.correct}) ${q.options[q.correct]||''}\n\nDo the following:\n1. Give the correct answer with a precise explanation.\n2. Eliminate all wrong options with reasoning.\n3. Explain the underlying concept in simple language.\n4. Add key facts, values, and points important for PSC exams.\n5. Give 2–3 similar possible MCQs that can be asked from this topic.\n6. Mention common traps or confusing points.\n7. Add a memory trick if possible.\n8. Keep it crisp, structured, and revision-friendly.`;
 }
 
-function drGenerate() {
+function drGenerate(forcedUnit = null) {
   const bank = getQB();
   if (!bank.length) { alert('Question bank is empty. Add questions in Admin first.'); return; }
   const today = toDateKey(new Date());
-  // Pick a random unit that has at least 1 question
+  // Pick unit — forced or random
   const units = [...new Set(bank.map(q => q.unit))].filter(u => u);
   if (!units.length) { alert('No unit data found in question bank.'); return; }
-  const unit = units[Math.floor(Math.random() * units.length)];
+  const unit = (forcedUnit && units.includes(forcedUnit))
+    ? forcedUnit
+    : units[Math.floor(Math.random() * units.length)];
   const pool = bank.filter(q => q.unit === unit);
 
   // DR attended filter — fresh questions first, attended as fallback
-  const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const attended    = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
   const attendedSet = new Set(attended);
-  const fresh = pool.filter(q => !attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
-  const used  = pool.filter(q =>  attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
+  const fresh  = pool.filter(q => !attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
+  const used   = pool.filter(q =>  attendedSet.has(q.id)).sort(() => Math.random() - 0.5);
   const chosen = [...fresh.slice(0, 10), ...used.slice(0, Math.max(0, 10 - fresh.length))].slice(0, 10);
 
   if (!chosen.length) {
@@ -3780,12 +3797,9 @@ function drGenerate() {
   }
 
   const dr = {
-    date: today,
-    unit,
+    date: today, unit,
     questionIds: chosen.map(q => q.id),
-    checked: [],
-    answers: {},
-    mockDone: false,
+    checked: [], answers: {}, mockDone: false,
   };
   saveDR(dr);
   renderDRHomeCard();
@@ -4110,17 +4124,71 @@ function drMockCompleted() {
 }
 
 function drConfirmNewSet() {
-  const dr = getDR();
+  const dr    = getDR();
   const today = toDateKey(new Date());
-  // If no DR today or already completed, generate freely
-  if (!dr || dr.date !== today || dr.mockDone) { drGenerate(); return; }
   // If in progress — confirm before discarding
-  const checked = (dr.checked || []).length;
-  if (checked > 0) {
-    if (!confirm(`You have ${checked} questions ticked. Generate a new set? Current progress will be lost.`)) return;
+  if (dr && dr.date === today && !dr.mockDone) {
+    const checked = (dr.checked || []).length;
+    if (checked > 0) {
+      if (!confirm(`You have ${checked} questions ticked. Generate a new set? Current progress will be lost.`)) return;
+    }
   }
-  drGenerate();
+  openDRUnitPicker();
 }
+
+function openDRUnitPicker() {
+  const bank        = getQB();
+  const attended    = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+  const attendedSet = new Set(attended);
+  const units       = [...new Set(bank.map(q => q.unit).filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+
+  const list = document.getElementById('dr-unit-picker-list');
+
+  // Random option at top
+  const randomRow = `
+    <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--accent-glow);border:1.5px solid var(--accent);border-radius:var(--radius-sm);cursor:pointer;">
+      <input type="radio" name="dr-unit-pick" value="__random__" checked style="accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--accent);">🔀 Random</div>
+        <div style="font-size:11px;color:var(--text-muted);">Auto-pick a unit</div>
+      </div>
+    </label>`;
+
+  const unitRows = units.map(unit => {
+    const total = bank.filter(q => q.unit === unit).length;
+    const fresh = bank.filter(q => q.unit === unit && !attendedSet.has(q.id)).length;
+    const tag   = fresh > 0
+      ? `<span style="color:var(--green);">${fresh} fresh</span> · ${total} total`
+      : `<span style="color:var(--amber);">All attended</span> · ${total} total`;
+    return `
+      <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.15s;">
+        <input type="radio" name="dr-unit-pick" value="${unit}" style="accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${unit}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${tag}</div>
+        </div>
+      </label>`;
+  }).join('');
+
+  list.innerHTML = randomRow + unitRows;
+  document.getElementById('dr-unit-picker-modal').style.display = 'flex';
+}
+
+function closeDRUnitPicker() {
+  document.getElementById('dr-unit-picker-modal').style.display = 'none';
+}
+
+function confirmDRUnitPicker() {
+  const picked = document.querySelector('input[name="dr-unit-pick"]:checked');
+  if (!picked) return;
+  closeDRUnitPicker();
+  drGenerate(picked.value === '__random__' ? null : picked.value);
+}
+
+document.getElementById('dr-unit-picker-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('dr-unit-picker-modal')) closeDRUnitPicker();
+});
 
 // ─── OPTION SHUFFLE HELPER (SRS + DR Cycle) ──────────────────
 // Shuffles option display order. Returns { shuffledOpts, letterMap }
@@ -5176,6 +5244,7 @@ function srsRevAnswer(qId, letter) {
 
 function srsRevNext() {
   const st = srsRevState;
+  if (!st || !st.questions) return;
   st.idx++;
   if (st.idx >= st.questions.length) {
     srsRevShowResults();
@@ -6877,8 +6946,8 @@ function rmRenderQuestion() {
   }
 
   const isLast = idx === total - 1;
-  // Instant mode: Next never says Finish — End Exam button handles that
-  const nextLabel = (mode === 'instant') ? 'Next \u2192' : (isLast ? '\u2713 Finish' : 'Next \u2192');
+  // Instant mode: last question says Finish, others say Next
+  const nextLabel = isLast ? '\u2713 Finish' : 'Next \u2192';
   const canGoBack = idx > 0;
 
   // Counter: instant mode hides total (unlimited)
@@ -6925,6 +6994,7 @@ function rmToggleReview() {
 function rmSkipQ() {
   if (rmState.paused) return;
   const ans = rmState.answers[rmState.currentIdx];
+  if (rmState.mode === 'instant' && ans.selected !== null) return; // already answered
   ans.selected = null; ans.skipped = true;
   rmNextQ();
 }
@@ -6947,6 +7017,8 @@ function rmNextQ() {
       rmState.currentIdx++;
       rmResetQTimer();
       rmRenderQuestion();
+    } else {
+      rmFinish(); // last question answered — finish mock
     }
     return;
   }

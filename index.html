@@ -215,14 +215,37 @@
             const allDays = new Set([...(loc.completedDays || []), ...(rem.completedDays || [])]);
             merged[qId].completedDays = [...allDays];
           }
+          
+          // IN-MERGE MIGRATION: Clean up addedDate -> addedOn (fix for property inconsistency)
+          // Ensure addedOn is present; if missing but addedDate exists, migrate it
+          if (!merged[qId].addedOn && merged[qId].addedDate) {
+            const d = new Date(merged[qId].addedDate);
+            merged[qId].addedOn = !isNaN(d.getTime()) ? toDateKey(d) : toDateKey(new Date());
+            console.log(`fbPull: migrated addedDate -> addedOn for question ${qId}`);
+          }
+          // Always delete addedDate to prevent dual-property entries
+          if (merged[qId].addedDate) {
+            delete merged[qId].addedDate;
+          }
+          
           // Recompute done strictly from completedDays vs scheduledDays — never trust stored done flag
           const sched = merged[qId].scheduledDays || [1, 3, 5, 10];
           merged[qId].scheduledDays = sched; // ensure it's stored
           merged[qId].done = sched.every(d => (merged[qId].completedDays || []).includes(d));
         });
         // Also recompute done for local-only entries (not in remote) in case they were wrong
+        // AND clean up any addedDate property for consistency
         Object.keys(merged).forEach(qId => {
           const e = merged[qId];
+          // Clean up addedDate if present (local-only entries may have legacy property)
+          if (e.addedDate && !e.addedOn) {
+            const d = new Date(e.addedDate);
+            e.addedOn = !isNaN(d.getTime()) ? toDateKey(d) : toDateKey(new Date());
+            console.log(`fbPull: migrated addedDate -> addedOn for local-only question ${qId}`);
+          }
+          if (e.addedDate) {
+            delete e.addedDate;
+          }
           const sched = e.scheduledDays || [1, 3, 5, 10];
           e.scheduledDays = sched;
           e.done = sched.every(d => (e.completedDays || []).includes(d));
@@ -3418,6 +3441,7 @@ function updateOverallDashboardCard() {
 let dashChartInstance = null;
 let dashCurrentFilter = 'all';
 
+
 function dashShowSlide(n) {
   document.getElementById('dash-slide-0').style.display = n === 0 ? '' : 'none';
   document.getElementById('dash-slide-1').style.display = n === 1 ? '' : 'none';
@@ -4260,6 +4284,11 @@ function drCycleDueToday() {
   const due    = [];
   Object.values(cycle).forEach(entry => {
     if (entry.done) return;
+    // SAFETY GUARD: Skip entries with missing addedOn (should not happen after migration, but defensive)
+    if (!entry.addedOn) {
+      console.warn('MockIQ: Skipping cycle entry with missing addedOn:', entry.questionId);
+      return;
+    }
     for (const d of entry.scheduledDays) {
       if (entry.completedDays.includes(d)) continue;
       if (drDatePlus(entry.addedOn, d) <= today) {
@@ -4307,12 +4336,35 @@ function renderDRCycleBadge() {
 function openDRCycleMock() {
   const due = drCycleDueToday();
   if (!due.length) { alert('No cycle questions due today!'); return; }
-  // drcRevState holds session state; answers saved immediately so exit/resume works
+
+  // If a session is already in progress (user exited and re-entered),
+  // filter the existing session questions to only those still due
+  // so answered ones don't reappear
+  const existingSt = window.drcRevState;
+  if (existingSt && existingSt.questions && existingSt.questions.length) {
+    const dueIds = new Set(due.map(q => q.questionId + '_' + q.currentDay));
+    const remaining = existingSt.questions.filter(
+      q => dueIds.has(q.questionId + '_' + q.currentDay)
+    );
+    if (remaining.length > 0) {
+      // Resume from first remaining unanswered question
+      existingSt.questions = remaining;
+      existingSt.idx = 0;
+      existingSt.answered = false;
+      document.getElementById('daily-revision-screen').style.display = 'none';
+      document.getElementById('drc-rev-screen').style.display = 'block';
+      drcRevRender();
+      return;
+    }
+  }
+
+  // Fresh session
   window.drcRevState = {
-    questions: due,  // full due list for this session
+    questions: due,
     idx: 0,
     correct: 0,
     wrong: 0,
+    answered: false,
   };
   document.getElementById('daily-revision-screen').style.display = 'none';
   document.getElementById('drc-rev-screen').style.display = 'block';
@@ -4356,6 +4408,8 @@ function drcRevRender() {
     <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${entry.question}</div>
     <div id="drc-rev-opts">${optsHtml}</div>
     <div id="drc-rev-feedback" style="margin-top:14px;"></div>`;
+  // Reset answered flag — new question not yet answered
+  st.answered = false;
 }
 
 function drcRevAnswer(qId, letter, currentDay) {
@@ -4387,22 +4441,37 @@ function drcRevAnswer(qId, letter, currentDay) {
 
   // Save result immediately to drCycle — so exit/resume works
   const cycle = getDRCycle();
-  if (cycle[qId]) {
-    if (!cycle[qId].completedDays.includes(currentDay))
-      cycle[qId].completedDays.push(currentDay);
-    // Wrong → add to SRS + Mistake Book
-    if (!isCorrect) {
-      const bankQ = getQB().find(b => b.id === qId) || entry;
-      if (typeof srsAddWrong === 'function') srsAddWrong(bankQ);
-    }
-    // Check if all days done
-    const allDone = (cycle[qId].scheduledDays || [1,3,5,10]).every(d => cycle[qId].completedDays.includes(d));
-    if (allDone) cycle[qId].done = true;
-    cycle[qId].lastUpdated = new Date().toISOString();
-    saveDRCycle(cycle);
-    // Push immediately (not debounced) — ensures save reaches Firebase before app close
-    if (typeof window.fbPush === 'function') window.fbPush();
+  // BUG FIX: Ensure entry exists in cycle before saving progress
+  if (!cycle[qId]) {
+    cycle[qId] = {
+      questionId: qId,
+      unit: entry.unit,
+      completedDays: [],
+      scheduledDays: [1, 3, 5, 10],
+      done: false,
+      addedOn: toDateKey(new Date())
+    };
   }
+  
+  // Duplicate Guard: Only add currentDay if it's not already recorded
+  if (!cycle[qId].completedDays.includes(currentDay)) {
+    cycle[qId].completedDays.push(currentDay);
+  }
+
+  // Wrong → add to SRS + Mistake Book
+  if (!isCorrect) {
+    const bankQ = getQB().find(b => b.id === qId) || entry;
+    if (typeof srsAddWrong === 'function') srsAddWrong(bankQ);
+  }
+
+  // Check if all days done
+  const allDone = (cycle[qId].scheduledDays || [1,3,5,10]).every(d => cycle[qId].completedDays.includes(d));
+  if (allDone) cycle[qId].done = true;
+  cycle[qId].lastUpdated = new Date().toISOString();
+  
+  // CRITICAL: Save to localStorage and Trigger Cloud Sync instantly
+  saveDRCycle(cycle);
+  if (typeof window.fbPush === 'function') window.fbPush();
 
   // Feedback
   const fb = document.getElementById('drc-rev-feedback');
@@ -4430,6 +4499,8 @@ function drcRevAnswer(qId, letter, currentDay) {
       <button class="btn btn-primary" onclick="drcRevNext()" style="width:100%;margin-top:4px;">
         ${st.idx + 1 < st.questions.length ? 'Next Question →' : 'See Results →'}
       </button>`;
+    // Mark as answered so ArrowRight keyboard shortcut can advance
+    st.answered = true;
   }
 }
 
@@ -4441,6 +4512,13 @@ function drcRevNext() {
     drcRevShowResults();
     return;
   }
+  drcRevRender();
+}
+
+function drcRevPrev() {
+  const st = window.drcRevState;
+  if (!st || !st.questions || st.idx <= 0) return;
+  st.idx--;
   drcRevRender();
 }
 
@@ -4492,6 +4570,8 @@ function drcRevShowResults() {
 
 function closeDRCRevision() {
   document.getElementById('drc-rev-screen').style.display = 'none';
+  // Clear session state — all answered, no need to resume
+  window.drcRevState = null;
   renderDRCycleBadge();
   renderSRSHomeCard();
   renderMistakeSummary();
@@ -5250,6 +5330,13 @@ function srsRevNext() {
     srsRevShowResults();
     return;
   }
+  srsRevRender();
+}
+
+function srsRevPrev() {
+  const st = srsRevState;
+  if (!st || !st.questions || st.idx <= 0) return;
+  st.idx--;
   srsRevRender();
 }
 
@@ -8201,11 +8288,21 @@ function repairStorage() {
 
 // ── Repair DR Cycle done flags — runs on every load ──────────
 // Fixes entries where done:true was set before all scheduledDays were completed.
+// Migrates addedDate → addedOn for consistency.
 // Safe to run repeatedly — only writes if something changed.
 function repairDRCycleDoneFlags() {
   const cycle = JSON.parse(localStorage.getItem('mockiq_dr_cycle') || '{}');
   let changed = false;
   for (const [id, entry] of Object.entries(cycle)) {
+    // MIGRATION: Rename addedDate to addedOn if present (fix for property name inconsistency)
+    if (entry.addedDate && !entry.addedOn) {
+      const d = new Date(entry.addedDate);
+      entry.addedOn = !isNaN(d.getTime()) ? toDateKey(d) : toDateKey(new Date());
+      delete entry.addedDate;
+      changed = true;
+      console.log(`MockIQ repairDRCycle: migrated addedDate -> addedOn for question ${id}`);
+    }
+    
     const sched     = entry.scheduledDays && entry.scheduledDays.length ? entry.scheduledDays : [1, 3, 5, 10];
     const completed = entry.completedDays || [];
     const correct   = sched.every(d => completed.includes(d));
@@ -8347,7 +8444,74 @@ window.onload = () => {
   }
 };
 
+// ─── KEYBOARD ARROW NAVIGATION ───────────────────────────────
+// Right Arrow → Next question | Left Arrow → Previous question
+// Active on: Real Mock, SRS Revision, DR Cycle Revision screens
+document.addEventListener('keydown', function(e) {
+  // Ignore if user is typing in an input/textarea
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
+  const key = e.key;
+  if (key !== 'ArrowRight' && key !== 'ArrowLeft') return;
+
+  // ── Real Mock Screen ─────────────────────────────────────
+  const rmScreen = document.getElementById('real-mock-screen');
+  // Check if rmState exists before accessing properties to prevent crash on first load
+  const rmActive = rmScreen && rmScreen.classList.contains('active');
+  const rmValid  = typeof rmState !== 'undefined' && rmState;
+  if (rmActive && rmValid && rmState.questions && !rmState.finished && !rmState.paused) {
+    if (key === 'ArrowRight') {
+      e.preventDefault();
+      rmNextQ();
+    } else if (key === 'ArrowLeft') {
+      if (rmState.currentIdx > 0) {
+        e.preventDefault();
+        rmPrevQ();
+      }
+    }
+    return;
+  }
+
+  // ── SRS Revision Screen ───────────────────────────────────
+  const srsScreen = document.getElementById('srs-revision-screen');
+  if (srsScreen && srsScreen.style.display !== 'none') {
+    const fb = document.getElementById('srs-rev-feedback');
+    const feedbackVisible = fb && fb.innerHTML.trim() !== '';
+    if (key === 'ArrowRight') {
+      if (feedbackVisible) {
+        e.preventDefault();
+        srsRevNext();
+      }
+    } else if (key === 'ArrowLeft') {
+      if (srsRevState && srsRevState.idx > 0) {
+        e.preventDefault();
+        srsRevPrev();
+      }
+    }
+    return;
+  }
+
+  // ── DR Cycle Revision Screen ──────────────────────────────
+  const drcScreen = document.getElementById('drc-rev-screen');
+  if (drcScreen && drcScreen.style.display !== 'none') {
+    const st = window.drcRevState;
+    // ArrowRight: only advance if current question has been answered (idx advanced by answer)
+    // We track this via st.answered flag set in drcRevAnswer
+    if (key === 'ArrowRight') {
+      if (st && st.answered) {
+        e.preventDefault();
+        drcRevNext();
+      }
+    } else if (key === 'ArrowLeft') {
+      if (st && st.idx > 0) {
+        e.preventDefault();
+        drcRevPrev();
+      }
+    }
+    return;
+  }
+});
 </script>
 </body>
 </html>

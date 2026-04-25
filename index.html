@@ -4473,6 +4473,10 @@ function drcRevAnswer(qId, letter, currentDay) {
   saveDRCycle(cycle);
   if (typeof window.fbPush === 'function') window.fbPush();
 
+  // Always mark as answered after processing the answer
+  // This ensures keyboard navigation (ArrowRight) works immediately
+  st.answered = true;
+
   // Feedback
   const fb = document.getElementById('drc-rev-feedback');
   if (fb) {
@@ -4498,9 +4502,8 @@ function drcRevAnswer(qId, letter, currentDay) {
       </div>
       <button class="btn btn-primary" onclick="drcRevNext()" style="width:100%;margin-top:4px;">
         ${st.idx + 1 < st.questions.length ? 'Next Question →' : 'See Results →'}
-      </button>`;
-    // Mark as answered so ArrowRight keyboard shortcut can advance
-    st.answered = true;
+      </button>
+    `;
   }
 }
 
@@ -5442,62 +5445,82 @@ function renderDRCycleBook() {
   cont.innerHTML = Object.entries(byUnit)
     .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
     .map(([unit, qs]) => {
-      const cards = qs.map(e => {
-        const scheduledDays = e.scheduledDays || [1, 3, 5, 10];
-        const completedDays = e.completedDays || [];
+      const activeQs = qs.filter(e => !e.done);
+      const doneQs   = qs.filter(e => e.done);
 
-        // Day pills
-        const dayPills = scheduledDays.map(d => {
-          const isDone     = completedDays.includes(d);
-          const dueDate    = drDatePlus(e.addedOn, d);
-          const isOverdue  = !isDone && dueDate <= today;
-          const isPending  = !isDone && dueDate > today;
-          let bg, color, label;
-          if (isDone)      { bg = 'var(--green-dim)';           color = 'var(--green)';      label = `D${d} ✓`; }
-          else if (isOverdue) { bg = 'var(--red-dim)';          color = 'var(--red)';        label = `D${d} ⚠`; }
-          else              { bg = 'var(--surface-2)';           color = 'var(--text-muted)'; label = `D${d}`; }
-          return `<span title="Day ${d} · Due: ${dueDate}" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:${bg};color:${color};margin-right:4px;">${label}</span>`;
-        }).join('');
+      const activeCards = activeQs.map(e => renderDRCycleCard(e, today)).join('');
+      const doneCards   = doneQs.map(e => renderDRCycleCard(e, today)).join('');
 
-        const statusPill = e.done
-          ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-dim);color:var(--green);">✓ Done</span>`
-          : `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">Active</span>`;
-
-        const optsHtml = ['A','B','C','D'].filter(l => e.options && e.options[l]).map(l => {
-          let cls = 'ar-opt';
-          if (l === e.correct) cls += ' correct';
-          return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${e.options[l]}</span>${l===e.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
-        }).join('');
-        const justHtml = e.justification
-          ? `<div class="ar-just"><b>Explanation:</b> ${e.justification}</div>` : '';
-
-        return `
-          <div class="mistake-q-card${e.done ? ' mastered' : ''}">
-            <div class="mistake-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
-              <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;flex:1;min-width:0;">
-                ${statusPill}
-                <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:6px;">${e.question.slice(0,55)}…</span>
-              </div>
-              <div style="flex-shrink:0;margin-left:8px;">${dayPills}</div>
+      let doneSection = '';
+      if (doneQs.length > 0) {
+        const sectionId = `drc-done-${unit.replace(/\s+/g, '-')}`;
+        doneSection = `
+          <div style="margin-top:10px;">
+            <div onclick="const el=document.getElementById('${sectionId}'); el.style.display=el.style.display==='none'?'block':'none'; this.querySelector('.arr').style.transform=el.style.display==='none'?'rotate(0deg)':'rotate(90deg)';" 
+                 style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--text-muted); padding:4px 0;">
+              <span class="arr" style="transition:transform 0.2s; font-size:10px;">▶</span>
+              <span>Show ${doneQs.length} Completed Questions</span>
             </div>
-            <div class="mistake-q-body">
-              <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${e.question}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Added: ${e.addedOn}</div>
-              ${optsHtml}
-              ${justHtml}
+            <div id="${sectionId}" style="display:none; margin-top:8px;">
+              ${doneCards}
             </div>
           </div>`;
-      }).join('');
+      }
 
-      const unitActive = qs.filter(e => !e.done).length;
       return `<div class="mistake-unit-group">
         <div class="mistake-unit-header">
           <span>${unit}</span>
-          <span style="background:rgba(45,212,191,0.15);color:var(--teal);border-radius:99px;padding:1px 8px;font-size:10px;">${unitActive} active / ${qs.length} total</span>
+          <span style="background:rgba(45,212,191,0.15);color:var(--teal);border-radius:99px;padding:1px 8px;font-size:10px;">${activeQs.length} active / ${qs.length} total</span>
         </div>
-        ${cards}
+        ${activeCards}
+        ${doneSection}
       </div>`;
     }).join('');
+}
+
+// Helper to render a single DR Cycle question card
+function renderDRCycleCard(e, today) {
+  const scheduledDays = e.scheduledDays || [1, 3, 5, 10];
+  const completedDays = e.completedDays || [];
+
+  const dayPills = scheduledDays.map(d => {
+    const isDone     = completedDays.includes(d);
+    const dueDate    = drDatePlus(e.addedOn, d);
+    const isOverdue  = !isDone && dueDate <= today;
+    let bg, color, label;
+    if (isDone)      { bg = 'var(--green-dim)';           color = 'var(--green)';      label = `D${d} ✓`; }
+    else if (isOverdue) { bg = 'var(--red-dim)';          color = 'var(--red)';        label = `D${d} ⚠`; }
+    else              { bg = 'var(--surface-2)';           color = 'var(--text-muted)'; label = `D${d}`; }
+    return `<span title="Day ${d} · Due: ${dueDate}" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:${bg};color:${color};margin-right:4px;">${label}</span>`;
+  }).join('');
+
+  const statusPill = e.done
+    ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-dim);color:var(--green);">✓ Done</span>`
+    : `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">Active</span>`;
+
+  const optsHtml = ['A','B','C','D'].filter(l => e.options && e.options[l]).map(l => {
+    let cls = 'ar-opt';
+    if (l === e.correct) cls += ' correct';
+    return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${e.options[l]}</span>${l===e.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
+  }).join('');
+  const justHtml = e.justification ? `<div class="ar-just"><b>Explanation:</b> ${e.justification}</div>` : '';
+
+  return `
+    <div class="mistake-q-card${e.done ? ' mastered' : ''}">
+      <div class="mistake-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
+        <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;flex:1;min-width:0;">
+          ${statusPill}
+          <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:6px;">${e.question.slice(0,55)}…</span>
+        </div>
+        <div style="flex-shrink:0;margin-left:8px;">${dayPills}</div>
+      </div>
+      <div class="mistake-q-body">
+        <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${e.question}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Added: ${e.addedOn}</div>
+        ${optsHtml}
+        ${justHtml}
+      </div>
+    </div>`;
 }
 
 document.getElementById('drcycle-back-btn').addEventListener('click', () => {

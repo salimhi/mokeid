@@ -33,7 +33,7 @@
   function refreshUI() {
     ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
      'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI',
-     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard','renderDRHomeCard','renderDRCycleBadge'
+     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard','renderDRHomeCard','renderDRCycleBadge','renderDRProgressBar'
     ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
   }
 
@@ -497,6 +497,109 @@ body.light-theme {
 .icon-btn.green:hover { background: var(--green); color: #fff; border-color: var(--green); }
 .icon-btn.teal { background: var(--teal-dim); border-color: rgba(45,212,191,0.25); color: var(--teal); }
 .icon-btn.teal:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+/* ─── DR DAILY PROGRESS BAR ──────────────────────────── */
+.dr-progress-strip {
+  margin-bottom: 20px;
+  padding: 13px 18px 12px;
+  background: var(--glass);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+.dr-progress-strip.tier-1 { border-color: rgba(108,142,245,0.25); box-shadow: 0 0 18px rgba(108,142,245,0.08), var(--shadow); }
+.dr-progress-strip.tier-2 { border-color: rgba(155,114,245,0.35); box-shadow: 0 0 22px rgba(155,114,245,0.12), var(--shadow); }
+.dr-progress-strip.tier-3 { border-color: rgba(45,212,191,0.40); box-shadow: 0 0 26px rgba(45,212,191,0.15), var(--shadow); }
+.dr-progress-strip.complete { border-color: rgba(52,211,153,0.55); box-shadow: 0 0 30px rgba(52,211,153,0.20), var(--shadow); }
+
+.dps-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  gap: 10px;
+}
+.dps-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dps-icon { font-size: 15px; flex-shrink: 0; }
+.dps-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+.dps-msg {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.4s;
+}
+.dps-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dps-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  transition: color 0.4s;
+}
+.dps-pct {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+/* bar track */
+.dps-bar-wrap {
+  position: relative;
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: visible;
+}
+.dps-bar-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.dps-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+/* shimmer sweep */
+.dps-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+  animation: dps-shimmer 2.2s ease-in-out infinite;
+}
+@keyframes dps-shimmer {
+  0%   { left: -60%; }
+  100% { left: 110%; }
+}
+
+/* tier fill colors */
+.dr-progress-strip.tier-1 .dps-bar-fill { background: linear-gradient(90deg, #6c8ef5, #9b72f5); }
+.dr-progress-strip.tier-2 .dps-bar-fill { background: linear-gradient(90deg, #9b72f5, #2dd4bf); }
+.dr-progress-strip.tier-3 .dps-bar-fill { background: linear-gradient(90deg, #2dd4bf, #34d399); }
+.dr-progress-strip.complete .dps-bar-fill { background: linear-gradient(90deg, #34d399, #6ee7b7); }
+.dr-progress-strip.complete .dps-count { color: var(--green); }
+.dr-progress-strip.complete .dps-msg { color: var(--green); font-style: normal; font-weight: 600; }
 
 /* ─── GRID LAYOUTS ─────────────────────────────────────── */
 #home-wrapper { display: flex; flex-direction: column; gap: 20px; }
@@ -1048,6 +1151,134 @@ body.light-theme {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 99px; }
+
+/* ─── MOTIVATOR BOT (bottom-right) ────────────────────── */
+#mbot-wrap {
+  position: fixed;
+  bottom: 0;
+  right: 12px;
+  z-index: 8001;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  pointer-events: none;
+}
+@media (max-width: 520px) { #mbot-wrap { display: none; } }
+
+/* speech bubble */
+#mbot-bubble {
+  position: absolute;
+  bottom: 90px;
+  right: 0;
+  width: 200px;
+  background: rgba(15,23,42,0.96);
+  border: 1px solid rgba(108,142,245,0.45);
+  border-radius: 14px 14px 4px 14px;
+  padding: 10px 13px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(108,142,245,0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transform-origin: bottom right;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+#mbot-bubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+#mbot-bubble-type {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#mbot-bubble-text {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #e2e8f0;
+  font-family: var(--font-body);
+}
+#mbot-bubble-close {
+  position: absolute;
+  top: 7px; right: 9px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+}
+#mbot-bubble-close:hover { opacity: 1; }
+
+/* bot body */
+#mbot-svg-wrap {
+  width: 44px;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 0 6px rgba(108,142,245,0.3));
+  transition: filter 0.3s;
+}
+#mbot-svg-wrap:hover { filter: drop-shadow(0 0 12px rgba(108,142,245,0.6)); }
+
+/* antenna pulse */
+@keyframes mbot-antenna-pulse {
+  0%,100% { opacity: 1; r: 2.5px; }
+  50%      { opacity: 0.4; r: 4px; }
+}
+#mbot-antenna-dot { animation: mbot-antenna-pulse 1.8s ease-in-out infinite; }
+
+/* eye glow */
+@keyframes mbot-eye-glow {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+#mbot-eye-l, #mbot-eye-r { animation: mbot-eye-glow 2.6s ease-in-out infinite; }
+#mbot-eye-r { animation-delay: 0.4s; }
+
+/* body float */
+@keyframes mbot-float {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-5px); }
+}
+#mbot-body-group { animation: mbot-float 3s ease-in-out infinite; }
+
+/* excited wiggle */
+@keyframes mbot-wiggle {
+  0%,100% { transform: rotate(0deg); }
+  20%      { transform: rotate(-8deg); }
+  40%      { transform: rotate(8deg); }
+  60%      { transform: rotate(-5deg); }
+  80%      { transform: rotate(5deg); }
+}
+#mbot-svg-wrap.excited #mbot-body-group { animation: mbot-wiggle 0.5s ease-in-out 2; }
+
+/* ear spin on show */
+@keyframes mbot-ear-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+#mbot-ear-l { transform-origin: 11px 52px; }
+#mbot-ear-r { transform-origin: 59px 52px; }
+#mbot-svg-wrap.excited #mbot-ear-l { animation: mbot-ear-spin 0.6s linear 1; }
+#mbot-svg-wrap.excited #mbot-ear-r { animation: mbot-ear-spin 0.6s linear 1 0.1s; }
+
+/* dot blink on mouth */
+@keyframes mbot-mouth-blink {
+  0%,80%,100% { opacity: 1; }
+  90% { opacity: 0; }
+}
+.mbot-mouth-dot { animation: mbot-mouth-blink 1.2s ease-in-out infinite; }
+.mbot-mouth-dot:nth-child(2) { animation-delay: 0.2s; }
+.mbot-mouth-dot:nth-child(3) { animation-delay: 0.4s; }
 
 /* ─── EXAM POPUP OVERLAY ─────────────────────────────────── */
 /* Backdrop for fallback modal mode */
@@ -2279,6 +2510,26 @@ body.pip-mode #exam-popup {
     </div>
   </header>
 
+  <!-- DR FRESH QUESTION PROGRESS BAR -->
+  <div class="dr-progress-strip" id="dr-daily-progress-strip">
+    <div class="dps-top-row">
+      <div class="dps-left">
+        <span class="dps-icon" id="dps-icon">📋</span>
+        <span class="dps-label">DR Today</span>
+        <span class="dps-msg" id="dps-msg">Start your first DR session</span>
+      </div>
+      <div class="dps-right">
+        <span class="dps-count" id="dps-count">0 / 130</span>
+        <span class="dps-pct" id="dps-pct">0%</span>
+      </div>
+    </div>
+    <div class="dps-bar-wrap">
+      <div class="dps-bar-track">
+        <div class="dps-bar-fill" id="dps-bar-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- HOME WRAPPER -->
   <div id="home-wrapper" style="display:flex; flex-direction:column;">
 
@@ -3315,6 +3566,53 @@ body.pip-mode #exam-popup {
     </g>
   </svg>
 </div>
+
+<!-- ── MOTIVATOR BOT (bottom-right) ─────────────────────── -->
+<div id="mbot-wrap">
+  <div id="mbot-bubble">
+    <span id="mbot-bubble-close" onclick="mbotDismiss()">✕</span>
+    <div id="mbot-bubble-type">🤖 COACH</div>
+    <div id="mbot-bubble-text">Initializing...</div>
+  </div>
+  <div id="mbot-svg-wrap" onclick="mbotShowNext()" title="Tap for a message">
+    <svg viewBox="0 0 70 160" xmlns="http://www.w3.org/2000/svg" width="44">
+      <g id="mbot-body-group">
+        <line x1="35" y1="8" x2="35" y2="20" stroke="#6c8ef5" stroke-width="2.5" stroke-linecap="round"/>
+        <circle id="mbot-antenna-dot" cx="35" cy="6" r="2.5" fill="#9b72f5"/>
+        <rect x="14" y="20" width="42" height="34" rx="8" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.5"/>
+        <rect x="16" y="22" width="20" height="8" rx="4" fill="rgba(255,255,255,0.06)"/>
+        <rect id="mbot-eye-l" x="19" y="28" width="11" height="8" rx="3" fill="#6c8ef5"/>
+        <rect id="mbot-eye-r" x="40" y="28" width="11" height="8" rx="3" fill="#6c8ef5"/>
+        <rect x="21" y="30" width="4" height="3" rx="1.5" fill="rgba(255,255,255,0.6)"/>
+        <rect x="42" y="30" width="4" height="3" rx="1.5" fill="rgba(255,255,255,0.6)"/>
+        <circle class="mbot-mouth-dot" cx="28" cy="46" r="2" fill="#2dd4bf"/>
+        <circle class="mbot-mouth-dot" cx="35" cy="46" r="2" fill="#2dd4bf"/>
+        <circle class="mbot-mouth-dot" cx="42" cy="46" r="2" fill="#2dd4bf"/>
+        <circle id="mbot-ear-l" cx="11" cy="37" r="5" fill="#0f172a" stroke="#6c8ef5" stroke-width="1.5"/>
+        <circle cx="11" cy="37" r="2" fill="#6c8ef5" opacity="0.6"/>
+        <circle id="mbot-ear-r" cx="59" cy="37" r="5" fill="#0f172a" stroke="#6c8ef5" stroke-width="1.5"/>
+        <circle cx="59" cy="37" r="2" fill="#6c8ef5" opacity="0.6"/>
+        <rect x="30" y="54" width="10" height="7" rx="2" fill="#334155"/>
+        <rect x="12" y="61" width="46" height="44" rx="10" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.5"/>
+        <rect x="20" y="68" width="30" height="18" rx="5" fill="#0f172a" stroke="rgba(108,142,245,0.3)" stroke-width="1"/>
+        <circle cx="27" cy="77" r="3" fill="#34d399" opacity="0.9"/>
+        <circle cx="35" cy="77" r="3" fill="#fbbf24" opacity="0.9"/>
+        <circle cx="43" cy="77" r="3" fill="#f87171" opacity="0.9"/>
+        <circle cx="20" cy="95" r="2.5" fill="#334155" stroke="#6c8ef5" stroke-width="1"/>
+        <circle cx="50" cy="95" r="2.5" fill="#334155" stroke="#6c8ef5" stroke-width="1"/>
+        <rect x="2" y="64" width="10" height="28" rx="5" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.2"/>
+        <circle cx="7" cy="94" r="5" fill="#334155" stroke="#6c8ef5" stroke-width="1"/>
+        <rect x="58" y="64" width="10" height="28" rx="5" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.2"/>
+        <circle cx="63" cy="94" r="5" fill="#334155" stroke="#6c8ef5" stroke-width="1"/>
+        <rect x="20" y="104" width="12" height="32" rx="6" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.2"/>
+        <rect x="38" y="104" width="12" height="32" rx="6" fill="#1e293b" stroke="#6c8ef5" stroke-width="1.2"/>
+        <rect x="16" y="132" width="20" height="10" rx="5" fill="#0f172a" stroke="#6c8ef5" stroke-width="1"/>
+        <rect x="34" y="132" width="20" height="10" rx="5" fill="#0f172a" stroke="#6c8ef5" stroke-width="1"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
 <script>
 
 const appContainer = document.getElementById('app-container');
@@ -3911,6 +4209,58 @@ function renderDRHomeCard() {
     const doneTap = document.getElementById('dr-home-done-tap');
     if (doneTap) doneTap.style.display = 'none';
   }
+}
+
+function renderDRProgressBar() {
+  const DR_TARGET = 130;
+  const today = toDateKey(new Date());
+  const strip  = document.getElementById('dr-daily-progress-strip');
+  const fill   = document.getElementById('dps-bar-fill');
+  const count  = document.getElementById('dps-count');
+  const pctEl  = document.getElementById('dps-pct');
+  const msgEl  = document.getElementById('dps-msg');
+  const iconEl = document.getElementById('dps-icon');
+  if (!strip || !fill || !count) return;
+
+  // Count entries added to DR cycle today — correct answers from today's DR mocks
+  const cycle = getDRCycle();
+  const done  = Object.values(cycle).filter(e => e.addedOn === today).length;
+
+  const pct = Math.min(100, (done / DR_TARGET) * 100);
+  const rem = Math.max(0, DR_TARGET - done);
+  fill.style.width = pct.toFixed(1) + '%';
+  count.textContent = done + ' / ' + DR_TARGET;
+  if (pctEl) pctEl.textContent = pct.toFixed(0) + '%';
+
+  // Tier classes
+  strip.classList.remove('tier-1','tier-2','tier-3','complete');
+
+  // Motivational message + icon by tier
+  let msg = '', icon = '';
+  if (done === 0) {
+    icon = '📋'; msg = 'Start your first DR session — every question counts!';
+  } else if (pct < 25) {
+    icon = '🔥'; msg = `Great start! ${rem} more to go — keep the streak alive.`;
+    strip.classList.add('tier-1');
+  } else if (pct < 50) {
+    icon = '⚡'; msg = `Quarter done! You're building momentum — don't stop now.`;
+    strip.classList.add('tier-1');
+  } else if (pct < 75) {
+    icon = '🚀'; msg = `Halfway there! ${rem} left — you're ahead of most. Push harder.`;
+    strip.classList.add('tier-2');
+  } else if (pct < 90) {
+    icon = '💪'; msg = `Almost there! Just ${rem} more — finish strong today.`;
+    strip.classList.add('tier-2');
+  } else if (pct < 100) {
+    icon = '🏁'; msg = `So close! Only ${rem} left — don't stop at the finish line!`;
+    strip.classList.add('tier-3');
+  } else {
+    icon = '🎯'; msg = `Target crushed! 130 questions done — exam-ready mindset!`;
+    strip.classList.add('complete');
+  }
+
+  if (iconEl) iconEl.textContent = icon;
+  if (msgEl)  msgEl.textContent  = msg;
 }
 
 function openDailyRevision() {
@@ -8439,6 +8789,158 @@ function repairDRCycleDoneFlags() {
   doAction('wave'); // greeting wave on load
 })();
 
+// ─── MOTIVATOR BOT ────────────────────────────────────────────
+(function() {
+  const EXAM_DATE = new Date('2026-06-01T00:00:00');
+  const DR_TARGET = 130;
+  let msgIndex    = -1;
+  let autoTimer   = null;
+  let dismissed   = false;
+
+  function daysLeft() {
+    return Math.max(0, Math.ceil((EXAM_DATE - new Date()) / 86400000));
+  }
+
+  function drDoneToday() {
+    try {
+      const today = (function() {
+        const d = new Date();
+        return d.getFullYear() + '-' +
+          String(d.getMonth()+1).padStart(2,'0') + '-' +
+          String(d.getDate()).padStart(2,'0');
+      })();
+      const cycle = JSON.parse(localStorage.getItem('mockiq_dr_cycle') || '{}');
+      return Object.values(cycle).filter(e => e.addedOn === today).length;
+    } catch(e) { return 0; }
+  }
+
+  function qbStats() {
+    try {
+      const bank     = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]');
+      const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
+      const total    = bank.length;
+      const tagged   = attended.length;
+      const fresh    = total - tagged;
+      return { total, tagged, fresh };
+    } catch(e) { return { total: 0, tagged: 0, fresh: 0 }; }
+  }
+
+  // Message pool — each entry: { type, icon, fn }
+  // fn() returns the string to show (computed fresh each call)
+  function buildMessages() {
+    const dl    = daysLeft();
+    const done  = drDoneToday();
+    const rem   = Math.max(0, DR_TARGET - done);
+    const { total, tagged, fresh } = qbStats();
+    const pct   = total > 0 ? Math.round((tagged / total) * 100) : 0;
+    // questions per day needed to finish untagged by exam
+    const qpd   = dl > 0 && fresh > 0 ? Math.ceil(fresh / dl) : 0;
+
+    const msgs = [];
+
+    // ── Motivational quotes ──
+    const quotes = [
+      "Consistency beats talent every single day. Keep showing up! 💪",
+      "Every question you study today is one less surprise on exam day.",
+      "The fisheries exam rewards those who prepared quietly and consistently.",
+      "Small daily progress compounds into massive results. Trust the process.",
+      "You're not studying — you're building expertise question by question.",
+      "Champions don't skip days. Neither should you. Let's go! 🔥",
+      "The best time to study was yesterday. The second best time is now.",
+      "Pressure makes diamonds. Exam pressure makes toppers. You've got this.",
+      "One more DR session today = one step closer to that appointment letter.",
+      "Tired? That's just your brain getting stronger. Push through! ⚡",
+    ];
+    const q = quotes[Math.floor(Date.now() / 30000) % quotes.length];
+    msgs.push({ type: '✨ MOTIVATION', text: q });
+
+    // ── DR daily target ──
+    if (done === 0) {
+      msgs.push({ type: '📋 DAILY TARGET', text: `You haven't started today's DR yet. Target: ${DR_TARGET} questions. Begin now! 🎯` });
+    } else if (done >= DR_TARGET) {
+      msgs.push({ type: '🎯 TARGET DONE', text: `Daily target crushed! ${done}/${DR_TARGET} questions done today. Incredible discipline! 🏆` });
+    } else {
+      msgs.push({ type: '📋 DAILY TARGET', text: `${done} of ${DR_TARGET} done today. ${rem} more to hit your target — you can finish this! 💪` });
+    }
+
+    // ── QB coverage nudge ──
+    if (total === 0) {
+      msgs.push({ type: '📚 QUESTION BANK', text: `Add questions to your bank to track coverage. The more you add, the better I can coach you!` });
+    } else if (fresh === 0) {
+      msgs.push({ type: '🏆 QB COMPLETE', text: `All ${total} questions attended! Now focus on revision cycles. You're exam-ready! 🌟` });
+    } else if (qpd > 0) {
+      msgs.push({ type: '📚 QB COVERAGE', text: `${fresh} questions untouched · ${pct}% covered · ${dl} days left.\nNeed ~${qpd} fresh questions/day to clear the bank. Stay on pace! ⚡` });
+    } else {
+      msgs.push({ type: '📚 QB COVERAGE', text: `${tagged} of ${total} questions covered (${pct}%). Keep doing DR sessions to push this higher!` });
+    }
+
+    // ── Exam countdown ──
+    if (dl <= 7) {
+      msgs.push({ type: '⏰ FINAL WEEK', text: `Only ${dl} day${dl!==1?'s':''} to exam! Focus on revision, not new content. Review your mistakes. You're ready! 🔥` });
+    } else if (dl <= 30) {
+      msgs.push({ type: '⏰ COUNTDOWN', text: `${dl} days to the fisheries exam. Every session counts more now. No skipping! 💡` });
+    } else {
+      msgs.push({ type: '⏰ COUNTDOWN', text: `${dl} days until June 1st. Plenty of time — but only if you use it wisely. Daily DR is non-negotiable!` });
+    }
+
+    return msgs;
+  }
+
+  function showBubble(msg) {
+    const bubble  = document.getElementById('mbot-bubble');
+    const typeEl  = document.getElementById('mbot-bubble-type');
+    const textEl  = document.getElementById('mbot-bubble-text');
+    const svgWrap = document.getElementById('mbot-svg-wrap');
+    if (!bubble || !typeEl || !textEl) return;
+
+    // Fade out → swap → fade in
+    bubble.classList.remove('show');
+    setTimeout(() => {
+      typeEl.textContent = msg.type;
+      textEl.textContent = msg.text;
+      bubble.classList.add('show');
+      dismissed = false;
+      // Excite the bot
+      if (svgWrap) {
+        svgWrap.classList.remove('excited');
+        void svgWrap.offsetWidth;
+        svgWrap.classList.add('excited');
+        setTimeout(() => svgWrap.classList.remove('excited'), 1200);
+      }
+    }, 300);
+  }
+
+  function mbotNext() {
+    const msgs = buildMessages();
+    msgIndex   = (msgIndex + 1) % msgs.length;
+    showBubble(msgs[msgIndex]);
+  }
+
+  window.mbotShowNext = function() {
+    mbotNext();
+    // Reset auto timer on manual tap
+    clearInterval(autoTimer);
+    autoTimer = setInterval(mbotNext, 35000);
+  };
+
+  window.mbotDismiss = function() {
+    const bubble = document.getElementById('mbot-bubble');
+    if (bubble) bubble.classList.remove('show');
+    dismissed = true;
+    // Re-show after 60s
+    clearTimeout(window._mbotReshowTimer);
+    window._mbotReshowTimer = setTimeout(() => { dismissed = false; mbotNext(); }, 60000);
+  };
+
+  // Start after page settles
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      mbotNext();
+      autoTimer = setInterval(mbotNext, 35000);
+    }, 3500);
+  });
+})();
+
 window.onload = () => {
   repairStorage(); // must run first — fixes corrupt keys before anything else reads them
   repairDRCycleDoneFlags(); // fix incorrectly set done:true flags in DR cycle
@@ -8458,6 +8960,7 @@ window.onload = () => {
   renderDRHomeCard();
   renderDRCycleBadge();
   renderDRCoverageCard();
+  renderDRProgressBar();
 
   // Register service worker
   if ('serviceWorker' in navigator) {

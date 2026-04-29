@@ -251,6 +251,8 @@
           e.done = sched.every(d => (e.completedDays || []).includes(d));
         });
         localStorage.setItem('mockiq_dr_cycle', JSON.stringify(merged));
+        // Schedule a push so any corrections (done flags, migrations) sync back to Firebase
+        if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
       }
 
       // Merge DR Attended — union (once attended, always attended on all devices)
@@ -269,6 +271,10 @@
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       setStatus('☁ ' + t, '#4ade80');
+
+      // Repair any stale done flags BEFORE refreshing UI — must run after every pull
+      // (page-load repair runs before pull completes, so sync can leave stale done=false)
+      if (typeof window.repairDRCycleDoneFlags === 'function') window.repairDRCycleDoneFlags();
 
       // ALWAYS refresh UI after pull — not just when new data arrived
       refreshUI();
@@ -2803,6 +2809,7 @@ body.light-theme .rm-question-text {
   background: rgba(255,255,255,0.04);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   cursor: pointer; user-select: none;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   transition: transform 0.18s cubic-bezier(0.4,0,0.2,1),
               border-color 0.18s, background 0.18s, box-shadow 0.18s;
   font-family: 'Manrope', sans-serif; font-size: 14px; color: var(--text-dim);
@@ -2902,36 +2909,83 @@ body.light-theme .rm-option:hover {
 /* Real Mock — Mode picker modal */
 #rm-mode-modal {
   display: none; position: fixed; inset: 0; z-index: 99990;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-  align-items: center; justify-content: center; padding: 20px;
+  background: rgba(0,0,0,0.65);
+  /* No backdrop-filter on the overlay — big lag source */
+  align-items: center; justify-content: center; padding: 16px;
+  overscroll-behavior: contain;
 }
 #rm-mode-modal.active { display: flex; }
 .rm-modal-box {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  background: #0f1117;  /* solid opaque dark — prevents dashboard bleed-through */
   border: 1px solid var(--border-active);
-  border-radius: var(--radius); padding: 28px; width: 100%; max-width: 460px;
-  box-shadow: var(--shadow-lg); animation: loginPop 0.25s cubic-bezier(0.34,1.4,0.64,1);
+  border-radius: var(--radius);
+  width: 100%; max-width: 460px;
+  /* Fill most of viewport height, never overflow */
+  max-height: calc(100dvh - 32px);
+  display: flex; flex-direction: column;
+  box-shadow: 0 8px 16px -4px rgba(0,0,0,0.4), 0 20px 40px -8px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+  animation: loginPop 0.2s cubic-bezier(0.34,1.4,0.64,1);
+  will-change: transform; contain: layout style;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
-.rm-modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-.rm-modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
-.rm-mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+body.light-theme .rm-modal-box {
+  background: #f8fafc;  /* solid opaque light */
+  border-color: rgba(99,102,241,0.2);
+  box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08), 0 20px 40px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(99,102,241,0.1);
+}
+/* Ensure header/body/footer don't reintroduce transparency */
+#rm-mode-modal .rm-modal-header,
+#rm-mode-modal .rm-modal-body,
+#rm-mode-modal .rm-modal-footer {
+  background: inherit;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+/* Fixed title area */
+.rm-modal-header {
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+/* Scrollable content — this is the bit that scrolls */
+.rm-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px 24px 8px;
+  overscroll-behavior: contain;
+}
+.rm-modal-body::-webkit-scrollbar { width: 4px; }
+.rm-modal-body::-webkit-scrollbar-track { background: transparent; }
+.rm-modal-body::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 99px; }
+/* Fixed action footer — always visible */
+.rm-modal-footer {
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: inherit;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+body.light-theme .rm-modal-footer { background: inherit; }
+.rm-modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rm-modal-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+.rm-mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .rm-mode-card {
-  padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-sm);
-  cursor: pointer; transition: all 0.15s; text-align: center;
+  padding: 14px 12px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: center;
 }
 .rm-mode-card:hover { border-color: var(--accent); background: var(--accent-glow); }
 .rm-mode-card.selected { border-color: var(--accent); background: var(--accent-glow); }
 .rm-mode-card.selected2 { border-color: #a78bfa; background: rgba(124,58,237,0.1); }
-.rm-mode-icon { font-size: 28px; margin-bottom: 8px; }
+.rm-mode-icon { font-size: 24px; margin-bottom: 6px; }
 .rm-mode-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.rm-mode-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
-.rm-unit-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.rm-mode-desc { font-size: 11px; color: var(--text-muted); line-height: 1.45; }
+.rm-unit-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .rm-unit-chip {
   padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 99px;
   font-size: 11px; font-weight: 600; color: var(--text-muted); cursor: pointer;
-  transition: all 0.15s; background: var(--glass);
+  transition: border-color 0.12s, color 0.12s, background 0.12s; background: var(--glass);
 }
 .rm-unit-chip.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 .rm-q-count-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
@@ -2946,6 +3000,26 @@ body.light-theme .rm-option:hover {
 .rm-q-avail.warn { color: var(--amber); }
 .rm-q-avail.error { color: var(--red); font-weight: 600; }
 .rm-modal-actions { display: flex; gap: 8px; }
+
+/* Mobile modal — full-screen bottom sheet style */
+@media (max-width: 600px) {
+  #rm-mode-modal { align-items: flex-end; padding: 0; }
+  .rm-modal-box {
+    max-width: 100%; max-height: 92dvh;
+    border-radius: var(--radius) var(--radius) 0 0;
+    animation: slideUp 0.22s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .rm-modal-header { padding: 18px 18px 12px; }
+  .rm-modal-body   { padding: 14px 18px 6px; }
+  .rm-modal-footer { padding: 12px 18px 20px; }
+  .rm-mode-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rm-mode-card { padding: 12px 8px; }
+  .rm-mode-icon { font-size: 20px; margin-bottom: 4px; }
+}
 
 /* Results screen for real mock */
 .rm-result-hero {
@@ -3154,6 +3228,7 @@ body.light-theme .rm-option:hover {
   background: rgba(255,255,255,0.03);
   font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500;
   color: var(--text-dim); margin-bottom: 7px; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), border-color 0.18s, background 0.18s, box-shadow 0.18s;
 }
 .ar-opt:hover { transform: translateY(-3px); border-color: rgba(108,142,245,0.4); background: rgba(108,142,245,0.08); box-shadow: 0 4px 16px rgba(108,142,245,0.15); color: var(--text); }
@@ -3792,6 +3867,149 @@ body.light-theme .srs-rev-progress {
 }
 
 /* ─────────────────────────────────────────────────────────── */
+
+/* ══ Desktop Real Mock — viewport-fit layout (≥ 800px) ══════
+   Core idea: make #real-mock-screen a flex column so .rm-body
+   fills remaining height and scrolls internally.
+   Result: topbar always visible at top, Next button always
+   reachable at bottom — no whole-page scroll on desktop.
+   Mobile (< 800px) is completely untouched.
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 800px) {
+  /* Turn the screen into a flex column filling the viewport */
+  #real-mock-screen {
+    display: none;          /* keep existing hidden state */
+    flex-direction: column;
+    overflow: hidden;       /* prevent outer page scroll — inner scrolls */
+  }
+  #real-mock-screen.active {
+    display: flex;          /* override block → flex when active */
+  }
+
+  /* Topbar and progress bar stay fixed height (already sticky — now truly pinned) */
+  #real-mock-screen .rm-topbar,
+  #real-mock-screen .rm-progress-bar {
+    flex-shrink: 0;
+  }
+
+  /* rm-body fills remaining height and scrolls internally */
+  #real-mock-screen .rm-body {
+    flex: 1;
+    min-height: 0;           /* crucial — lets flex child shrink below content size */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 24px 24px; /* reduced bottom padding — no need for 100px nav offset */
+    max-width: 740px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Slightly more compact question box */
+  #real-mock-screen .rm-question-text {
+    font-size: 15px !important;
+    padding: 14px 18px !important;
+    margin-bottom: 14px !important;
+    line-height: 1.65;
+  }
+
+  /* Tighter options — reduce padding without hurting readability */
+  #real-mock-screen .rm-options {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  #real-mock-screen .rm-option {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+  #real-mock-screen .rm-option-letter {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    font-size: 11px;
+  }
+  #real-mock-screen .rm-option-text {
+    font-size: 13px !important;
+    line-height: 1.5;
+  }
+
+  /* Nav row — tighten top margin */
+  #real-mock-screen .rm-nav-row {
+    margin-top: 10px;
+  }
+  #real-mock-screen .rm-nav-row .btn {
+    padding: 8px 16px !important;
+    font-size: 12px !important;
+  }
+
+  /* Feedback and DR cycle button — reduce vertical waste */
+  #real-mock-screen .rm-feedback-row {
+    margin-bottom: 8px !important;
+    padding: 7px 12px !important;
+    font-size: 12px;
+  }
+  #real-mock-screen .rm-drcycle-btn-wrap {
+    margin: 6px 0 2px !important;
+  }
+  #real-mock-screen .rm-drcycle-btn {
+    padding: 5px 14px !important;
+    font-size: 10px !important;
+  }
+
+  /* Question counter — minimal space */
+  #real-mock-screen .rm-q-counter {
+    margin-bottom: 6px !important;
+  }
+}
+
+/* ── Real Mock → Add to DR Cycle button ─────────────────── */
+.rm-drcycle-btn-wrap {
+  margin: 10px 0 4px;
+}
+.rm-drcycle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 1.5px solid var(--teal);
+  background: rgba(45,212,191,0.10);
+  color: var(--teal);
+  cursor: pointer;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+  transition: background 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.rm-drcycle-btn:hover:not(:disabled):not(.in-cycle) {
+  background: rgba(45,212,191,0.20);
+  box-shadow: 0 0 12px rgba(45,212,191,0.25);
+  transform: translateY(-1px);
+}
+.rm-drcycle-btn:active:not(:disabled):not(.in-cycle) {
+  transform: scale(0.97);
+}
+.rm-drcycle-btn.in-cycle,
+.rm-drcycle-btn:disabled {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.8;
+}
+body.light-theme .rm-drcycle-btn {
+  background: rgba(13,148,136,0.08);
+  border-color: #0d9488;
+  color: #0d9488;
+}
+body.light-theme .rm-drcycle-btn.in-cycle,
+body.light-theme .rm-drcycle-btn:disabled {
+  background: rgba(0,0,0,0.04);
+  border-color: #cbd5e1;
+  color: #94a3b8;
+}
+
 </style>
 </head>
 <body>
@@ -4456,48 +4674,87 @@ body.light-theme .srs-rev-progress {
 <!-- ─── REAL MOCK MODE MODAL ────────────────────────────────── -->
 <div id="rm-mode-modal">
   <div class="rm-modal-box">
-    <div class="rm-modal-title">🧪 Real Mock Test</div>
-    <div class="rm-modal-sub">Configure your exam before starting</div>
 
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Select Units (min. 1)</div>
-    <div class="rm-unit-grid" id="rm-unit-chips"></div>
-    <div id="rm-unit-error" style="font-size:11px;color:var(--red);margin-bottom:10px;display:none;">⚠ Select at least one unit</div>
+    <!-- Fixed header -->
+    <div class="rm-modal-header">
+      <div class="rm-modal-title">🧪 Real Mock Test</div>
+      <div class="rm-modal-sub">Configure your exam before starting</div>
+    </div>
 
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Exam Mode</div>
-    <div class="rm-mode-cards">
-      <div class="rm-mode-card selected" id="rm-mode-stretch" onclick="rmSelectMode('stretch')">
-        <div class="rm-mode-icon">📋</div>
-        <div class="rm-mode-name">Single Stretch</div>
-        <div class="rm-mode-desc">Take full mock first, review answers only at the end</div>
+    <!-- Scrollable body -->
+    <div class="rm-modal-body">
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Select Units (min. 1)</div>
+      <div class="rm-unit-grid" id="rm-unit-chips"></div>
+      <div id="rm-unit-error" style="font-size:11px;color:var(--red);margin-bottom:10px;display:none;">⚠ Select at least one unit</div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Exam Mode</div>
+      <div class="rm-mode-cards">
+        <div class="rm-mode-card selected" id="rm-mode-stretch" onclick="rmSelectMode('stretch')">
+          <div class="rm-mode-icon">📋</div>
+          <div class="rm-mode-name">Single Stretch</div>
+          <div class="rm-mode-desc">Take full mock first, review answers only at the end</div>
+        </div>
+        <div class="rm-mode-card selected2" id="rm-mode-instant" onclick="rmSelectMode('instant')">
+          <div class="rm-mode-icon">⚡</div>
+          <div class="rm-mode-name">Instant Feedback</div>
+          <div class="rm-mode-desc">See correct answer immediately after each selection</div>
+        </div>
       </div>
-      <div class="rm-mode-card selected2" id="rm-mode-instant" onclick="rmSelectMode('instant')">
-        <div class="rm-mode-icon">⚡</div>
-        <div class="rm-mode-name">Instant Feedback</div>
-        <div class="rm-mode-desc">See correct answer immediately after each selection</div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Number of Questions</div>
+      <div class="rm-q-count-row">
+        <label>Questions:</label>
+        <input type="number" id="rm-q-count-input" min="1" value="10" placeholder="10">
+      </div>
+      <div id="rm-q-avail-label" class="rm-q-avail" style="font-size:12px;margin-bottom:4px;">Available: 0</div>
+      <div id="rm-q-warn" style="font-size:11px;color:var(--amber);margin-bottom:8px;display:none;"></div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Difficulty Filter <span style="font-weight:400;text-transform:none;opacity:0.6;">(optional, multi-select)</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+        <div class="rm-diff-chip selected" data-diff="easy" onclick="rmToggleDiff(this)" style="background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.4);color:#4ade80;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Easy</div>
+        <div class="rm-diff-chip selected" data-diff="medium" onclick="rmToggleDiff(this)" style="background:rgba(251,191,36,0.15);border:1.5px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Medium</div>
+        <div class="rm-diff-chip selected" data-diff="hard" onclick="rmToggleDiff(this)" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#f87171;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Hard</div>
+      </div>
+      <div id="rm-diff-error" style="font-size:11px;color:var(--red);margin-bottom:8px;display:none;">⚠ Select at least one difficulty</div>
+
+      <!-- Untagged-only filter -->
+      <div id="rm-untagged-row" style="
+        display:flex; align-items:flex-start; gap:12px;
+        background:rgba(108,142,245,0.06);
+        border:1.5px solid rgba(108,142,245,0.2);
+        border-radius:12px; padding:13px 16px; margin-top:14px;
+        cursor:pointer;" onclick="document.getElementById('rm-untagged-only').click()">
+        <input type="checkbox" id="rm-untagged-only"
+          style="width:16px;height:16px;accent-color:var(--accent);
+                 flex-shrink:0;margin-top:2px;cursor:pointer;"
+          onclick="event.stopPropagation()">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);
+                      display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            🧼 Only untagged (fresh) questions
+            <span id="rm-untagged-count" style="
+              font-family:var(--font-mono);font-size:10px;font-weight:700;
+              background:rgba(108,142,245,0.15);color:var(--accent);
+              border:1px solid rgba(108,142,245,0.3);
+              border-radius:99px;padding:1px 8px;">—</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5;">
+            Excludes questions already seen in any Real Mock or Daily Revision session
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /rm-modal-body -->
+
+    <!-- Fixed footer with action buttons — always visible -->
+    <div class="rm-modal-footer">
+      <div class="rm-modal-actions">
+        <button class="btn btn-ghost" id="rm-modal-cancel-btn" style="flex:1;">Cancel</button>
+        <button class="btn btn-primary" id="rm-modal-start-btn" style="flex:1;margin-top:0;">Start Exam →</button>
       </div>
     </div>
 
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;">Number of Questions</div>
-    <div class="rm-q-count-row">
-      <label>Questions:</label>
-      <input type="number" id="rm-q-count-input" min="1" value="10" placeholder="10">
-    </div>
-    <div id="rm-q-avail-label" class="rm-q-avail" style="font-size:12px;margin-bottom:4px;">Available: 0</div>
-    <div id="rm-q-warn" style="font-size:11px;color:var(--amber);margin-bottom:8px;display:none;"></div>
-
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 8px;">Difficulty Filter <span style="font-weight:400;text-transform:none;opacity:0.6;">(optional, multi-select)</span></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-      <div class="rm-diff-chip selected" data-diff="easy" onclick="rmToggleDiff(this)" style="background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.4);color:#4ade80;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Easy</div>
-      <div class="rm-diff-chip selected" data-diff="medium" onclick="rmToggleDiff(this)" style="background:rgba(251,191,36,0.15);border:1.5px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Medium</div>
-      <div class="rm-diff-chip selected" data-diff="hard" onclick="rmToggleDiff(this)" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#f87171;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;">Hard</div>
-    </div>
-    <div id="rm-diff-error" style="font-size:11px;color:var(--red);margin-bottom:8px;display:none;">⚠ Select at least one difficulty</div>
-
-    <div style="height:1px;background:var(--border);margin:16px 0;"></div>
-    <div class="rm-modal-actions">
-      <button class="btn btn-ghost" id="rm-modal-cancel-btn" style="flex:1;">Cancel</button>
-      <button class="btn btn-primary" id="rm-modal-start-btn" style="flex:1;margin-top:0;">Start Exam →</button>
-    </div>
   </div>
 </div>
 
@@ -6011,6 +6268,44 @@ function saveDRCycle(data) {
   if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
 }
 
+// Check if a question is already in the DR Cycle (any state)
+function isInDRCycle(questionId) {
+  return !!getDRCycle()[questionId];
+}
+
+// Manually add any question to DR Cycle from Real Mock
+function addToDRCycleManually(q) {
+  const cycle = getDRCycle();
+  if (cycle[q.id]) return false; // already exists
+  const today = toDateKey(new Date());
+  cycle[q.id] = {
+    questionId: q.id,
+    question:   q.question,
+    options:    q.options,
+    correct:    q.correct,
+    unit:       q.unit,
+    justification: q.justification || '',
+    addedOn:    today,
+    scheduledDays: [1, 3, 5, 10],
+    completedDays: [],
+    done:        false,
+    lastUpdated: new Date().toISOString(),
+  };
+  saveDRCycle(cycle);
+  renderDRCycleBadge();
+  renderDRCoverageCard();
+  return true;
+}
+
+// Click handler for the "Add to DR Cycle" button in Real Mock
+function rmAddToDRCycle() {
+  const q = rmState.questions[rmState.currentIdx];
+  if (!q || isInDRCycle(q.id)) return;
+  if (addToDRCycleManually(q)) {
+    rmRenderQuestion(); // re-render to flip button to "Already in DR Cycle"
+  }
+}
+
 // Add a date string + N days
 function drDatePlus(dateStr, days) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -6044,14 +6339,18 @@ function drCycleDueToday() {
   const today  = toDateKey(new Date());
   const due    = [];
   Object.values(cycle).forEach(entry => {
-    if (entry.done) return;
+    // Recompute done dynamically — never trust stored done flag (may be stale after sync)
+    const sched     = entry.scheduledDays || [1, 3, 5, 10];
+    const completed = entry.completedDays || [];
+    if (sched.every(d => completed.includes(d))) return; // truly done
+
     // SAFETY GUARD: Skip entries with missing addedOn (should not happen after migration, but defensive)
     if (!entry.addedOn) {
       console.warn('MockIQ: Skipping cycle entry with missing addedOn:', entry.questionId);
       return;
     }
-    for (const d of entry.scheduledDays) {
-      if (entry.completedDays.includes(d)) continue;
+    for (const d of sched) {
+      if (completed.includes(d)) continue;
       if (drDatePlus(entry.addedOn, d) <= today) {
         due.push({ ...entry, currentDay: d });
         break;
@@ -6095,7 +6394,13 @@ function renderDRCycleBadge() {
 
 // Open cycle revision — SRS-style, one question at a time, immediate save per answer
 function openDRCycleMock() {
-  const due = drCycleDueToday();
+  // Belt-and-suspenders: re-verify completedDays before starting session
+  // Handles edge case where drCycleDueToday ran against slightly stale storage
+  let due = drCycleDueToday().filter(entry => {
+    const sched     = entry.scheduledDays || [1, 3, 5, 10];
+    const completed = entry.completedDays || [];
+    return !sched.every(d => completed.includes(d));
+  });
   if (!due.length) { alert('No cycle questions due today!'); return; }
 
   // If a session is already in progress (user exited and re-entered),
@@ -6109,9 +6414,12 @@ function openDRCycleMock() {
     );
     if (remaining.length > 0) {
       // Resume from first remaining unanswered question
+      // Reset answeredIndices — positions have changed after filtering so old
+      // index numbers no longer map correctly to the new question list
       existingSt.questions = remaining;
       existingSt.idx = 0;
       existingSt.answered = false;
+      existingSt.answeredIndices = new Set();
       document.getElementById('daily-revision-screen').style.display = 'none';
       document.getElementById('drc-rev-screen').style.display = 'block';
       drcRevRender();
@@ -6145,7 +6453,7 @@ function drcRevRender() {
   if (!body || !entry) return;
 
   counter.textContent = `Q ${st.idx + 1} of ${total}`;
-  fill.style.width    = `${(st.idx / total) * 100}%`;
+  fill.style.width    = `${((st.idx + 1) / total) * 100}%`;
   badge.textContent   = `✓ ${st.correct}`;
 
   const dayLabel = `Day ${entry.currentDay} check`;
@@ -6157,7 +6465,11 @@ function drcRevRender() {
 
   const alreadyAnsweredDRC = st.answeredIndices && st.answeredIndices.has(st.idx);
   const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
-    `<div class="ar-opt${alreadyAnsweredDRC ? ' locked' : ''}" style="cursor:${alreadyAnsweredDRC ? 'default' : 'pointer'};" ${alreadyAnsweredDRC ? '' : `onclick="drcRevAnswer('${entry.questionId}','${l}',${entry.currentDay})"`}>
+    `<div class="ar-opt${alreadyAnsweredDRC ? ' locked' : ''}"
+       style="cursor:${alreadyAnsweredDRC ? 'default' : 'pointer'};"
+       data-drc-qid="${entry.questionId}"
+       data-drc-letter="${l}"
+       data-drc-day="${entry.currentDay}">
       <span class="ar-opt-ltr">${l}.</span>
       <span style="flex:1;">${shuffledOpts[l]}</span>
     </div>`
@@ -6192,7 +6504,7 @@ function drcRevAnswer(qId, letter, currentDay) {
   const optsContainer = document.getElementById('drc-rev-opts');
   if (!optsContainer) return;
   optsContainer.querySelectorAll('.ar-opt').forEach(el => {
-    el.onclick = null;
+    el.classList.add('locked');
     el.style.cursor = 'default';
     const dispL = el.querySelector('.ar-opt-ltr').textContent.replace('.','');
     if (dispL === correctDisplayLetter) el.classList.add('correct');
@@ -6203,13 +6515,15 @@ function drcRevAnswer(qId, letter, currentDay) {
   if (st.answeredIndices && st.answeredIndices.has(st.idx)) return;
   if (!st.answeredIndices) st.answeredIndices = new Set();
   st.answeredIndices.add(st.idx);
+  // Set answered flag IMMEDIATELY — before any async work — so the delegated
+  // listener's st.answered guard blocks any rapid second tap reliably
+  st.answered = true;
 
   if (isCorrect) st.correct++; else st.wrong++;
   document.getElementById('drc-rev-score-badge').textContent = `✓ ${st.correct}`;
 
   // Save result immediately to drCycle — so exit/resume works
   const cycle = getDRCycle();
-  // BUG FIX: Ensure entry exists in cycle before saving progress
   if (!cycle[qId]) {
     cycle[qId] = {
       questionId: qId,
@@ -6220,7 +6534,7 @@ function drcRevAnswer(qId, letter, currentDay) {
       addedOn: toDateKey(new Date())
     };
   }
-  
+
   // Duplicate Guard: Only add currentDay if it's not already recorded
   if (!cycle[qId].completedDays.includes(currentDay)) {
     cycle[qId].completedDays.push(currentDay);
@@ -6236,14 +6550,9 @@ function drcRevAnswer(qId, letter, currentDay) {
   const allDone = (cycle[qId].scheduledDays || [1,3,5,10]).every(d => cycle[qId].completedDays.includes(d));
   if (allDone) cycle[qId].done = true;
   cycle[qId].lastUpdated = new Date().toISOString();
-  
-  // CRITICAL: Save to localStorage and Trigger Cloud Sync instantly
-  saveDRCycle(cycle);
-  if (typeof window.fbPush === 'function') window.fbPush();
 
-  // Always mark as answered after processing the answer
-  // This ensures keyboard navigation (ArrowRight) works immediately
-  st.answered = true;
+  // saveDRCycle already calls fbSchedulePush internally — no need for a second push here
+  saveDRCycle(cycle);
 
   // Feedback
   const fb = document.getElementById('drc-rev-feedback');
@@ -7024,7 +7333,10 @@ function srsRevRender() {
 
   const alreadyAnswered = srsRevState.answeredIds && srsRevState.answeredIds.has(q.questionId);
   const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
-    `<div class="ar-opt${alreadyAnswered ? ' locked' : ''}" style="cursor:${alreadyAnswered ? 'default' : 'pointer'};" ${alreadyAnswered ? '' : `onclick="srsRevAnswer('${q.questionId}','${l}')"`}>
+    `<div class="ar-opt${alreadyAnswered ? ' locked' : ''}"
+       style="cursor:${alreadyAnswered ? 'default' : 'pointer'};"
+       data-srs-qid="${q.questionId}"
+       data-srs-letter="${l}">
       <span class="ar-opt-ltr">${l}.</span>
       <span style="flex:1;">${shuffledOpts[l]}</span>
     </div>`
@@ -7056,7 +7368,7 @@ function srsRevAnswer(qId, letter) {
   const optsContainer = document.getElementById('srs-rev-opts');
   if (!optsContainer) return;
   optsContainer.querySelectorAll('.ar-opt').forEach(el => {
-    el.onclick = null;
+    el.classList.add('locked');
     el.style.cursor = 'default';
     const dispL = el.querySelector('.ar-opt-ltr').textContent.replace('.','');
     if (dispL === correctDisplayLetter) el.classList.add('correct');
@@ -7458,6 +7770,9 @@ function hideAllWindows() {
   document.getElementById('real-mock-result-screen').style.display = 'none';
   document.getElementById('review-screen').classList.remove('active');
   document.getElementById('daily-revision-screen').style.display = 'none';
+  // Also close full-screen overlay screens so they don't float above everything
+  document.getElementById('drc-rev-screen').style.display = 'none';
+  document.getElementById('srs-revision-screen').style.display = 'none';
 }
 function showHome() {
   hideAllWindows();
@@ -8609,24 +8924,38 @@ function rmGetSelectedUnits() {
     .map(c => c.dataset.unit);
 }
 
-function rmUpdateAvailable() {
-  const units = rmGetSelectedUnits();
-  const diffs = rmGetSelectedDiffs();
-  const bank  = getQB();
-  const mode  = rmState.mode;
+function getAttendedAllIds() {
+  const drAtt = new Set(JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]'));
+  const rmAtt = new Set(JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]'));
+  return new Set([...drAtt, ...rmAtt]);
+}
 
-  let avail;
-  if (!units.length && !diffs.length) {
-    avail = 0;
-  } else if (!units.length) {
-    avail = bank.filter(q => diffs.includes(q.difficulty || 'medium')).length;
-  } else if (!diffs.length) {
-    avail = 0;
-  } else {
-    avail = bank.filter(q =>
-      units.includes(q.unit) &&
-      diffs.includes(q.difficulty || 'medium')
-    ).length;
+function rmUpdateAvailable() {
+  const units        = rmGetSelectedUnits();
+  const diffs        = rmGetSelectedDiffs();
+  const untaggedOnly = document.getElementById('rm-untagged-only')?.checked || false;
+  const bank         = getQB();
+  const mode         = rmState.mode;
+
+  // Build filtered pool
+  let filtered = bank;
+  if (units.length)  filtered = filtered.filter(q => units.includes(q.unit));
+  if (diffs.length)  filtered = filtered.filter(q => diffs.includes(q.difficulty || 'medium'));
+  if (untaggedOnly) {
+    const attendedSet = getAttendedAllIds();
+    filtered = filtered.filter(q => !attendedSet.has(q.id));
+  }
+  const avail = filtered.length;
+
+  // Update the untagged badge count
+  const untaggedCountEl = document.getElementById('rm-untagged-count');
+  if (untaggedCountEl) {
+    const attendedSet = getAttendedAllIds();
+    const totalFiltered = bank
+      .filter(q => (!units.length || units.includes(q.unit)))
+      .filter(q => (!diffs.length  || diffs.includes(q.difficulty || 'medium')));
+    const freshCount = totalFiltered.filter(q => !attendedSet.has(q.id)).length;
+    untaggedCountEl.textContent = `${freshCount} fresh`;
   }
 
   const el   = document.getElementById('rm-q-avail-label');
@@ -8640,10 +8969,17 @@ function rmUpdateAvailable() {
     if (warn) warn.style.display = 'none';
     return;
   }
+  if (!diffs.length) {
+    el.textContent = 'Select at least one difficulty';
+    el.className = 'rm-q-avail';
+    if (warn) warn.style.display = 'none';
+    return;
+  }
 
   if (mode === 'instant') {
-    // Instant = unlimited, show full pool size
-    el.textContent = avail === 0 ? 'No questions match filters' : `${avail} questions available (unlimited mode)`;
+    el.textContent = avail === 0
+      ? (untaggedOnly ? 'No fresh questions match filters' : 'No questions match filters')
+      : `${avail} question${avail !== 1 ? 's' : ''} available (unlimited mode)`;
     el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
     if (warn) {
       warn.textContent = avail === 0 ? '⚠ No questions match selected filters.' : '';
@@ -8652,13 +8988,15 @@ function rmUpdateAvailable() {
     return;
   }
 
-  // Stretch mode — show count vs requested
+  // Stretch mode
   el.textContent = `Available: ${avail}`;
   el.className = avail === 0 ? 'rm-q-avail error' : 'rm-q-avail';
   const requested = parseInt(inp ? inp.value : 10) || 10;
   if (!warn) return;
   if (avail === 0) {
-    warn.textContent = '⚠ No questions match selected filters.';
+    warn.textContent = untaggedOnly
+      ? '⚠ No fresh questions match. Try unchecking "Only untagged".'
+      : '⚠ No questions match selected filters.';
     warn.style.display = 'block';
   } else if (requested > avail) {
     warn.textContent = `⚠ Only ${avail} available. Mock will use all ${avail}.`;
@@ -8697,6 +9035,16 @@ function rmToggleDiff(chip) {
 
 
 document.getElementById('rm-q-count-input').addEventListener('input', rmUpdateAvailable);
+document.getElementById('rm-untagged-only').addEventListener('change', () => {
+  // Animate the row highlight when toggled
+  const row = document.getElementById('rm-untagged-row');
+  if (row) {
+    const checked = document.getElementById('rm-untagged-only').checked;
+    row.style.background    = checked ? 'rgba(108,142,245,0.13)' : 'rgba(108,142,245,0.06)';
+    row.style.borderColor   = checked ? 'rgba(108,142,245,0.45)' : 'rgba(108,142,245,0.2)';
+  }
+  rmUpdateAvailable();
+});
 document.getElementById('rm-modal-cancel-btn').addEventListener('click', () => {
   document.getElementById('rm-mode-modal').classList.remove('active');
 });
@@ -8716,13 +9064,21 @@ document.getElementById('rm-modal-start-btn').addEventListener('click', () => {
   }
   document.getElementById('rm-diff-error').style.display = 'none';
 
-  const bank = getQB();
-  const pool = bank.filter(q =>
+  const bank         = getQB();
+  const untaggedOnly = document.getElementById('rm-untagged-only')?.checked || false;
+  let pool = bank.filter(q =>
     units.includes(q.unit) &&
     diffs.includes(q.difficulty || 'medium')
   );
+  if (untaggedOnly) {
+    const attendedSet = getAttendedAllIds();
+    pool = pool.filter(q => !attendedSet.has(q.id));
+  }
   if (!pool.length) {
-    alert('No questions match selected units + difficulty. Try different filters.');
+    const msg = untaggedOnly
+      ? 'No fresh (untagged) questions match these filters. Try unchecking "Only untagged questions".'
+      : 'No questions match selected units + difficulty. Try different filters.';
+    alert(msg);
     return;
   }
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -8808,7 +9164,7 @@ function rmRenderQuestion() {
     }
     const expHtml = (revealed && letter === q.correct && q.justification)
       ? `<div class="rm-explanation show">${q.justification}</div>` : '';
-    return `<div class="${cls}" data-letter="${letter}" onclick="rmSelectOption('${letter}')">
+    return `<div class="${cls}" data-letter="${letter}">
       <span class="rm-option-letter">${letter}</span>
       <div style="flex:1;">
         <div class="rm-option-text">${text}</div>
@@ -8848,11 +9204,21 @@ function rmRenderQuestion() {
     ? `Q ${idx + 1} \u00b7 ${q.unit}`
     : `Question ${idx + 1} of ${total} \u00b7 ${q.unit}`;
 
+  const inCycle   = isInDRCycle(q.id);
+  const drBtnHtml = `<div class="rm-drcycle-btn-wrap">
+    <button class="rm-drcycle-btn${inCycle ? ' in-cycle' : ''}"
+            onclick="${inCycle ? '' : 'rmAddToDRCycle()'}"
+            ${inCycle ? 'disabled' : ''}>
+      ${inCycle ? '✓ In DR Cycle' : '➕ Add to DR Cycle'}
+    </button>
+  </div>`;
+
   body.innerHTML = `
     <div class="rm-q-counter">${counterText}</div>
     <div class="rm-question-text">${escHtml(q.question)}</div>
     <div class="rm-options">${optionsHtml}</div>
     ${feedbackHtml}
+    ${drBtnHtml}
     <div class="rm-nav-row">
       ${canGoBack ? `<button class="btn" onclick="rmPrevQ()" style="background:var(--surface-2);border:1px solid var(--border);padding:9px 16px;font-size:13px;">\u2190 Prev</button>` : ''}
       <button class="rm-review-btn${reviewMarked ? ' marked' : ''}" onclick="rmToggleReview()" id="rm-review-flag-btn">
@@ -9383,10 +9749,19 @@ function rmResumeMock() {
     hideAllWindows();
     document.getElementById('real-mock-screen').classList.add('active');
     document.getElementById('rm-mock-label').textContent = rmState.mockName;
+    // Restore End Exam / Save button visibility to match saved mode
+    const endBtn  = document.getElementById('rm-end-exam-btn');
+    const saveBtn = document.getElementById('rm-save-btn');
+    if (rmState.mode === 'instant') {
+      endBtn.style.display  = 'inline-flex';
+      saveBtn.style.display = 'none';
+    } else {
+      endBtn.style.display  = 'none';
+      saveBtn.style.display = '';
+    }
     rmRenderQuestion();
     rmStartTimers();
-    // Restore total time
-    rmState.totalTime = data.state.totalTime;
+    // totalTime is already set from data.state — rmStartTimers does not reset it
   } catch(e) { localStorage.removeItem(RM_SAVED_KEY); showHome(); }
 }
 
@@ -10127,8 +10502,8 @@ function repairDRCycleDoneFlags() {
   }
   if (changed) {
     localStorage.setItem('mockiq_dr_cycle', JSON.stringify(cycle));
-    // Push fix to Firebase immediately so all devices get corrected state
-    if (typeof window.fbPush === 'function') window.fbPush();
+    // Use debounced push — runs on page load so no need to fire immediately
+    if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
     console.log('MockIQ: DR cycle done flags repaired and pushed to Firebase.');
   }
 }
@@ -10692,6 +11067,59 @@ window.onload = () => {
   renderDRCycleBadge();
   renderDRCoverageCard();
   renderDRProgressBar();
+
+  // ── DELEGATED OPTION CLICK HANDLERS ─────────────────────────
+  // Replaces fragile inline onclick — works reliably on first load and mobile
+
+  // DR Cycle revision options
+  const drcBody = document.getElementById('drc-rev-body');
+  if (drcBody) {
+    drcBody.addEventListener('click', function(e) {
+      const opt = e.target.closest('.ar-opt');
+      if (!opt || opt.classList.contains('locked')) return;
+      const st = window.drcRevState;
+      if (!st || st.answered) return;
+      const qId   = opt.dataset.drcQid;
+      const letter = opt.dataset.drcLetter;
+      const day   = parseInt(opt.dataset.drcDay, 10);
+      if (!qId || !letter) return;
+      const entry = st.questions[st.idx];
+      if (!entry || entry.questionId !== qId) return; // stale guard
+      drcRevAnswer(qId, letter, day);
+    });
+  }
+
+  // SRS revision options
+  const srsBody = document.getElementById('srs-rev-body');
+  if (srsBody) {
+    srsBody.addEventListener('click', function(e) {
+      const opt = e.target.closest('.ar-opt');
+      if (!opt || opt.classList.contains('locked')) return;
+      const st = window.srsRevState;
+      if (!st || !st.questions) return;
+      const qId   = opt.dataset.srsQid;
+      const letter = opt.dataset.srsLetter;
+      if (!qId || !letter) return;
+      const q = st.questions[st.idx];
+      if (!q || q.questionId !== qId) return; // stale guard
+      srsRevAnswer(qId, letter);
+    });
+  }
+
+  // Real Mock options — sole click handler (inline onclick removed from render)
+  const rmBody = document.getElementById('rm-body');
+  if (rmBody) {
+    rmBody.addEventListener('click', function(e) {
+      const opt = e.target.closest('.rm-option');
+      if (!opt) return;
+      // Ignore clicks on already-correct/wrong options (revealed state)
+      if (opt.classList.contains('correct') || opt.classList.contains('wrong')) return;
+      const letter = opt.dataset.letter;
+      if (!letter) return;
+      if (typeof rmSelectOption === 'function') rmSelectOption(letter);
+    });
+  }
+  // ─────────────────────────────────────────────────────────────
 
   // ── 30-second idle → auto-return to landing ──────────────
   (function() {

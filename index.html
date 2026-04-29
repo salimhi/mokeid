@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Poppins:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Firebase Sync — REST API (no SDK imports, faster on mobile) -->
@@ -809,95 +809,189 @@ body.light-theme {
 .btn-teal:hover:not(:disabled) { background: var(--teal); color: #fff; }
 
 /* ─── QUIZ WINDOW ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   QUIZ / MOCK GLASSMORPHISM + NEON REDESIGN
+   Applies to: Quiz Window, Real Mock, DR, SRS, all mocks
+   ═══════════════════════════════════════════════════════════ */
+
+/* Noise texture overlay */
+#quiz-window { position: relative; overflow: hidden; }
+#quiz-window::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px; border-radius: inherit;
+}
+#quiz-window > * { position: relative; z-index: 1; }
+
+/* Quiz card glass upgrade */
+#quiz-window {
+  background: rgba(255,255,255,0.04) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(108,142,245,0.2) !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(108,142,245,0.06) !important;
+}
+body.light-theme #quiz-window {
+  background: rgba(255,255,255,0.75) !important;
+  border-color: rgba(99,102,241,0.15) !important;
+  box-shadow: 0 8px 32px rgba(99,102,241,0.1), 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+/* Quiz header */
 #quiz-window .q-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
+/* Q counter badge — Manrope */
 .q-number {
-  font-family: var(--font-display);
-  font-size: 28px;
+  font-family: 'Manrope', var(--font-display);
+  font-size: 11px !important;
   font-weight: 800;
-  color: var(--text);
-  letter-spacing: -1px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent) !important;
 }
 .q-badge {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  background: var(--accent-glow);
-  padding: 3px 10px;
-  border-radius: 99px;
-  margin-top: 4px;
-  display: inline-block;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--accent);
+  background: var(--accent-glow); padding: 3px 10px;
+  border-radius: 99px; margin-top: 4px; display: inline-block;
 }
 
+/* Timers */
 .timers-stack { text-align: right; }
-#timer {
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 500;
-  color: var(--text);
-  display: block;
-}
+#timer { font-family: var(--font-mono); font-size: 24px; font-weight: 500; color: var(--text); display: block; }
 #timer.overtime { color: var(--red); }
-#total-timer, #pause-timer {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  display: block;
-  margin-top: 2px;
-}
+#total-timer, #pause-timer { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; }
 #pause-timer { color: var(--red); display: none; font-weight: 500; }
 
+/* Animated progress bar */
+.quiz-progress-wrap {
+  height: 4px; background: rgba(255,255,255,0.08);
+  border-radius: 99px; overflow: hidden; margin-bottom: 20px;
+}
+.quiz-progress-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+  position: relative; overflow: hidden;
+}
+.quiz-progress-fill::after {
+  content: ''; position: absolute; top: 0; left: -60%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  animation: prog-shimmer 2s ease-in-out infinite;
+}
+@keyframes prog-shimmer { 0% { left:-60%; } 100% { left:120%; } }
+
+/* Shake animation for wrong answers */
+@keyframes opt-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Options list */
 .options-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+
+/* Option label — Glassmorphism Neon */
 .option-label {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
-  background: var(--glass);
-  backdrop-filter: var(--blur-sm);
-  -webkit-backdrop-filter: var(--blur-sm);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-  color: var(--text-dim);
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1),
+              border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: var(--text-dim); user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; overflow: hidden;
 }
-.option-label:hover { background: var(--glass-hover); border-color: var(--border-active); color: var(--text); }
-.option-letter {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  flex-shrink: 0;
-  transition: all 0.15s;
+.option-label::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(108,142,245,0.06) 50%, transparent 60%);
+  transform: translateX(-100%); transition: transform 0.5s ease; pointer-events: none;
 }
-.option-label:has(input:checked) {
-  background: var(--accent-glow);
-  border-color: var(--accent);
+.option-label:hover::before { transform: translateX(100%); }
+.option-label:hover {
+  transform: translateY(-3px);
+  background: rgba(108,142,245,0.09);
+  border-color: rgba(108,142,245,0.4);
+  box-shadow: 0 4px 20px rgba(108,142,245,0.18), 0 0 0 1px rgba(108,142,245,0.12) inset;
   color: var(--text);
 }
+body.light-theme .option-label {
+  background: rgba(255,255,255,0.72); border-color: rgba(99,102,241,0.14); color: #334155;
+}
+body.light-theme .option-label:hover {
+  background: rgba(99,102,241,0.06); border-color: rgba(99,102,241,0.35);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.14); color: #1e293b;
+}
+.option-label:has(input:checked) {
+  background: rgba(108,142,245,0.14); border-color: var(--accent); color: var(--text);
+  box-shadow: 0 0 0 2px rgba(108,142,245,0.22), 0 4px 20px rgba(108,142,245,0.14);
+  transform: translateY(-2px);
+}
+body.light-theme .option-label:has(input:checked) {
+  background: rgba(99,102,241,0.08); border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.18);
+}
+
+/* Letter badge */
+.option-letter {
+  font-family: 'Manrope', var(--font-mono); font-size: 12px; font-weight: 800;
+  background: rgba(108,142,245,0.12); border: 1.5px solid rgba(108,142,245,0.3);
+  border-radius: 8px; width: 32px; height: 32px; min-width: 32px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+.option-label:hover .option-letter {
+  background: rgba(108,142,245,0.22); border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(108,142,245,0.3); transform: scale(1.08);
+}
 .option-label:has(input:checked) .option-letter {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--accent); color: #fff; border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(108,142,245,0.5);
 }
 .option-label input[type="radio"] { display: none; }
+body.light-theme .option-letter {
+  background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.25); color: #6366f1;
+}
+
+/* Correct state */
+.option-label.opt-correct, .option-label.correct-reveal {
+  background: rgba(52,211,153,0.12) !important; border-color: var(--green) !important;
+  color: var(--green) !important;
+  box-shadow: 0 0 0 2px rgba(52,211,153,0.2), 0 4px 16px rgba(52,211,153,0.12) !important;
+  transform: translateY(-2px);
+}
+.option-label.opt-correct .option-letter, .option-label.correct-reveal .option-letter {
+  background: var(--green) !important; color: #fff !important; border-color: var(--green) !important;
+  box-shadow: 0 0 12px rgba(52,211,153,0.5) !important;
+}
+/* Wrong state */
+.option-label.opt-wrong {
+  background: rgba(248,113,113,0.1) !important; border-color: var(--red) !important;
+  color: var(--red) !important; box-shadow: 0 0 0 2px rgba(248,113,113,0.18) !important;
+  animation: opt-shake 0.35s ease;
+}
+.option-label.opt-wrong .option-letter {
+  background: var(--red) !important; color: #fff !important; border-color: var(--red) !important;
+  box-shadow: 0 0 12px rgba(248,113,113,0.45) !important;
+}
 
 .quiz-actions { display: flex; gap: 10px; margin-top: 8px; }
 .quiz-actions .btn { flex: 1; }
@@ -1151,6 +1245,486 @@ body.light-theme {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 99px; }
+
+/* ═══ LANDING PAGE ═══════════════════════════════════════ */
+#landing-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px 20px 40px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+/* Light mode: Soft Neumorphism */
+body.light-theme #landing-screen {
+  background: #e0e5ec;
+}
+body.light-theme #landing-screen::before {
+  background-image: none;
+}
+body.light-theme .lp-btn {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn:hover {
+  box-shadow: 8px 8px 18px #b0b8c1, -8px -8px 18px #ffffff, inset 1px 1px 2px rgba(255,255,255,0.7);
+  transform: translateY(-2px);
+}
+body.light-theme .lp-btn.mistake {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn.mistake:hover { background: #fde8e8; box-shadow: 6px 6px 14px #c5b8b8, -6px -6px 14px #fff5f5; }
+body.light-theme .lp-btn.drcycle {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn.drcycle:hover { background: #fef9e7; box-shadow: 6px 6px 14px #c5c0a8, -6px -6px 14px #fffff5; }
+body.light-theme .lp-btn.daily {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn.daily:hover { background: #eef2ff; box-shadow: 6px 6px 14px #b0b8d0, -6px -6px 14px #f0f4ff; }
+body.light-theme .lp-btn.realmock {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn.realmock:hover { background: #f5f0ff; box-shadow: 6px 6px 14px #b8afd0, -6px -6px 14px #fdf8ff; }
+body.light-theme .lp-btn.dashboard {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 6px 6px 14px #b8bec7, -6px -6px 14px #ffffff;
+}
+body.light-theme .lp-btn.dashboard:hover { background: #eafaf8; box-shadow: 6px 6px 14px #b0c5c2, -6px -6px 14px #f5fffd; }
+
+body.light-theme .lp-stat-pill {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 3px 3px 8px #b8bec7, -3px -3px 8px #ffffff;
+}
+body.light-theme .lp-coach-card {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 5px 5px 12px #b8bec7, -5px -5px 12px #ffffff;
+}
+body.light-theme .lp-brand { color: #64748b; }
+body.light-theme .lp-greeting {
+  background: linear-gradient(135deg, #1e293b 20%, #4361d8 60%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.light-theme .lp-sub { color: #64748b; }
+body.light-theme .lp-countdown-wrap { color: #64748b; }
+
+/* ── Landing top controls row ───────────────────────────── */
+#lp-top-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+}
+
+/* Shared pill button style for landing controls */
+.lp-ctrl-btn {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all 0.18s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.lp-ctrl-btn:hover {
+  background: var(--glass-hover);
+  border-color: var(--border-active);
+  color: var(--text);
+}
+body.light-theme .lp-ctrl-btn {
+  background: #e0e5ec;
+  border-color: transparent;
+  box-shadow: 3px 3px 8px #b8bec7, -3px -3px 8px #ffffff;
+  color: #475569;
+}
+body.light-theme .lp-ctrl-btn:hover {
+  box-shadow: 4px 4px 10px #b0b8c1, -4px -4px 10px #ffffff;
+}
+
+/* Remove old standalone lp-theme-toggle style override */
+#lp-theme-toggle {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+}
+
+/* ── Sync status button ─────────────────────────────────── */
+.sync-status-btn {
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  padding: 7px 12px !important;
+  min-width: 76px;
+  justify-content: center;
+  color: var(--text-muted) !important;
+}
+.sync-status-btn.syncing  { color: #60a5fa !important; border-color: rgba(96,165,250,0.35) !important; }
+.sync-status-btn.ok       { color: #4ade80 !important; border-color: rgba(74,222,128,0.35) !important; }
+.sync-status-btn.error    { color: #f87171 !important; border-color: rgba(248,113,113,0.35) !important; }
+.sync-status-btn.offline  { color: var(--text-muted) !important; }
+
+/* Dashboard topbar sync button */
+#db-sync-btn.icon-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  min-width: 76px;
+  justify-content: center;
+}
+
+/* ── Profile dropdown ───────────────────────────────────── */
+.profile-dropdown-wrap {
+  position: relative;
+}
+.profile-icon-btn {
+  padding: 7px 11px !important;
+  font-size: 16px !important;
+}
+/* Default: opens downward (landing screen) */
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  bottom: auto;
+  right: 0;
+  min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border-active);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  z-index: 99999;
+  animation: pd-in 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+/* Dashboard topbar: fixed-position dropdown escapes all overflow clipping */
+#db-profile-wrap .profile-dropdown {
+  position: fixed;
+  top: auto;
+  bottom: auto;
+  right: auto;
+  left: auto;
+  animation: pd-in 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes pd-in {
+  from { opacity:0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes pd-in-up {
+  from { opacity:0; transform: translateY(6px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+body.light-theme .profile-dropdown {
+  background: #e8ecf2;
+  border-color: #c8cfd8;
+  box-shadow: 6px 6px 18px #b0b8c4, -4px -4px 12px #ffffff;
+}
+.pd-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 14px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.pd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pd-item:hover { background: var(--glass-hover); }
+body.light-theme .pd-item:hover { background: rgba(0,0,0,0.05); }
+
+/* Theme toggle in dashboard topbar — make it match icon-btn */
+
+
+/* Ambient orbs behind landing */
+#landing-screen::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 15% 20%, rgba(108,142,245,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 50% at 85% 75%, rgba(155,114,245,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 40% at 55% 40%, rgba(45,212,191,0.10) 0%, transparent 55%);
+}
+
+/* floating particles */
+.lp-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: lp-float linear infinite;
+  opacity: 0;
+}
+@keyframes lp-float {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.2; }
+  100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+}
+
+/* Brand badge */
+.lp-brand {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+.lp-brand span { color: var(--accent); }
+
+/* Greeting — Poppins */
+.lp-greeting {
+  font-family: 'Poppins', 'Syne', sans-serif;
+  font-size: clamp(32px, 8vw, 58px);
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--text) 20%, var(--accent) 60%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: lp-fadein 0.7s ease both;
+}
+@keyframes lp-fadein {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lp-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 32px;
+  line-height: 1.6;
+  animation: lp-fadein 0.7s 0.12s ease both;
+}
+
+/* Stats row */
+.lp-stats-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  animation: lp-fadein 0.7s 0.2s ease both;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.lp-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.lp-stat-pill .lp-pill-num {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* Action buttons grid */
+.lp-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  animation: lp-fadein 0.7s 0.3s ease both;
+  margin-bottom: 14px;
+}
+
+.lp-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 18px 18px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  text-align: left;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--text);
+  min-height: 90px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.lp-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.lp-btn:active { transform: translateY(0); }
+
+.lp-btn-icon {
+  font-size: 22px;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.lp-btn-label {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text);
+}
+.lp-btn-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.lp-btn-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+/* Variant colours */
+.lp-btn.mistake {
+  border-color: rgba(248,113,113,0.30);
+  background: rgba(248,113,113,0.06);
+}
+.lp-btn.mistake:hover { border-color: var(--red); background: var(--red-dim); }
+.lp-btn.mistake .lp-btn-badge { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+
+.lp-btn.drcycle {
+  border-color: rgba(251,191,36,0.30);
+  background: rgba(251,191,36,0.06);
+}
+.lp-btn.drcycle:hover { border-color: var(--amber); background: var(--amber-dim); }
+.lp-btn.drcycle .lp-btn-badge { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+
+.lp-btn.daily {
+  border-color: rgba(108,142,245,0.35);
+  background: rgba(108,142,245,0.07);
+}
+.lp-btn.daily:hover { border-color: var(--accent); background: var(--accent-glow); }
+.lp-btn.daily .lp-btn-badge { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(108,142,245,0.3); }
+
+.lp-btn.realmock {
+  border-color: rgba(155,114,245,0.35);
+  background: rgba(155,114,245,0.07);
+}
+.lp-btn.realmock:hover { border-color: var(--accent-2); background: rgba(155,114,245,0.12); }
+.lp-btn.realmock .lp-btn-badge { background: rgba(155,114,245,0.15); color: var(--accent-2); border: 1px solid rgba(155,114,245,0.3); }
+
+/* Dashboard button — spans full width */
+.lp-btn.dashboard {
+  grid-column: span 2;
+  flex-direction: row;
+  align-items: center;
+  min-height: 64px;
+  gap: 14px;
+  border-color: rgba(45,212,191,0.25);
+  background: rgba(45,212,191,0.05);
+  padding: 14px 20px;
+}
+.lp-btn.dashboard:hover { border-color: var(--teal); background: var(--teal-dim); }
+.lp-btn.dashboard .lp-btn-icon { font-size: 24px; margin-bottom: 0; flex-shrink: 0; }
+.lp-btn.dashboard .lp-btn-content { flex: 1; }
+
+/* Countdown chip at bottom */
+.lp-countdown-wrap {
+  margin-top: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  animation: lp-fadein 0.7s 0.45s ease both;
+}
+.lp-countdown-num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.lp-countdown-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+#landing-screen.hidden {
+  animation: lp-exit 0.4s ease both;
+  pointer-events: none;
+}
+@keyframes lp-exit {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.04); }
+}
 
 /* ─── MOTIVATOR BOT (bottom-right) ────────────────────── */
 #mbot-wrap {
@@ -2187,47 +2761,112 @@ body.pip-mode #exam-popup {
 .rm-total-timer { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 .rm-paused-badge { font-size: 11px; font-weight: 700; color: var(--amber); background: var(--amber-dim); padding: 3px 10px; border-radius: 99px; display: none; }
 .rm-paused-badge.show { display: inline-block; }
-.rm-progress-bar { height: 3px; background: var(--glass); }
-.rm-progress-fill { height: 3px; background: var(--accent); transition: width 0.3s ease; }
+.rm-progress-bar {
+  height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;
+}
+.rm-progress-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+  position: relative; overflow: hidden;
+}
+.rm-progress-fill::after {
+  content: ''; position: absolute; top: 0; left: -60%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  animation: prog-shimmer 2s ease-in-out infinite;
+}
 
 .rm-body { max-width: 760px; margin: 0 auto; padding: 24px 20px 100px; }
 
 .rm-q-counter { font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
 .rm-question-text {
-  font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.7;
-  margin-bottom: 20px; padding: 16px 18px;
-  background: var(--glass);
-  backdrop-filter: var(--blur-sm);
-  -webkit-backdrop-filter: var(--blur-sm);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 600;
+  line-height: 1.75; color: var(--text); margin-bottom: 20px;
+  padding: 22px 24px;
+  background: rgba(108,142,245,0.05);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(108,142,245,0.18); border-radius: 16px;
+}
+body.light-theme .rm-question-text {
+  background: rgba(99,102,241,0.04); border-color: rgba(99,102,241,0.12);
+}
+@media (max-width: 600px) {
+  .rm-question-text { font-size: 14px; padding: 14px 16px; border-radius: 10px; }
 }
 
 .rm-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 .rm-option {
-  display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--glass);
-  backdrop-filter: var(--blur-sm);
-  -webkit-backdrop-filter: var(--blur-sm);
-  cursor: pointer;
-  transition: all 0.2s; user-select: none;
-  min-height: 48px;
+  display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  cursor: pointer; user-select: none;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1),
+              border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  font-family: 'Manrope', sans-serif; font-size: 14px; color: var(--text-dim);
+  position: relative; overflow: hidden;
 }
-.rm-option:hover { border-color: var(--border-active); background: var(--glass-hover); }
-.rm-option.selected { border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 0 1px var(--accent) inset; }
-.rm-option.correct { border-color: var(--green); background: var(--green-dim) !important; }
-.rm-option.wrong   { border-color: var(--red);   background: var(--red-dim) !important; }
-.rm-option.reveal  { border-color: var(--green); background: var(--green-dim); }
+.rm-option::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(108,142,245,0.06) 50%, transparent 60%);
+  transform: translateX(-100%); transition: transform 0.5s ease; pointer-events: none;
+}
+.rm-option:hover::before { transform: translateX(100%); }
+.rm-option:hover {
+  transform: translateY(-3px);
+  background: rgba(108,142,245,0.09); border-color: rgba(108,142,245,0.4);
+  box-shadow: 0 4px 20px rgba(108,142,245,0.18); color: var(--text);
+}
+body.light-theme .rm-option {
+  background: rgba(255,255,255,0.72); border-color: rgba(99,102,241,0.14); color: #334155;
+}
+body.light-theme .rm-option:hover {
+  background: rgba(99,102,241,0.06); border-color: rgba(99,102,241,0.35);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.12); color: #1e293b;
+}
+.rm-option.selected {
+  border-color: var(--accent); background: rgba(108,142,245,0.14); color: var(--text);
+  box-shadow: 0 0 0 2px rgba(108,142,245,0.22); transform: translateY(-2px);
+}
+.rm-option.correct {
+  border-color: var(--green) !important; background: rgba(52,211,153,0.12) !important;
+  color: var(--green) !important;
+  box-shadow: 0 0 0 2px rgba(52,211,153,0.2), 0 4px 16px rgba(52,211,153,0.1) !important;
+}
+.rm-option.wrong {
+  border-color: var(--red) !important; background: rgba(248,113,113,0.1) !important;
+  color: var(--red) !important; box-shadow: 0 0 0 2px rgba(248,113,113,0.18) !important;
+  animation: opt-shake 0.35s ease;
+}
+.rm-option.reveal { border-color: var(--green); background: rgba(52,211,153,0.08); }
 .rm-option-letter {
-  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-  color: var(--accent); background: var(--accent-glow);
-  border-radius: 5px; padding: 3px 8px; flex-shrink: 0; margin-top: 1px;
+  font-family: 'Manrope', var(--font-mono); font-size: 12px; font-weight: 800;
+  color: var(--accent); background: rgba(108,142,245,0.12);
+  border: 1.5px solid rgba(108,142,245,0.3);
+  border-radius: 8px; width: 32px; height: 32px; min-width: 32px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.18s; margin-top: 0;
 }
-.rm-option.correct .rm-option-letter { color: var(--green); background: var(--green-dim); }
-.rm-option.wrong   .rm-option-letter { color: var(--red);   background: var(--red-dim); }
-.rm-option.reveal  .rm-option-letter { color: var(--green); background: var(--green-dim); }
-.rm-option-text { font-size: 13px; color: var(--text); line-height: 1.55; flex: 1; }
+.rm-option:hover .rm-option-letter {
+  background: rgba(108,142,245,0.22); border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(108,142,245,0.3); transform: scale(1.08);
+}
+.rm-option.selected .rm-option-letter {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(108,142,245,0.5);
+}
+.rm-option.correct .rm-option-letter {
+  background: var(--green) !important; color: #fff !important;
+  border-color: var(--green) !important; box-shadow: 0 0 12px rgba(52,211,153,0.5) !important;
+}
+.rm-option.wrong .rm-option-letter {
+  background: var(--red) !important; color: #fff !important;
+  border-color: var(--red) !important; box-shadow: 0 0 12px rgba(248,113,113,0.45) !important;
+}
+.rm-option.reveal .rm-option-letter { background: var(--green); color: #fff; border-color: var(--green); }
+.rm-option-text { font-family: 'Manrope', sans-serif; font-size: 14px; color: inherit; line-height: 1.6; flex: 1; }
 .rm-option-icon { font-size: 16px; flex-shrink: 0; align-self: center; }
 
 .rm-explanation {
@@ -2409,12 +3048,39 @@ body.pip-mode #exam-popup {
 .dr-q-body { display:none;padding:0 14px 14px; }
 .dr-q-body.open { display:block; }
 .dr-opts { margin-bottom:12px; }
-.dr-opt { padding:7px 10px;border-radius:6px;font-size:12px;color:var(--text-dim);border:1px solid var(--border);margin-bottom:5px;display:flex;gap:8px;cursor:pointer;transition:all 0.15s; }
-.dr-opt:hover:not(.locked) { border-color:var(--border-active);color:var(--text);background:var(--glass-hover); }
-.dr-opt.locked { cursor:default; }
-.dr-opt-ltr { font-weight:700;font-family:var(--font-mono);min-width:16px; }
-.dr-opt.correct { border-color:var(--green);background:var(--green-dim);color:var(--green);font-weight:600; }
-.dr-opt.wrong   { border-color:var(--red);background:var(--red-dim);color:var(--red); }
+.dr-opt {
+  padding: 10px 14px; border-radius: 10px;
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 7px; display: flex; gap: 10px; cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  background: rgba(255,255,255,0.03); align-items: center;
+}
+.dr-opt:hover:not(.locked) {
+  transform: translateY(-3px);
+  border-color: rgba(108,142,245,0.4); background: rgba(108,142,245,0.08);
+  box-shadow: 0 4px 16px rgba(108,142,245,0.15); color: var(--text);
+}
+.dr-opt.locked { cursor: default; }
+.dr-opt-ltr {
+  font-weight: 800; font-family: 'Manrope', sans-serif; color: var(--accent);
+  background: rgba(108,142,245,0.12); border: 1.5px solid rgba(108,142,245,0.25);
+  border-radius: 6px; width: 26px; height: 26px; min-width: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0; transition: all 0.15s;
+}
+.dr-opt.correct {
+  border-color: var(--green); background: rgba(52,211,153,0.1);
+  color: var(--green); font-weight: 600; transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.2);
+}
+.dr-opt.correct .dr-opt-ltr { background: var(--green); color: #fff; border-color: var(--green); }
+.dr-opt.wrong {
+  border-color: var(--red); background: rgba(248,113,113,0.08);
+  color: var(--red); box-shadow: 0 0 0 1px rgba(248,113,113,0.18);
+  animation: opt-shake 0.35s ease;
+}
+.dr-opt.wrong .dr-opt-ltr { background: var(--red); color: #fff; border-color: var(--red); }
 .dr-prompt-row { display:flex;gap:8px;flex-wrap:wrap;margin-top:10px; }
 .dr-prompt-btn { font-size:11px;padding:5px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-mono);transition:all 0.15s; }
 .dr-prompt-btn:hover { border-color:var(--accent);color:var(--accent);background:var(--accent-glow); }
@@ -2480,11 +3146,744 @@ body.pip-mode #exam-popup {
   .rm-result-stats { grid-template-columns: 1fr 1fr; }
 }
 
+
+/* ── AR opt — SRS + answer review shared (Glassmorphism Neon) ── */
+.ar-opt {
+  display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px;
+  border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); margin-bottom: 7px; cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.ar-opt:hover { transform: translateY(-3px); border-color: rgba(108,142,245,0.4); background: rgba(108,142,245,0.08); box-shadow: 0 4px 16px rgba(108,142,245,0.15); color: var(--text); }
+.ar-opt-ltr {
+  font-weight: 800; font-family: 'Manrope', sans-serif; color: var(--accent);
+  background: rgba(108,142,245,0.12); border: 1.5px solid rgba(108,142,245,0.25);
+  border-radius: 6px; width: 26px; height: 26px; min-width: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0; transition: all 0.15s;
+}
+.ar-opt.correct { border-color: var(--green); background: rgba(52,211,153,0.1); color: var(--green); font-weight: 600; transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(52,211,153,0.2); }
+.ar-opt.correct .ar-opt-ltr { background: var(--green); color: #fff; border-color: var(--green); }
+.ar-opt.user-wrong { border-color: var(--red); background: rgba(248,113,113,0.08); color: var(--red); box-shadow: 0 0 0 1px rgba(248,113,113,0.18); animation: opt-shake 0.35s ease; }
+.ar-opt.user-wrong .ar-opt-ltr { background: var(--red); color: #fff; border-color: var(--red); }
+.ar-opt.your-wrong { border-color: var(--red); background: rgba(248,113,113,0.08); color: var(--red); }
+/* SRS progress fill */
+#srs-rev-fill { background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important; border-radius: 99px; }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE OPTIMISATION
+   Target: phones ≤ 600px (primary), ≤ 480px (small phones)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── viewport + base ──────────────────────────────────────── */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* ── LANDING SCREEN ──────────────────────────────────────── */
+@media (max-width: 600px) {
+  #landing-screen {
+    padding: 56px 16px 32px;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+  #lp-top-controls {
+    top: 10px; right: 10px; gap: 6px;
+  }
+  .lp-ctrl-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+  .lp-brand { font-size: 11px; margin-bottom: 16px; margin-top: 10px; }
+
+  /* Greeting — slightly smaller on phone */
+  .lp-greeting { font-size: clamp(26px, 9vw, 42px); margin-bottom: 6px; }
+  .lp-sub { font-size: 13px; margin-bottom: 22px; }
+
+  /* Stats pills — wrap tightly */
+  .lp-stats-row { gap: 7px; margin-bottom: 20px; }
+  .lp-stat-pill { font-size: 11px; padding: 5px 10px; }
+
+  /* Action grid — keep 2-col but tighter */
+  .lp-actions { gap: 9px; margin-bottom: 12px; }
+  .lp-btn {
+    padding: 14px 14px 12px;
+    min-height: 80px;
+    border-radius: 12px;
+  }
+  .lp-btn-icon { font-size: 19px; }
+  .lp-btn-label { font-size: 13px; }
+  .lp-btn-desc { font-size: 10px; }
+  .lp-btn-badge { font-size: 9px; padding: 2px 6px; top: 8px; right: 8px; }
+
+  /* Dashboard button — tighter */
+  .lp-btn.dashboard { min-height: 56px; padding: 12px 14px; gap: 10px; }
+  .lp-btn.dashboard .lp-btn-icon { font-size: 20px; }
+
+  /* Countdown */
+  .lp-countdown-wrap { margin-top: 12px; gap: 8px; }
+  .lp-countdown-num { font-size: 18px; }
+  .lp-countdown-label { font-size: 9px; }
+}
+
+/* ── DASHBOARD TOPBAR ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .topbar {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .topbar .brand { flex-shrink: 0; font-size: 18px; }
+  .topbar-actions {
+    flex: 1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+  .topbar-actions::-webkit-scrollbar { display: none; }
+  .icon-btn {
+    padding: 7px 10px;
+    font-size: 11px;
+    min-height: 36px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  /* Shrink sync pill on mobile */
+  .sync-status-btn { min-width: 60px !important; padding: 6px 8px !important; font-size: 10px !important; }
+  /* Profile dropdown — position fixed calculated by JS, no extra needed */
+}
+
+/* ── REAL MOCK TOPBAR ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .rm-topbar {
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .rm-mock-label { font-size: 13px; }
+  #rm-q-counter { font-size: 10px; }
+  .rm-timers { gap: 6px; }
+  .rm-q-timer { font-size: 14px; padding: 3px 7px; min-width: 36px; }
+  .rm-total-timer { font-size: 10px; }
+  .rm-paused-badge { font-size: 10px; padding: 2px 7px; }
+  /* Stack end/save/close buttons tightly */
+  #rm-pause-btn { padding: 5px 10px; font-size: 11px; }
+  #rm-end-exam-btn { padding: 5px 9px; font-size: 11px; }
+  #rm-save-btn { padding: 5px 9px; font-size: 11px; }
+  #rm-close-btn { padding: 5px 8px; }
+
+  .rm-body { padding: 12px 12px 80px; }
+
+  /* Question card — tighter on mobile */
+  .rm-question-text {
+    font-size: 14px !important;
+    padding: 14px 14px !important;
+    border-radius: 10px !important;
+    line-height: 1.65 !important;
+    margin-bottom: 14px !important;
+  }
+
+  /* Options — larger touch targets */
+  .rm-option {
+    padding: 13px 14px !important;
+    gap: 11px !important;
+    border-radius: 10px !important;
+    min-height: 52px;
+  }
+  .rm-option-letter {
+    width: 28px !important; height: 28px !important; min-width: 28px !important;
+    border-radius: 7px !important; font-size: 11px !important;
+  }
+  .rm-option-text { font-size: 13px !important; }
+
+  /* Nav row buttons */
+  .rm-nav-row { gap: 6px; flex-wrap: wrap; }
+  .rm-nav-row .btn { padding: 10px 12px; font-size: 12px; flex: 1; min-width: 80px; }
+
+  /* Result screen */
+  #rm-result-inner { padding: 20px 14px 80px; }
+  .rm-result-hero { padding: 24px 16px; }
+  .rm-result-score { font-size: 42px; }
+  .rm-result-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rm-result-stat { padding: 10px 6px; }
+  .rm-result-stat-val { font-size: 18px; }
+  .rm-result-stat-lbl { font-size: 9px; }
+}
+
+/* ── QUIZ WINDOW (mock/SRS/DR popup) ─────────────────────── */
+@media (max-width: 600px) {
+  #quiz-window {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    top: 0 !important; left: 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important; border-right: none !important; border-top: none !important;
+    transform: none !important;
+    overflow-y: auto;
+  }
+  #quiz-window .q-header { margin-bottom: 14px; padding-bottom: 12px; }
+  .q-number { font-size: 10px !important; }
+  #timer { font-size: 20px; }
+  #total-timer, #pause-timer { font-size: 10px; }
+
+  /* Question text */
+  .quiz-question-text {
+    font-size: 14px !important;
+    padding: 14px 14px !important;
+    border-radius: 10px !important;
+    margin-bottom: 14px !important;
+    line-height: 1.65 !important;
+  }
+
+  /* Options */
+  .options-list { gap: 8px; margin: 14px 0; }
+  .option-label {
+    padding: 12px 13px !important;
+    gap: 11px !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    min-height: 52px;
+    /* No hover lift on touch — use active instead */
+    transform: none !important;
+  }
+  .option-label:active {
+    transform: scale(0.98) !important;
+    background: rgba(108,142,245,0.12) !important;
+    border-color: rgba(108,142,245,0.4) !important;
+  }
+  .option-letter {
+    width: 28px !important; height: 28px !important; min-width: 28px !important;
+    border-radius: 7px !important; font-size: 11px !important;
+  }
+  .quiz-actions { gap: 8px; flex-wrap: wrap; }
+  .quiz-actions .btn { flex: 1; min-width: 80px; padding: 11px 10px; font-size: 12px; }
+
+  /* Progress bar — thicker on mobile */
+  .quiz-progress-wrap { height: 5px; margin-bottom: 14px; }
+}
+
+/* ── DR / SRS SCREENS ────────────────────────────────────── */
+@media (max-width: 600px) {
+  /* DR daily card */
+  .dr-q-card { padding: 14px !important; border-radius: 10px !important; }
+  .dr-q-text { font-size: 14px !important; line-height: 1.65 !important; }
+  .dr-opt {
+    padding: 11px 12px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    min-height: 48px;
+    transform: none !important;
+  }
+  .dr-opt:active:not(.locked) {
+    transform: scale(0.98) !important;
+    border-color: rgba(108,142,245,0.4) !important;
+    background: rgba(108,142,245,0.08) !important;
+  }
+  .dr-opt-ltr {
+    width: 24px !important; height: 24px !important; min-width: 24px !important;
+    border-radius: 5px !important; font-size: 10px !important;
+  }
+
+  /* SRS revision body */
+  #srs-rev-body {
+    padding: 12px 12px 80px !important;
+    max-width: 100% !important;
+  }
+  .ar-opt {
+    padding: 12px 13px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    min-height: 48px;
+    transform: none !important;
+  }
+  .ar-opt:active {
+    transform: scale(0.98) !important;
+    border-color: rgba(108,142,245,0.4) !important;
+    background: rgba(108,142,245,0.08) !important;
+  }
+  .ar-opt-ltr {
+    width: 24px !important; height: 24px !important; min-width: 24px !important;
+    border-radius: 5px !important; font-size: 10px !important;
+  }
+}
+
+/* ── PROFILE DROPDOWN ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .profile-dropdown { min-width: 160px; border-radius: 12px; }
+  .pd-item { padding: 12px 14px; font-size: 14px; min-height: 48px; }
+}
+
+/* ── ADMIN PANEL ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .admin-topbar-actions { gap: 6px; }
+  .admin-topbar-actions .icon-btn { padding: 7px 10px; font-size: 11px; flex-shrink: 0; }
+  .admin-section { padding: 14px 12px; }
+}
+
+/* ── TOUCH — disable hover lifts, use :active instead ────── */
+@media (hover: none) {
+  .option-label:hover { transform: none; box-shadow: none; }
+  .rm-option:hover { transform: none !important; box-shadow: none !important; }
+  .dr-opt:hover { transform: none !important; box-shadow: none !important; }
+  .ar-opt:hover { transform: none !important; box-shadow: none !important; }
+  .lp-btn:hover { transform: none; box-shadow: var(--shadow); }
+
+  /* Active states with lift */
+  .option-label:active { transform: scale(0.98); background: rgba(108,142,245,0.12) !important; border-color: rgba(108,142,245,0.4) !important; }
+  .rm-option:active { transform: scale(0.98) !important; background: rgba(108,142,245,0.12) !important; border-color: rgba(108,142,245,0.4) !important; }
+  .dr-opt:active:not(.locked) { transform: scale(0.98) !important; }
+  .ar-opt:active { transform: scale(0.98) !important; }
+  .lp-btn:active { transform: scale(0.97); }
+
+  /* Shimmer sweep — disable on touch (saves CPU) */
+  .option-label::before, .rm-option::before { display: none; }
+}
+
+/* ── Very small phones (≤ 360px) — single-col landing ─────── */
+@media (max-width: 360px) {
+  .lp-actions { grid-template-columns: 1fr; }
+  .lp-btn.dashboard { grid-column: span 1; }
+  .lp-greeting { font-size: 26px; }
+  .lp-stats-row { flex-direction: column; align-items: center; }
+}
+
+/* ── SAFE AREA (iPhone notch, Android nav bar) ───────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #landing-screen { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+  #real-mock-screen .rm-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #srs-rev-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  #quiz-window { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT MODE — MOCK/QUIZ GLASSMORPHISM OVERHAUL
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Shared exam screen backgrounds — near-white frosted ── */
+body.light-theme #real-mock-screen,
+body.light-theme #srs-revision-screen,
+body.light-theme #drc-rev-screen,
+body.light-theme #review-screen,
+body.light-theme #daily-revision-screen,
+body.light-theme #mistake-screen,
+body.light-theme #drcycle-screen {
+  background: linear-gradient(145deg, #eef1f8 0%, #f4f6fb 40%, #edf0f8 100%) !important;
+}
+
+/* ── Real mock topbar — light ──────────────────────────── */
+body.light-theme .rm-topbar {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 2px 16px rgba(99,102,241,0.08) !important;
+}
+body.light-theme .rm-mock-label { color: #1e293b !important; }
+body.light-theme .rm-total-timer { color: #64748b !important; }
+body.light-theme .rm-q-timer {
+  background: rgba(67,97,216,0.1) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .rm-q-timer.danger {
+  background: rgba(220,38,38,0.1) !important;
+  color: #dc2626 !important;
+}
+body.light-theme .rm-paused-badge {
+  background: rgba(217,119,6,0.12) !important;
+  color: #d97706 !important;
+}
+body.light-theme .rm-progress-bar {
+  background: rgba(99,102,241,0.1) !important;
+}
+
+/* ── SRS/DRC topbar — light ────────────────────────────── */
+body.light-theme .srs-rev-topbar {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 2px 16px rgba(99,102,241,0.08) !important;
+}
+body.light-theme .review-topbar {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 2px 16px rgba(99,102,241,0.08) !important;
+}
+body.light-theme .srs-rev-progress {
+  background: rgba(99,102,241,0.1) !important;
+}
+
+/* ── Exam back/exit/close buttons — light adaptive ──────── */
+body.light-theme .srs-rev-topbar .btn,
+body.light-theme .review-topbar .btn {
+  background: rgba(99,102,241,0.08) !important;
+  border: 1px solid rgba(99,102,241,0.22) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .srs-rev-topbar .btn:hover,
+body.light-theme .review-topbar .btn:hover {
+  background: rgba(99,102,241,0.15) !important;
+  border-color: rgba(99,102,241,0.4) !important;
+}
+
+/* ── RM topbar buttons — light adaptive ────────────────── */
+body.light-theme #rm-pause-btn {
+  background: rgba(217,119,6,0.1) !important;
+  border-color: rgba(217,119,6,0.3) !important;
+  color: #d97706 !important;
+}
+body.light-theme #rm-end-exam-btn {
+  background: rgba(220,38,38,0.08) !important;
+  border-color: rgba(220,38,38,0.25) !important;
+  color: #dc2626 !important;
+}
+body.light-theme #rm-save-btn {
+  background: rgba(99,102,241,0.08) !important;
+  border-color: rgba(99,102,241,0.22) !important;
+  color: #4361d8 !important;
+}
+body.light-theme #rm-close-btn,
+body.light-theme .popup-tb-btn.close {
+  background: rgba(220,38,38,0.06) !important;
+  border: 1px solid rgba(220,38,38,0.18) !important;
+  color: #dc2626 !important;
+}
+body.light-theme #rm-close-btn:hover,
+body.light-theme .popup-tb-btn.close:hover {
+  background: rgba(220,38,38,0.14) !important;
+}
+
+/* ── popup-tb-btn general — light ──────────────────────── */
+body.light-theme .popup-tb-btn {
+  color: #475569 !important;
+}
+body.light-theme .popup-tb-btn:hover {
+  background: rgba(99,102,241,0.08) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .popup-tb-btn.pip {
+  color: #4361d8 !important;
+}
+body.light-theme .popup-tb-btn.pip:hover {
+  background: rgba(67,97,216,0.1) !important;
+}
+
+/* ── Quiz window — light glass upgrade ──────────────────── */
+body.light-theme #quiz-window {
+  background: rgba(255,255,255,0.80) !important;
+  border: 1px solid rgba(99,102,241,0.18) !important;
+  box-shadow: 0 8px 40px rgba(99,102,241,0.12), 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+body.light-theme #quiz-window .q-header {
+  border-bottom-color: rgba(99,102,241,0.12) !important;
+}
+
+/* ── Question text card — light neon glass ──────────────── */
+body.light-theme .quiz-question-text {
+  background: rgba(255,255,255,0.90) !important;
+  border: 1.5px solid rgba(99,102,241,0.16) !important;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.08) !important;
+  color: #0f1117 !important;
+}
+body.light-theme .rm-question-text {
+  background: rgba(255,255,255,0.90) !important;
+  border: 1.5px solid rgba(99,102,241,0.16) !important;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.08) !important;
+  color: #0f1117 !important;
+}
+
+/* ── Option labels — light glass ────────────────────────── */
+body.light-theme .option-label {
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.05) !important;
+  color: #334155 !important;
+}
+body.light-theme .option-label:hover {
+  background: rgba(99,102,241,0.07) !important;
+  border-color: rgba(99,102,241,0.35) !important;
+  box-shadow: 0 4px 18px rgba(99,102,241,0.14) !important;
+  color: #1e293b !important;
+}
+body.light-theme .option-label:has(input:checked) {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: #4361d8 !important;
+  box-shadow: 0 0 0 2px rgba(67,97,216,0.18), 0 4px 18px rgba(67,97,216,0.10) !important;
+}
+body.light-theme .option-letter {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: rgba(67,97,216,0.25) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .option-label:hover .option-letter {
+  background: rgba(67,97,216,0.16) !important;
+  border-color: #4361d8 !important;
+  box-shadow: 0 0 8px rgba(67,97,216,0.22) !important;
+}
+body.light-theme .option-label:has(input:checked) .option-letter {
+  background: #4361d8 !important;
+  color: #fff !important;
+  border-color: #4361d8 !important;
+  box-shadow: 0 0 12px rgba(67,97,216,0.35) !important;
+}
+
+/* ── RM options — light glass ───────────────────────────── */
+body.light-theme .rm-option {
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.05) !important;
+  color: #334155 !important;
+}
+body.light-theme .rm-option:hover {
+  background: rgba(99,102,241,0.07) !important;
+  border-color: rgba(99,102,241,0.35) !important;
+  box-shadow: 0 4px 18px rgba(99,102,241,0.14) !important;
+  color: #1e293b !important;
+}
+body.light-theme .rm-option.selected {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: #4361d8 !important;
+  box-shadow: 0 0 0 2px rgba(67,97,216,0.18) !important;
+}
+body.light-theme .rm-option-letter {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: rgba(67,97,216,0.25) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .rm-option:hover .rm-option-letter {
+  background: rgba(67,97,216,0.16) !important;
+  border-color: #4361d8 !important;
+}
+body.light-theme .rm-option.selected .rm-option-letter {
+  background: #4361d8 !important;
+  color: #fff !important;
+  border-color: #4361d8 !important;
+}
+body.light-theme .rm-option.correct .rm-option-letter {
+  background: #059669 !important;
+  color: #fff !important;
+  border-color: #059669 !important;
+}
+body.light-theme .rm-option.wrong .rm-option-letter {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+}
+
+/* ── AR opts (SRS + DRC) — light glass ─────────────────── */
+body.light-theme .ar-opt {
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(99,102,241,0.14) !important;
+  color: #334155 !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.05) !important;
+}
+body.light-theme .ar-opt:hover {
+  background: rgba(99,102,241,0.07) !important;
+  border-color: rgba(99,102,241,0.35) !important;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.12) !important;
+  color: #1e293b !important;
+}
+body.light-theme .ar-opt-ltr {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: rgba(67,97,216,0.22) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .ar-opt.correct {
+  background: rgba(5,150,105,0.08) !important;
+  border-color: #059669 !important;
+  color: #059669 !important;
+}
+body.light-theme .ar-opt.correct .ar-opt-ltr {
+  background: #059669 !important;
+  color: #fff !important;
+  border-color: #059669 !important;
+}
+body.light-theme .ar-opt.user-wrong {
+  background: rgba(220,38,38,0.07) !important;
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+body.light-theme .ar-opt.user-wrong .ar-opt-ltr {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+}
+
+/* ── DR opts — light glass ──────────────────────────────── */
+body.light-theme .dr-opt {
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(99,102,241,0.14) !important;
+  color: #334155 !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.04) !important;
+}
+body.light-theme .dr-opt:hover:not(.locked) {
+  background: rgba(99,102,241,0.07) !important;
+  border-color: rgba(99,102,241,0.35) !important;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.12) !important;
+  color: #1e293b !important;
+}
+body.light-theme .dr-opt-ltr {
+  background: rgba(67,97,216,0.09) !important;
+  border-color: rgba(67,97,216,0.22) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .dr-opt.correct {
+  background: rgba(5,150,105,0.08) !important;
+  border-color: #059669 !important;
+  color: #059669 !important;
+}
+body.light-theme .dr-opt.correct .dr-opt-ltr {
+  background: #059669 !important; color: #fff !important; border-color: #059669 !important;
+}
+body.light-theme .dr-opt.wrong {
+  background: rgba(220,38,38,0.07) !important;
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+body.light-theme .dr-opt.wrong .dr-opt-ltr {
+  background: #dc2626 !important; color: #fff !important; border-color: #dc2626 !important;
+}
+
+/* ── DR question card — light ────────────────────────────── */
+body.light-theme .dr-q-card {
+  background: rgba(255,255,255,0.82) !important;
+  border: 1.5px solid rgba(99,102,241,0.14) !important;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.07) !important;
+}
+
+/* ── Nav/action buttons inside exams — light ─────────────── */
+body.light-theme .rm-nav-row .btn,
+body.light-theme .quiz-actions .btn {
+  background: rgba(255,255,255,0.8) !important;
+  border: 1px solid rgba(99,102,241,0.2) !important;
+  color: #475569 !important;
+}
+body.light-theme .rm-nav-row .btn:hover,
+body.light-theme .quiz-actions .btn:hover {
+  background: rgba(99,102,241,0.08) !important;
+  color: #4361d8 !important;
+}
+body.light-theme .btn-primary {
+  background: linear-gradient(135deg, #4361d8, #7c3aed) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+body.light-theme .btn-ghost {
+  background: rgba(255,255,255,0.7) !important;
+  border-color: rgba(99,102,241,0.18) !important;
+  color: #64748b !important;
+}
+
+/* ── Progress bars — light ──────────────────────────────── */
+body.light-theme .quiz-progress-wrap {
+  background: rgba(99,102,241,0.1) !important;
+}
+body.light-theme .srs-rev-progress {
+  background: rgba(99,102,241,0.1) !important;
+}
+
+/* ─────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
 
 
+
+<!-- ═══ LANDING SCREEN ═══════════════════════════════════ -->
+<div id="landing-screen">
+  <!-- floating particles injected by JS -->
+
+  <!-- Top-right controls: sync + theme + profile -->
+  <div id="lp-top-controls">
+    <button id="lp-sync-btn" class="lp-ctrl-btn sync-status-btn" title="Last sync — click to sync now" onclick="syncBtnClick()">☁ ...</button>
+    <button id="lp-theme-toggle" class="lp-ctrl-btn" onclick="lpToggleTheme()" title="Toggle theme">
+      <span id="lp-theme-icon">🌙</span> <span id="lp-theme-label">Dark</span>
+    </button>
+    <div class="profile-dropdown-wrap" id="lp-profile-wrap">
+      <button class="lp-ctrl-btn profile-icon-btn" onclick="toggleProfileMenu('lp')" title="Profile & Navigation">👤</button>
+      <div class="profile-dropdown" id="lp-profile-menu" style="display:none;">
+        <div class="pd-header">MockIQ</div>
+        <button class="pd-item" onclick="landingGo('dashboard');closeProfileMenu()">📊 Dashboard</button>
+        <button class="pd-item" onclick="landingGo('dashboard');openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
+        <button class="pd-item" onclick="landingGo('dashboard');toggleHistoryView();closeProfileMenu()">🗃 History</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lp-brand">Mock<span>IQ</span> &nbsp;·&nbsp; Fisheries PSC</div>
+
+  <div class="lp-greeting" id="lp-greeting">Good Morning!</div>
+
+  <div class="lp-sub" id="lp-sub">Ready to crush today's prep? Here's your dashboard.</div>
+
+  <!-- Live stats pills -->
+  <div class="lp-stats-row">
+    <div class="lp-stat-pill">🧠 <span class="lp-pill-num" id="lp-pill-mistakes">—</span> mistakes logged</div>
+    <div class="lp-stat-pill">⏰ <span class="lp-pill-num" id="lp-pill-drcycle">—</span> DR cycle due</div>
+    <div class="lp-stat-pill">📅 <span class="lp-pill-num" id="lp-pill-days">—</span> days to exam</div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="lp-actions">
+
+    <button class="lp-btn mistake" onclick="landingGo('mistake')">
+      <span class="lp-btn-icon">❌</span>
+      <span class="lp-btn-label">Mistake Review</span>
+      <span class="lp-btn-desc">Questions to attend today</span>
+      <span class="lp-btn-badge" id="lp-badge-mistake">0 today</span>
+    </button>
+
+    <button class="lp-btn drcycle" onclick="landingGo('drcycle')">
+      <span class="lp-btn-icon">🔄</span>
+      <span class="lp-btn-label">DR Cycle Mock</span>
+      <span class="lp-btn-desc">Pending revision cycles</span>
+      <span class="lp-btn-badge" id="lp-badge-drcycle">0 left</span>
+    </button>
+
+    <button class="lp-btn daily" onclick="landingGo('daily')">
+      <span class="lp-btn-icon">📖</span>
+      <span class="lp-btn-label">Daily Revision</span>
+      <span class="lp-btn-desc">10-question unit revision session</span>
+      <span class="lp-btn-badge" id="lp-badge-daily">Start</span>
+    </button>
+
+    <button class="lp-btn realmock" onclick="landingGo('realmock')">
+      <span class="lp-btn-icon">🧪</span>
+      <span class="lp-btn-label">Real Mock</span>
+      <span class="lp-btn-desc">Scored exam from question bank</span>
+      <span class="lp-btn-badge" id="lp-badge-realmock">Go</span>
+    </button>
+
+    <button class="lp-btn dashboard" onclick="landingGo('dashboard')">
+      <span class="lp-btn-icon">📊</span>
+      <div class="lp-btn-content">
+        <div class="lp-btn-label">Dashboard</div>
+        <div class="lp-btn-desc">Analytics, calendar, unit stats &amp; history</div>
+      </div>
+    </button>
+
+  </div>
+
+  <!-- Exam countdown -->
+  <div class="lp-countdown-wrap">
+    <div>
+      <div class="lp-countdown-num" id="lp-countdown-num">—</div>
+      <div class="lp-countdown-label">Days to Exam</div>
+    </div>
+    <div style="width:1px;height:32px;background:var(--border);margin:0 4px;"></div>
+    <div style="font-size:12px;color:var(--text-muted);line-height:1.55;">June 1st, 2026 · Kerala Fisheries PSC<br>Stay consistent. Every session counts. 🐟</div>
+  </div>
+</div>
+<!-- /LANDING SCREEN -->
 
 <div id="app-container">
 
@@ -2492,21 +3891,26 @@ body.pip-mode #exam-popup {
   <header class="topbar">
     <div class="brand">Mock<span>IQ</span></div>
     <div class="topbar-actions">
-      <span id="fb-status" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap;cursor:pointer;" title="Click to sync now" onclick="if(typeof window.fbSync==='function')window.fbSync()">☁ ...</span>
+      <button class="icon-btn" onclick="showLandingScreen()" title="Go to Home" style="background:rgba(108,142,245,0.12);border-color:rgba(108,142,245,0.3);color:var(--accent);padding:7px 11px;font-size:16px;">🏠</button>
       <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">🌙 Theme</button>
-      <button id="pip-btn" class="icon-btn">⊞ PiP Mode</button>
-      <button id="history-toggle-btn" class="icon-btn">🗃 History</button>
-      <button id="review-btn" class="icon-btn" style="color:#f59e0b;">🔖 Review</button>
-      <button id="admin-btn" class="icon-btn">⚙ Admin</button>
-      <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:2px;">
-        <button id="export-btn" class="icon-btn green">↓ Export JSON</button>
-        <span id="last-export-label" style="font-size:9px; color:var(--green); font-family:var(--font-mono); white-space:nowrap; opacity:0.8;"></span>
+      <button id="db-sync-btn" class="icon-btn sync-status-btn" title="Last sync — click to sync now" onclick="syncBtnClick()">☁ ...</button>
+      <div class="profile-dropdown-wrap" id="db-profile-wrap">
+        <button class="icon-btn profile-icon-btn" onclick="toggleProfileMenu('db')" title="Profile & Navigation" style="padding:6px 10px;font-size:16px;">👤</button>
+        <div class="profile-dropdown" id="db-profile-menu" style="display:none;">
+          <div class="pd-header">MockIQ</div>
+          <button class="pd-item" onclick="showLandingScreen();closeProfileMenu()">🏠 Home</button>
+          <button class="pd-item" onclick="showHome();closeProfileMenu()">📊 Dashboard</button>
+          <button class="pd-item" onclick="openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
+          <button class="pd-item" onclick="toggleHistoryView();closeProfileMenu()">🗃 History</button>
+        </div>
       </div>
-      <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:2px;">
-        <button id="import-btn" class="icon-btn teal">↑ Import JSON</button>
-        <span id="last-import-label" style="font-size:9px; color:#14b8a6; font-family:var(--font-mono); white-space:nowrap; opacity:0.8;"></span>
-      </div>
+      <button id="pip-btn" class="icon-btn" style="display:none;">⊞ PiP Mode</button>
+      <button id="history-toggle-btn" class="icon-btn" style="display:none;">🗃 History</button>
+      <button id="review-btn" class="icon-btn" style="display:none;color:#f59e0b;">🔖 Review</button>
+      <button id="admin-btn" class="icon-btn" style="display:none;">⚙ Admin</button>
       <input type="file" id="import-file" accept=".json" style="display:none;">
+      <span id="last-export-label" style="display:none;"></span>
+      <span id="last-import-label" style="display:none;"></span>
     </div>
   </header>
 
@@ -3269,6 +4673,12 @@ body.pip-mode #exam-popup {
       <button id="admin-drcycle-btn" class="icon-btn" style="background:rgba(45,212,191,0.12);border-color:rgba(45,212,191,0.3);color:var(--teal);">🔄 DR Cycle</button>
       <button id="admin-clear-dr-tags-btn" class="icon-btn" style="background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.3);color:var(--red);">🗑 Clear DR Tags</button>
       <input type="file" id="admin-import-qb-file" accept=".json" style="display:none;">
+      <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <button id="export-btn" class="icon-btn green">↓ Export JSON</button>
+      </div>
+      <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <button id="import-btn" class="icon-btn teal">↑ Import JSON</button>
+      </div>
       <button id="admin-back-btn" class="icon-btn">← Back to App</button>
     </div>
   </div>
@@ -3891,7 +5301,7 @@ function rmShowAnswerReview() {
         <span class="ar-badge ${statusCls}">${statusLabel}</span>
       </div>
       <div class="ar-body">
-        <div class="ar-qtext">${q.question}</div>
+        <div class="ar-qtext">${escHtml(q.question)}</div>
         ${optsHtml}
         ${justHtml}
         <div class="ar-explain-row">
@@ -4344,7 +5754,7 @@ function drRenderScreen(dr) {
     card.innerHTML = `
       <div class="dr-q-header" onclick="drToggleBody('${q.id}')">
         <span class="dr-q-num">Q${i+1}</span>
-        <span class="dr-q-text">${q.question}</span>
+        <span class="dr-q-text">${escHtml(q.question)}</span>
         <button class="dr-tick-btn${isTicked ? ' ticked' : ''}" id="dr-tick-${q.id}"
           onclick="event.stopPropagation();drToggleTick('${q.id}')" title="Mark as revised">✓</button>
       </div>
@@ -4488,6 +5898,7 @@ function drMockCompleted() {
   // Add correct answers to DR cycle (day 1, 3, 5 review)
   drCycleAddCorrect(rmState.questions, rmState.answers);
   renderDRCycleBadge();
+  renderDRProgressBar();
   // Hide result screen and return to DR screen with completion banner
   setTimeout(() => {
     document.getElementById('real-mock-result-screen').style.display = 'none';
@@ -4715,6 +6126,7 @@ function openDRCycleMock() {
     correct: 0,
     wrong: 0,
     answered: false,
+    answeredIndices: new Set(),
   };
   document.getElementById('daily-revision-screen').style.display = 'none';
   document.getElementById('drc-rev-screen').style.display = 'block';
@@ -4743,8 +6155,9 @@ function drcRevRender() {
   // Store letterMap on state so drcRevAnswer can map back
   st.currentLetterMap = letterMap;
 
+  const alreadyAnsweredDRC = st.answeredIndices && st.answeredIndices.has(st.idx);
   const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
-    `<div class="ar-opt" style="cursor:pointer;" onclick="drcRevAnswer('${entry.questionId}','${l}',${entry.currentDay})">
+    `<div class="ar-opt${alreadyAnsweredDRC ? ' locked' : ''}" style="cursor:${alreadyAnsweredDRC ? 'default' : 'pointer'};" ${alreadyAnsweredDRC ? '' : `onclick="drcRevAnswer('${entry.questionId}','${l}',${entry.currentDay})"`}>
       <span class="ar-opt-ltr">${l}.</span>
       <span style="flex:1;">${shuffledOpts[l]}</span>
     </div>`
@@ -4755,7 +6168,7 @@ function drcRevRender() {
       <span>${entry.unit}</span>
       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">${dayLabel}</span>
     </div>
-    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${entry.question}</div>
+    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${escHtml(entry.question)}</div>
     <div id="drc-rev-opts">${optsHtml}</div>
     <div id="drc-rev-feedback" style="margin-top:14px;"></div>`;
   // Reset answered flag — new question not yet answered
@@ -4785,6 +6198,11 @@ function drcRevAnswer(qId, letter, currentDay) {
     if (dispL === correctDisplayLetter) el.classList.add('correct');
     else if (dispL === letter && !isCorrect) el.classList.add('user-wrong');
   });
+
+  // Guard against double-answer on back navigation
+  if (st.answeredIndices && st.answeredIndices.has(st.idx)) return;
+  if (!st.answeredIndices) st.answeredIndices = new Set();
+  st.answeredIndices.add(st.idx);
 
   if (isCorrect) st.correct++; else st.wrong++;
   document.getElementById('drc-rev-score-badge').textContent = `✓ ${st.correct}`;
@@ -5225,12 +6643,21 @@ function closeTrendGraph() {
 
 // ─── THEME ─────────────────────────────────────────────────
 const themeBtn = appContainer.querySelector('#theme-toggle-btn');
-if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light-theme'); themeBtn.innerHTML = '☀️ Theme'; }
+if (localStorage.getItem('mockiq_theme') === 'light' || localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light-theme');
+  themeBtn.innerHTML = '☀️ Theme';
+}
 themeBtn.addEventListener('click', () => {
   document.body.classList.toggle('light-theme');
   let isLight = document.body.classList.contains('light-theme');
+  localStorage.setItem('mockiq_theme', isLight ? 'light' : 'dark');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   themeBtn.innerHTML = isLight ? '☀️ Theme' : '🌙 Theme';
+  // Sync landing theme toggle button
+  const lpIcon  = document.getElementById('lp-theme-icon');
+  const lpLabel = document.getElementById('lp-theme-label');
+  if (lpIcon)  lpIcon.textContent  = isLight ? '☀️' : '🌙';
+  if (lpLabel) lpLabel.textContent = isLight ? 'Light' : 'Dark';
   if (currentDetailedUnit) renderActiveDetailView();
 });
 
@@ -5252,9 +6679,9 @@ appContainer.querySelector('#pip-btn').addEventListener('click', () => {
 appContainer.querySelector('#history-toggle-btn').addEventListener('click', toggleHistoryView);
 appContainer.querySelector('#clear-history-btn').addEventListener('click', clearHistory);
 appContainer.querySelector('#copy-btn').addEventListener('click', copyResults);
-appContainer.querySelector('#export-btn').addEventListener('click', exportJSON);
-appContainer.querySelector('#import-btn').addEventListener('click', () => appContainer.querySelector('#import-file').click());
-appContainer.querySelector('#import-file').addEventListener('change', importJSON);
+document.getElementById('export-btn').addEventListener('click', exportJSON);
+document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-file').click());
+document.getElementById('import-file').addEventListener('change', importJSON);
 
 // ─── LEGACY DATE MIGRATION ───────────────────────────────────
 // Migrates old locale-format dates (e.g. "9/3/2026 02:30 PM") to ISO prefix
@@ -5545,7 +6972,7 @@ function renderMistakeScreen() {
               <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">Next: ${next}</span>
             </div>
             <div class="mistake-q-body">
-              <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${q.question}</div>
+              <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${escHtml(q.question)}</div>
               ${optsHtml}
               ${justHtml}
             </div>
@@ -5568,7 +6995,7 @@ let srsRevState = { questions:[], idx:0, correct:0, wrong:0 };
 function startSRSRevision() {
   const due = srsDueToday();
   if (!due.length) return;
-  srsRevState = { questions: due.sort(() => Math.random()-0.5), idx:0, correct:0, wrong:0 };
+  srsRevState = { questions: due.sort(() => Math.random()-0.5), idx:0, correct:0, wrong:0, answeredIds: new Set() };
   document.getElementById('srs-revision-screen').style.display = 'block';
   srsRevRender();
 }
@@ -5595,8 +7022,9 @@ function srsRevRender() {
   const { shuffledOpts, letterMap } = shuffleOptions(q.options);
   srsRevState.currentLetterMap = letterMap; // store for srsRevAnswer
 
+  const alreadyAnswered = srsRevState.answeredIds && srsRevState.answeredIds.has(q.questionId);
   const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
-    `<div class="ar-opt" style="cursor:pointer;" onclick="srsRevAnswer('${q.questionId}','${l}')">
+    `<div class="ar-opt${alreadyAnswered ? ' locked' : ''}" style="cursor:${alreadyAnswered ? 'default' : 'pointer'};" ${alreadyAnswered ? '' : `onclick="srsRevAnswer('${q.questionId}','${l}')"`}>
       <span class="ar-opt-ltr">${l}.</span>
       <span style="flex:1;">${shuffledOpts[l]}</span>
     </div>`
@@ -5607,7 +7035,7 @@ function srsRevRender() {
       <span>${q.unit}</span>
       <span class="srs-stage-pill srs-stage-${entry ? entry.stage : 1}">${stageLabel}</span>
     </div>
-    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${q.question}</div>
+    <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${escHtml(q.question)}</div>
     <div id="srs-rev-opts">${optsHtml}</div>
     <div id="srs-rev-feedback" style="margin-top:14px;"></div>`;
 }
@@ -5634,6 +7062,11 @@ function srsRevAnswer(qId, letter) {
     if (dispL === correctDisplayLetter) el.classList.add('correct');
     else if (dispL === letter && !isCorrect) el.classList.add('user-wrong');
   });
+
+  // Guard against double-answer (back navigation)
+  if (st.answeredIds && st.answeredIds.has(qId)) return;
+  if (!st.answeredIds) st.answeredIds = new Set();
+  st.answeredIds.add(qId);
 
   // Update SRS data FIRST so feedback shows the correct next-review date
   if (isCorrect) st.correct++; else st.wrong++;
@@ -5865,7 +7298,7 @@ function renderDRCycleCard(e, today) {
         <div style="flex-shrink:0;margin-left:8px;">${dayPills}</div>
       </div>
       <div class="mistake-q-body">
-        <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${e.question}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;">${escHtml(e.question)}</div>
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Added: ${e.addedOn}</div>
         ${optsHtml}
         ${justHtml}
@@ -7417,7 +8850,7 @@ function rmRenderQuestion() {
 
   body.innerHTML = `
     <div class="rm-q-counter">${counterText}</div>
-    <div class="rm-question-text">${q.question}</div>
+    <div class="rm-question-text">${escHtml(q.question)}</div>
     <div class="rm-options">${optionsHtml}</div>
     ${feedbackHtml}
     <div class="rm-nav-row">
@@ -7489,6 +8922,7 @@ function rmNextQ() {
 }
 
 function rmPrevQ() {
+  if (rmState.paused) return;
   if (rmState.currentIdx === 0) return;
   rmState.currentIdx--;
   rmResetQTimer();
@@ -7757,7 +9191,7 @@ function rmShowStretchReview() {
           <span style="font-size:12px;font-weight:600;${statusCls}">${status}</span>
         </div>
         <div class="review-q-body">
-          <div class="review-q-text">${q.question}</div>
+          <div class="review-q-text">${escHtml(q.question)}</div>
           ${optsHtml}
           ${expHtml}
           <div class="ar-explain-row">
@@ -7852,7 +9286,7 @@ function renderReviewList() {
           <button onclick="event.stopPropagation();rmRemoveReview(${i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 6px;">\u2715</button>
         </div>
         <div class="review-q-body">
-          <div class="review-q-text">${q.question}</div>
+          <div class="review-q-text">${escHtml(q.question)}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">${yourLabel}Correct: <b style="color:var(--green)">${q.correct}</b> \u00b7 Added: ${q.addedOn}</div>
           ${optsHtml}
           ${expHtml}
@@ -8941,9 +10375,306 @@ function repairDRCycleDoneFlags() {
   });
 })();
 
+// ═══════════════════════════════════════════════════════════
+// LANDING PAGE LOGIC
+// ═══════════════════════════════════════════════════════════
+(function() {
+
+  // ── Theme toggle on landing ──────────────────────────────
+  window.lpToggleTheme = function() {
+    document.body.classList.toggle('light-theme');
+    const isLight = document.body.classList.contains('light-theme');
+    localStorage.setItem('mockiq_theme', isLight ? 'light' : 'dark');
+    _updateThemeBtn();
+  };
+  function _updateThemeBtn() {
+    const isLight = document.body.classList.contains('light-theme');
+    const icon  = document.getElementById('lp-theme-icon');
+    const label = document.getElementById('lp-theme-label');
+    if (icon)  icon.textContent  = isLight ? '☀️' : '🌙';
+    if (label) label.textContent = isLight ? 'Light' : 'Dark';
+  }
+
+  // ── Show landing from dashboard ──────────────────────────
+  window.showLandingScreen = function() {
+    renderLanding();
+    const ls = document.getElementById('landing-screen');
+    if (ls) {
+      ls.classList.remove('hidden');
+      ls.style.display = 'flex';
+    }
+  };
+
+  // ── Greeting based on time & occasion ───────────────────
+  function getGreeting() {
+    const now = new Date();
+    const h   = now.getHours();
+    const m   = now.getMonth();   // 0-based
+    const d   = now.getDate();
+
+    const occ = [
+      { m:0,  d:1,  g:'🎉 Happy New Year!',        s:'A fresh start — make every question count today.' },
+      { m:0,  d:26, g:'🇮🇳 Republic Day!',           s:'Honour it with a strong study session today.' },
+      { m:7,  d:15, g:'🇮🇳 Happy Independence Day!',  s:'Stay independent of wrong answers — study hard!' },
+      { m:9,  d:2,  g:'🙏 Gandhi Jayanti',            s:'Be the change — start your revision now.' },
+      { m:11, d:25, g:'🎄 Merry Christmas!',          s:'A gift to yourself — one more prep session.' },
+    ];
+    for (const o of occ) {
+      if (o.m === m && o.d === d) return { g: o.g, s: o.s };
+    }
+
+    if (h >= 5 && h < 12)  return { g: '☀️ Good Morning!',    s: 'Start strong — your best work happens now.' };
+    if (h >= 12 && h < 17) return { g: '🌤 Good Afternoon!',   s: 'Midday fuel — keep the momentum going.' };
+    if (h >= 17 && h < 21) return { g: '🌅 Good Evening!',     s: 'Golden hour — review what you learned today.' };
+    return                        { g: '🌙 Still Grinding?',    s: 'Late-night warrior — one last session before rest.' };
+  }
+
+  // ── Compute live stats ───────────────────────────────────
+  function getLandingStats() {
+    // Mistakes count
+    const mistakes = JSON.parse(localStorage.getItem('mockiq_mistakes') || '[]').length;
+
+    // DR Cycle due count
+    const drCycle = JSON.parse(localStorage.getItem('mockiq_dr_cycle') || '{}');
+    const today   = new Date();
+    // Normalise today to midnight local to avoid partial-day errors
+    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const toDateK  = dt => {
+      const y = dt.getFullYear();
+      const mo = String(dt.getMonth()+1).padStart(2,'0');
+      const da = String(dt.getDate()).padStart(2,'0');
+      return `${y}-${mo}-${da}`;
+    };
+
+    let drcDue = 0;
+    Object.values(drCycle).forEach(q => {
+      if (q.done) return;
+      const addedOn = q.addedOn || toDateK(todayMid);
+      const addedParts = addedOn.split('-').map(Number);
+      const added = new Date(addedParts[0], addedParts[1]-1, addedParts[2]);
+      const daysSince = Math.floor((todayMid - added) / 86400000);
+      const sched = q.scheduledDays || [1,3,5,10];
+      const done  = q.completedDays || [];
+      for (const s of sched) {
+        if (!done.includes(s) && daysSince >= s) { drcDue++; break; }
+      }
+    });
+
+    // Days to exam — compute using local date math to avoid timezone drift
+    // Exam date: June 1, 2026
+    const examLocal = new Date(2026, 5, 1); // month is 0-based: 5 = June
+    const daysLeft  = Math.max(0, Math.ceil((examLocal - todayMid) / 86400000));
+
+    // Daily revision progress today
+    const dr       = JSON.parse(localStorage.getItem('mockiq_daily_revision') || 'null');
+    const todayKey = toDateK(todayMid);
+    let drStatus = 'Start';
+    if (dr && dr.date === todayKey) {
+      const chk   = (dr.checked || []).length;
+      const total = (dr.questionIds || []).length;
+      drStatus = chk >= total ? '✓ Done' : `${chk}/${total}`;
+    }
+
+    // Real mock QB count
+    const qb = JSON.parse(localStorage.getItem('mockiq_question_bank') || '[]').length;
+
+    return { mistakes, drcDue, daysLeft, drStatus, qb };
+  }
+
+  // ── Render landing with live data ────────────────────────
+  function renderLanding() {
+    const { g, s } = getGreeting();
+    const { mistakes, drcDue, daysLeft, drStatus, qb } = getLandingStats();
+    const el = id => document.getElementById(id);
+
+    if (el('lp-greeting'))      el('lp-greeting').textContent      = g;
+    if (el('lp-sub'))           el('lp-sub').textContent           = s;
+    if (el('lp-pill-mistakes')) el('lp-pill-mistakes').textContent = mistakes;
+    if (el('lp-pill-drcycle'))  el('lp-pill-drcycle').textContent  = drcDue;
+    if (el('lp-pill-days'))     el('lp-pill-days').textContent     = daysLeft;
+    if (el('lp-badge-mistake')) el('lp-badge-mistake').textContent = mistakes + ' logged';
+    if (el('lp-badge-drcycle')) el('lp-badge-drcycle').textContent = drcDue + ' due';
+    if (el('lp-badge-daily'))   el('lp-badge-daily').textContent   = drStatus;
+    if (el('lp-badge-realmock'))el('lp-badge-realmock').textContent= qb + ' Qs';
+    if (el('lp-countdown-num')) el('lp-countdown-num').textContent = daysLeft;
+
+    _updateThemeBtn();
+  }
+  window.renderLanding = renderLanding;
+
+  // ── Spawn floating particles ─────────────────────────────
+  function spawnParticles() {
+    const ls = document.getElementById('landing-screen');
+    if (!ls) return;
+    const colors = ['#6c8ef5','#9b72f5','#2dd4bf','#34d399','#fbbf24'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'lp-particle';
+      const size = 3 + Math.random() * 6;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        left:${Math.random()*100}%;
+        top:${80 + Math.random()*20}%;
+        animation-duration:${8+Math.random()*14}s;
+        animation-delay:${Math.random()*10}s;
+        opacity:0;
+      `;
+      ls.appendChild(p);
+    }
+  }
+
+  // ── Dismiss landing & navigate ───────────────────────────
+  window.landingGo = function(dest) {
+    const ls = document.getElementById('landing-screen');
+    if (ls) {
+      ls.classList.add('hidden');
+      setTimeout(() => { ls.style.display = 'none'; }, 420);
+    }
+    // Restore exam-guy / mbot
+    const examGuy = document.getElementById('exam-guy-wrap');
+    const mbot    = document.getElementById('mbot-wrap');
+    if (examGuy) examGuy.style.display = '';
+    if (mbot)    mbot.style.display    = '';
+
+    switch (dest) {
+      case 'mistake':
+        setTimeout(() => { if (typeof openMistakeNotebook === 'function') openMistakeNotebook(); }, 450);
+        break;
+      case 'drcycle':
+        setTimeout(() => { if (typeof openDRCycleMock === 'function') openDRCycleMock(); }, 450);
+        break;
+      case 'daily':
+        setTimeout(() => {
+          const dr = JSON.parse(localStorage.getItem('mockiq_daily_revision') || 'null');
+          const todayKey = (() => {
+            const t = new Date();
+            return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+          })();
+          if (dr && dr.date === todayKey) {
+            if (typeof openDailyRevision === 'function') openDailyRevision();
+          } else {
+            if (typeof openDRUnitPicker === 'function') openDRUnitPicker();
+            else if (typeof drGenerate === 'function') drGenerate();
+          }
+        }, 450);
+        break;
+      case 'realmock':
+        setTimeout(() => {
+          const btn = document.getElementById('start-real-mock-btn');
+          if (btn) btn.click();
+        }, 450);
+        break;
+      case 'dashboard':
+      default:
+        break;
+    }
+  };
+
+  // ── Sync button — triggers Firebase sync ────────────────
+  window.syncBtnClick = function() {
+    if (typeof window.fbSync === 'function') window.fbSync();
+    else if (typeof window.fbPush === 'function') window.fbPush();
+  };
+
+  function updateSyncBtns(text, color) {
+    ['lp-sync-btn','db-sync-btn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.textContent = text;
+      btn.classList.remove('syncing','ok','error','offline');
+      if (color === '#4ade80')                               btn.classList.add('ok');
+      else if (color === '#f87171')                          btn.classList.add('error');
+      else if (/Sync|Pull|Sav|Push/i.test(text))            btn.classList.add('syncing');
+      else if (/Offline/i.test(text))                       btn.classList.add('offline');
+    });
+  }
+  window._updateSyncBtns = updateSyncBtns;
+
+  // ── Profile dropdown ────────────────────────────────────
+  window.toggleProfileMenu = function(scope) {
+    const menu = document.getElementById(scope + '-profile-menu');
+    if (!menu) return;
+    const wasOpen = menu.style.display !== 'none';
+    ['lp-profile-menu','db-profile-menu'].forEach(id => {
+      const m = document.getElementById(id);
+      if (m) m.style.display = 'none';
+    });
+    if (!wasOpen) {
+      menu.style.display = 'block';
+      // For dashboard fixed dropdown: position relative to button via getBoundingClientRect
+      if (scope === 'db') {
+        const btn = document.querySelector('#db-profile-wrap .profile-icon-btn');
+        if (btn) {
+          const r = btn.getBoundingClientRect();
+          const menuH = menu.offsetHeight || 180;
+          // Open upward if enough space, else downward
+          const spaceAbove = r.top;
+          const spaceBelow = window.innerHeight - r.bottom;
+          if (spaceAbove > menuH + 12 || spaceAbove > spaceBelow) {
+            menu.style.top  = (r.top - menuH - 8) + 'px';
+          } else {
+            menu.style.top  = (r.bottom + 8) + 'px';
+          }
+          // Align right edge with button right edge, clamp to viewport
+          let left = r.right - (menu.offsetWidth || 180);
+          left = Math.max(8, Math.min(left, window.innerWidth - (menu.offsetWidth || 180) - 8));
+          menu.style.left = left + 'px';
+        }
+      }
+    }
+  };
+  window.closeProfileMenu = function() {
+    ['lp-profile-menu','db-profile-menu'].forEach(id => {
+      const m = document.getElementById(id);
+      if (m) m.style.display = 'none';
+    });
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.profile-dropdown-wrap')) window.closeProfileMenu();
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    // Restore saved theme
+    if (localStorage.getItem('mockiq_theme') === 'light') {
+      document.body.classList.add('light-theme');
+    }
+
+    spawnParticles();
+    renderLanding();
+
+    // Re-render after Firebase pull populates data
+    setTimeout(renderLanding, 1700);
+
+    // Create ghost fb-status so legacy setStatus() calls don't error,
+    // and mirror text to our sync buttons via MutationObserver
+    let fbEl = document.getElementById('fb-status');
+    if (!fbEl) {
+      fbEl = document.createElement('span');
+      fbEl.id = 'fb-status';
+      fbEl.style.display = 'none';
+      document.body.appendChild(fbEl);
+    }
+    new MutationObserver(() => {
+      updateSyncBtns(fbEl.textContent, fbEl.style.color);
+    }).observe(fbEl, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    // Seed initial state
+    setTimeout(() => updateSyncBtns(fbEl.textContent || '☁ ...', fbEl.style.color), 600);
+
+    // Hide exam-guy and mbot while landing visible
+    const examGuy = document.getElementById('exam-guy-wrap');
+    const mbot    = document.getElementById('mbot-wrap');
+    if (examGuy) examGuy.style.display = 'none';
+    if (mbot)    mbot.style.display    = 'none';
+  });
+
+})();
+// ═══════════════════════════════════════════════════════════
+
 window.onload = () => {
-  repairStorage(); // must run first — fixes corrupt keys before anything else reads them
-  repairDRCycleDoneFlags(); // fix incorrectly set done:true flags in DR cycle
+  repairStorage();
+  repairDRCycleDoneFlags();
   migrateLegacyDates();
   showHome();
   loadSavedMocksUI();
@@ -8961,6 +10692,124 @@ window.onload = () => {
   renderDRCycleBadge();
   renderDRCoverageCard();
   renderDRProgressBar();
+
+  // ── 30-second idle → auto-return to landing ──────────────
+  (function() {
+    const IDLE_MS   = 30_000;
+    const WARN_MS   = 5_000;   // show warning 5s before redirect
+    let idleTimer   = null;
+    let warnTimer   = null;
+    let warnEl      = null;
+    let isOnDashboard = true; // tracks whether we're on the dashboard
+
+    function createWarnBanner() {
+      if (warnEl) return;
+      warnEl = document.createElement('div');
+      warnEl.id = 'idle-warn-banner';
+      warnEl.innerHTML = `
+        <span id="idle-warn-text">Returning to Home in <b>5</b>s…</span>
+        <button onclick="window._resetIdleTimer()" style="
+          margin-left:14px;padding:4px 12px;border-radius:99px;
+          background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);
+          color:#fff;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;">
+          Stay here
+        </button>`;
+      Object.assign(warnEl.style, {
+        position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+        background:'rgba(30,30,50,0.92)', backdropFilter:'blur(12px)',
+        border:'1px solid rgba(255,255,255,0.15)', borderRadius:'99px',
+        padding:'10px 20px', zIndex:'99998', display:'flex', alignItems:'center',
+        fontFamily:'var(--font-body)', fontSize:'13px', color:'#e2e8f0',
+        boxShadow:'0 8px 32px rgba(0,0,0,0.4)', whiteSpace:'nowrap',
+        animation:'lp-fadein 0.3s ease both'
+      });
+      document.body.appendChild(warnEl);
+
+      // Countdown tick
+      let secs = Math.round(WARN_MS / 1000);
+      const tick = setInterval(() => {
+        secs--;
+        const b = warnEl && warnEl.querySelector('b');
+        if (b) b.textContent = secs;
+        if (secs <= 0) clearInterval(tick);
+      }, 1000);
+    }
+
+    function removeWarnBanner() {
+      if (warnEl) { warnEl.remove(); warnEl = null; }
+    }
+
+    function goHome() {
+      removeWarnBanner();
+      clearTimeout(idleTimer);
+      clearTimeout(warnTimer);
+      // Guard: never interrupt an active exam
+      if (document.getElementById('real-mock-screen')?.classList.contains('active')) return;
+      if (document.getElementById('daily-revision-screen')?.style.display === 'block') return;
+      if (document.getElementById('srs-revision-screen')?.style.display === 'block') return;
+      if (document.getElementById('drc-rev-screen')?.style.display === 'block') return;
+      if (document.getElementById('quiz-window')?.style.display !== 'none' &&
+          document.getElementById('quiz-window')?.style.display !== '') return;
+      // Only redirect if landing is hidden (dashboard visible)
+      const ls = document.getElementById('landing-screen');
+      if (ls && ls.style.display === 'none') {
+        if (typeof window.showLandingScreen === 'function') window.showLandingScreen();
+      }
+    }
+
+    function startIdleTimer() {
+      clearTimeout(idleTimer);
+      clearTimeout(warnTimer);
+      removeWarnBanner();
+
+      // Show warning banner WARN_MS before redirect
+      warnTimer = setTimeout(() => {
+        // Only warn if dashboard is visible AND no active exam
+        const ls = document.getElementById('landing-screen');
+        const examActive =
+          document.getElementById('real-mock-screen')?.classList.contains('active') ||
+          document.getElementById('daily-revision-screen')?.style.display === 'block' ||
+          document.getElementById('srs-revision-screen')?.style.display === 'block' ||
+          document.getElementById('drc-rev-screen')?.style.display === 'block';
+        if (ls && ls.style.display === 'none' && !examActive) createWarnBanner();
+      }, IDLE_MS - WARN_MS);
+
+      idleTimer = setTimeout(() => {
+        goHome();
+      }, IDLE_MS);
+    }
+
+    window._resetIdleTimer = function() {
+      removeWarnBanner();
+      startIdleTimer();
+    };
+
+    // Reset on any user interaction on the dashboard
+    const EVENTS = ['click','keydown','scroll'];
+    EVENTS.forEach(ev => {
+      document.addEventListener(ev, () => {
+        // Only reset if dashboard is currently shown (landing is hidden)
+        const ls = document.getElementById('landing-screen');
+        if (ls && ls.style.display === 'none') startIdleTimer();
+      }, { passive: true });
+    });
+
+    // Pause timer when landing is shown, restart when dashboard becomes active
+    const landingEl = document.getElementById('landing-screen');
+    if (landingEl) {
+      new MutationObserver(() => {
+        const hidden = landingEl.style.display === 'none';
+        if (hidden) {
+          startIdleTimer();    // dashboard just became visible → start countdown
+        } else {
+          clearTimeout(idleTimer);
+          clearTimeout(warnTimer);
+          removeWarnBanner(); // landing showing → stop countdown
+        }
+      }).observe(landingEl, { attributes: true, attributeFilter: ['style','class'] });
+    }
+  })();
+  // ─────────────────────────────────────────────────────────
 
   // Register service worker
   if ('serviceWorker' in navigator) {

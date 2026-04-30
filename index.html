@@ -7334,18 +7334,18 @@ function renderMistakeScreen() {
 }
 
 // ── SRS Revision Session ─────────────────────────────────
-let srsRevState = { questions:[], idx:0, correct:0, wrong:0 };
+window.srsRevState = { questions:[], idx:0, correct:0, wrong:0 };
 
 function startSRSRevision() {
   const due = srsDueToday();
   if (!due.length) return;
-  srsRevState = { questions: due.sort(() => Math.random()-0.5), idx:0, correct:0, wrong:0, answeredIds: new Set() };
+  window.srsRevState = { questions: due.sort(() => Math.random()-0.5), idx:0, correct:0, wrong:0, answeredIds: new Set() };
   document.getElementById('srs-revision-screen').style.display = 'block';
   srsRevRender();
 }
 
 function srsRevRender() {
-  const st  = srsRevState;
+  const st  = window.srsRevState;
   const q   = st.questions[st.idx];
   const total = st.questions.length;
   const body  = document.getElementById('srs-rev-body');
@@ -7364,9 +7364,9 @@ function srsRevRender() {
 
   // Shuffle options display order for this question
   const { shuffledOpts, letterMap } = shuffleOptions(q.options);
-  srsRevState.currentLetterMap = letterMap; // store for srsRevAnswer
+  window.srsRevState.currentLetterMap = letterMap; // store for srsRevAnswer
 
-  const alreadyAnswered = srsRevState.answeredIds && srsRevState.answeredIds.has(q.questionId);
+  const alreadyAnswered = window.srsRevState.answeredIds && window.srsRevState.answeredIds.has(q.questionId);
   const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
     `<div class="ar-opt${alreadyAnswered ? ' locked' : ''}"
        style="cursor:${alreadyAnswered ? 'default' : 'pointer'};"
@@ -7388,7 +7388,7 @@ function srsRevRender() {
 }
 
 function srsRevAnswer(qId, letter) {
-  const st = srsRevState;
+  const st = window.srsRevState;
   if (!st || !st.questions || !st.questions.length) return;
   const q = st.questions[st.idx];
   if (!q || q.questionId !== qId) return; // stale onclick guard
@@ -7456,7 +7456,7 @@ function srsRevAnswer(qId, letter) {
 }
 
 function srsRevNext() {
-  const st = srsRevState;
+  const st = window.srsRevState;
   if (!st || !st.questions) return;
   st.idx++;
   if (st.idx >= st.questions.length) {
@@ -7467,14 +7467,14 @@ function srsRevNext() {
 }
 
 function srsRevPrev() {
-  const st = srsRevState;
+  const st = window.srsRevState;
   if (!st || !st.questions || st.idx <= 0) return;
   st.idx--;
   srsRevRender();
 }
 
 function srsRevShowResults() {
-  const st    = srsRevState;
+  const st    = window.srsRevState;
   const total = st.questions.length;
   const body  = document.getElementById('srs-rev-body');
   const fill  = document.getElementById('srs-rev-fill');
@@ -7524,7 +7524,7 @@ function closeSRSRevision() {
 }
 
 document.getElementById('srs-rev-back-btn').addEventListener('click', () => {
-  if (srsRevState.idx > 0) {
+  if (window.srsRevState.idx > 0) {
     if (!confirm('Exit revision? Progress is saved for completed questions.')) return;
   }
   closeSRSRevision();
@@ -8695,6 +8695,7 @@ function saveMockProgress() {
   // Replace if same mock name already saved
   saved = saved.filter(s => s.mockName !== currentMockName);
   saved.unshift({
+    _id: 'sm_' + Date.now(),   // stable ID — immune to index shifting on delete
     mockName: currentMockName,
     mockUnit: currentMockUnit,
     currentQ: currentQ,
@@ -8725,22 +8726,26 @@ function loadSavedMocksUI() {
     item.className = 'saved-mock-item';
     const unitShort = s.mockUnit.length > 45 ? s.mockUnit.substring(0, 43) + '…' : s.mockUnit;
     item.innerHTML = `
-      <button class="saved-mock-delete-btn" title="Remove saved mock" onclick="deleteSavedMock(${idx})">✕</button>
+      <button class="saved-mock-delete-btn" title="Remove saved mock" onclick="deleteSavedMock('${s._id || idx}')">✕</button>
       <div class="saved-mock-icon">📝</div>
       <div class="saved-mock-info">
         <div class="saved-mock-name">${s.mockName}</div>
         <div class="saved-mock-meta">${unitShort} &nbsp;·&nbsp; Q${s.currentQ} reached &nbsp;·&nbsp; ${s.answers.length} answered &nbsp;·&nbsp; Saved ${s.savedAt}</div>
       </div>
-      <button class="saved-mock-resume-btn" onclick="resumeSavedMock(${idx})">▶ Resume</button>
+      <button class="saved-mock-resume-btn" onclick="resumeSavedMock('${s._id || idx}')">▶ Resume</button>
     `;
     list.appendChild(item);
   });
 }
 
-function resumeSavedMock(idx) {
-  const saved = JSON.parse(localStorage.getItem('savedMocks')) || [];
-  const s = saved[idx];
+function resumeSavedMock(idOrIdx) {
+  let saved = JSON.parse(localStorage.getItem('savedMocks')) || [];
+  // Support both stable _id string and legacy numeric index
+  let realIdx = typeof idOrIdx === 'number' ? idOrIdx : saved.findIndex(s => s._id === idOrIdx);
+  if (realIdx < 0) realIdx = parseInt(idOrIdx);   // fallback for old saves without _id
+  const s = saved[realIdx];
   if (!s) return;
+  const idx = realIdx;
 
   // Restore state
   currentMockName = s.mockName;
@@ -8783,10 +8788,12 @@ function resumeSavedMock(idx) {
   resumePopupTimers();
 }
 
-function deleteSavedMock(idx) {
+function deleteSavedMock(idOrIdx) {
   let saved = JSON.parse(localStorage.getItem('savedMocks')) || [];
-  if (!confirm(`Remove "${saved[idx]?.mockName}"?`)) return;
-  saved.splice(idx, 1);
+  let realIdx = typeof idOrIdx === 'number' ? idOrIdx : saved.findIndex(s => s._id === idOrIdx);
+  if (realIdx < 0) realIdx = parseInt(idOrIdx);
+  if (!confirm(`Remove "${saved[realIdx]?.mockName}"?`)) return;
+  saved.splice(realIdx, 1);
   localStorage.setItem('savedMocks', JSON.stringify(saved));
   loadSavedMocksUI();
 }
@@ -9808,7 +9815,11 @@ function rmResumeMock() {
       saveBtn.style.display = '';
     }
     rmRenderQuestion();
+    // Preserve saved timeLeft — rmStartTimers resets to 60, so restore after
+    const savedTimeLeft = rmState.timeLeft;
     rmStartTimers();
+    rmState.timeLeft = savedTimeLeft;
+    rmUpdateQTimerDisplay();
     // totalTime is already set from data.state — rmStartTimers does not reset it
   } catch(e) { localStorage.removeItem(RM_SAVED_KEY); showHome(); }
 }
@@ -11350,7 +11361,7 @@ document.addEventListener('keydown', function(e) {
         srsRevNext();
       }
     } else if (key === 'ArrowLeft') {
-      if (srsRevState && srsRevState.idx > 0) {
+      if (window.srsRevState && window.srsRevState.idx > 0) {
         e.preventDefault();
         srsRevPrev();
       }

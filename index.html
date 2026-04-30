@@ -124,7 +124,9 @@
         // Add remote-only questions not in local at all
         const localIds = new Set(local.map(q => q.id));
         remote.questionBank.forEach(q => { if (!localIds.has(q.id)) merged.push(q); });
-        localStorage.setItem('mockiq_question_bank', JSON.stringify(merged));
+        // Use saveQB() so rmUpdateQBCount() and other hooks fire immediately
+        if (typeof saveQB === 'function') saveQB(merged);
+        else localStorage.setItem('mockiq_question_bank', JSON.stringify(merged));
       }
       // Merge review questions — lastUpdated timestamp wins per id (handles deletion sync via tombstone)
       if (Array.isArray(remote.reviewQuestions)) {
@@ -220,7 +222,8 @@
           // Ensure addedOn is present; if missing but addedDate exists, migrate it
           if (!merged[qId].addedOn && merged[qId].addedDate) {
             const d = new Date(merged[qId].addedDate);
-            merged[qId].addedOn = !isNaN(d.getTime()) ? toDateKey(d) : toDateKey(new Date());
+            const _dk1 = dt => { const y=dt.getFullYear(),m=String(dt.getMonth()+1).padStart(2,'0'),dd=String(dt.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; };
+            merged[qId].addedOn = !isNaN(d.getTime()) ? _dk1(d) : _dk1(new Date());
             console.log(`fbPull: migrated addedDate -> addedOn for question ${qId}`);
           }
           // Always delete addedDate to prevent dual-property entries
@@ -240,7 +243,8 @@
           // Clean up addedDate if present (local-only entries may have legacy property)
           if (e.addedDate && !e.addedOn) {
             const d = new Date(e.addedDate);
-            e.addedOn = !isNaN(d.getTime()) ? toDateKey(d) : toDateKey(new Date());
+            const _dk2 = dt => { const y=dt.getFullYear(),m=String(dt.getMonth()+1).padStart(2,'0'),dd=String(dt.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; };
+            e.addedOn = !isNaN(d.getTime()) ? _dk2(d) : _dk2(new Date());
             console.log(`fbPull: migrated addedDate -> addedOn for local-only question ${qId}`);
           }
           if (e.addedDate) {
@@ -303,6 +307,16 @@
   });
 
   window.addEventListener('offline', () => setStatus('📵 Offline', 'var(--text-muted)'));
+
+  // Push when user hides the tab/app — catches data that hasn't been pushed yet
+  // if the debounce timer hasn't fired before they switch away
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && navigator.onLine && _pushTimer) {
+      clearTimeout(_pushTimer);
+      _pushTimer = null;
+      window.fbPush();
+    }
+  });
 
 })();
 </script>
@@ -1439,6 +1453,8 @@ body.light-theme .lp-ctrl-btn:hover {
   bottom: auto;
   right: auto;
   left: auto;
+  /* Must be above all dashboard cards, modals, and sticky headers */
+  z-index: 999999 !important;
   animation: pd-in 0.18s cubic-bezier(0.4,0,0.2,1);
 }
 @keyframes pd-in {
@@ -3478,7 +3494,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     min-height: 48px;
     transform: none !important;
   }
-  .ar-opt:active {
+  .ar-opt:active:not(.locked) {
     transform: scale(0.98) !important;
     border-color: rgba(108,142,245,0.4) !important;
     background: rgba(108,142,245,0.08) !important;
@@ -3514,7 +3530,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .option-label:active { transform: scale(0.98); background: rgba(108,142,245,0.12) !important; border-color: rgba(108,142,245,0.4) !important; }
   .rm-option:active { transform: scale(0.98) !important; background: rgba(108,142,245,0.12) !important; border-color: rgba(108,142,245,0.4) !important; }
   .dr-opt:active:not(.locked) { transform: scale(0.98) !important; }
-  .ar-opt:active { transform: scale(0.98) !important; }
+  .ar-opt:active:not(.locked) { transform: scale(0.98) !important; }
   .lp-btn:active { transform: scale(0.97); }
 
   /* Shimmer sweep — disable on touch (saves CPU) */
@@ -3534,6 +3550,11 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   #landing-screen { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
   #real-mock-screen .rm-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
   #srs-rev-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  /* DRC revision and book screens also need safe-area — missing previously */
+  #drc-rev-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  #drcycle-list-container { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  /* Real mock result and review screens */
+  #rm-result-inner { padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important; }
   #quiz-window { padding-bottom: env(safe-area-inset-bottom); }
 }
 
@@ -6464,16 +6485,30 @@ function drcRevRender() {
   st.currentLetterMap = letterMap;
 
   const alreadyAnsweredDRC = st.answeredIndices && st.answeredIndices.has(st.idx);
-  const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l =>
-    `<div class="ar-opt${alreadyAnsweredDRC ? ' locked' : ''}"
+
+  // If navigating back to an already-answered question, restore correct/locked visual
+  // letterMap is re-shuffled each render, so we show the correct answer highlighted
+  const correctDisplayLetter = alreadyAnsweredDRC ? getDisplayLetter(st.currentLetterMap, entry.correct) : null;
+
+  const optsHtml = ['A','B','C','D'].filter(l => shuffledOpts[l]).map(l => {
+    let extraCls = '';
+    if (alreadyAnsweredDRC) {
+      extraCls = ' locked';
+      if (l === correctDisplayLetter) extraCls += ' correct';
+    }
+    return `<div class="ar-opt${extraCls}"
        style="cursor:${alreadyAnsweredDRC ? 'default' : 'pointer'};"
        data-drc-qid="${entry.questionId}"
        data-drc-letter="${l}"
        data-drc-day="${entry.currentDay}">
       <span class="ar-opt-ltr">${l}.</span>
       <span style="flex:1;">${shuffledOpts[l]}</span>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
+
+  const alreadyFeedback = alreadyAnsweredDRC
+    ? `<div style="padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;background:var(--green-dim);color:var(--green);margin-bottom:8px;">✓ Already answered — Day ${entry.currentDay} confirmed.</div>`
+    : '';
 
   body.innerHTML = `
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;gap:8px;align-items:center;">
@@ -6482,9 +6517,9 @@ function drcRevRender() {
     </div>
     <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:18px;">${escHtml(entry.question)}</div>
     <div id="drc-rev-opts">${optsHtml}</div>
-    <div id="drc-rev-feedback" style="margin-top:14px;"></div>`;
-  // Reset answered flag — new question not yet answered
-  st.answered = false;
+    <div id="drc-rev-feedback" style="margin-top:14px;">${alreadyFeedback}</div>`;
+  // Reset answered flag — new question not yet answered (already-answered is locked via class)
+  st.answered = alreadyAnsweredDRC;
 }
 
 function drcRevAnswer(qId, letter, currentDay) {
@@ -7509,8 +7544,13 @@ function renderDRCycleBook() {
   const cycle  = getDRCycle();
   const today  = toDateKey(new Date());
   const entries = Object.values(cycle);
-  const active  = entries.filter(e => !e.done);
-  const done    = entries.filter(e => e.done);
+  // Recompute done dynamically — never trust stored flag (may be stale after sync)
+  entries.forEach(e => {
+    const sched = e.scheduledDays || [1, 3, 5, 10];
+    e._isDone = sched.every(d => (e.completedDays || []).includes(d));
+  });
+  const active  = entries.filter(e => !e._isDone);
+  const done    = entries.filter(e => e._isDone);
 
   const sub   = document.getElementById('drcycle-screen-sub');
   const badge = document.getElementById('drcycle-screen-badge');
@@ -7540,15 +7580,16 @@ function renderDRCycleBook() {
   cont.innerHTML = Object.entries(byUnit)
     .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
     .map(([unit, qs]) => {
-      const activeQs = qs.filter(e => !e.done);
-      const doneQs   = qs.filter(e => e.done);
+      const activeQs = qs.filter(e => !e._isDone);
+      const doneQs   = qs.filter(e => e._isDone);
 
       const activeCards = activeQs.map(e => renderDRCycleCard(e, today)).join('');
       const doneCards   = doneQs.map(e => renderDRCycleCard(e, today)).join('');
 
       let doneSection = '';
       if (doneQs.length > 0) {
-        const sectionId = `drc-done-${unit.replace(/\s+/g, '-')}`;
+        // Use encodeURIComponent to avoid id collisions from similar unit names
+        const sectionId = `drc-done-${encodeURIComponent(unit).replace(/%/g,'_')}`;
         doneSection = `
           <div style="margin-top:10px;">
             <div onclick="const el=document.getElementById('${sectionId}'); el.style.display=el.style.display==='none'?'block':'none'; this.querySelector('.arr').style.transform=el.style.display==='none'?'rotate(0deg)':'rotate(90deg)';" 
@@ -7589,23 +7630,29 @@ function renderDRCycleCard(e, today) {
     return `<span title="Day ${d} · Due: ${dueDate}" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:${bg};color:${color};margin-right:4px;">${label}</span>`;
   }).join('');
 
-  const statusPill = e.done
+  // Use _isDone (dynamically computed in renderDRCycleBook) if present, else recompute
+  const isDynDone = typeof e._isDone !== 'undefined' ? e._isDone
+    : (e.scheduledDays || [1,3,5,10]).every(d => (e.completedDays || []).includes(d));
+  const statusPill = isDynDone
     ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-dim);color:var(--green);">✓ Done</span>`
     : `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(45,212,191,0.15);color:var(--teal);">Active</span>`;
 
   const optsHtml = ['A','B','C','D'].filter(l => e.options && e.options[l]).map(l => {
     let cls = 'ar-opt';
     if (l === e.correct) cls += ' correct';
-    return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${e.options[l]}</span>${l===e.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
+    return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${escHtml(e.options[l])}</span>${l===e.correct?'<span class="ar-opt-tag">Correct</span>':''}</div>`;
   }).join('');
-  const justHtml = e.justification ? `<div class="ar-just"><b>Explanation:</b> ${e.justification}</div>` : '';
+  const justHtml = e.justification ? `<div class="ar-just"><b>Explanation:</b> ${escHtml(e.justification)}</div>` : '';
+
+  // Use questionId for a stable, collision-free preview truncation
+  const previewText = escHtml((e.question || '').slice(0, 55));
 
   return `
-    <div class="mistake-q-card${e.done ? ' mastered' : ''}">
+    <div class="mistake-q-card${isDynDone ? ' mastered' : ''}">
       <div class="mistake-q-header" onclick="this.nextElementSibling.classList.toggle('open')">
         <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;flex:1;min-width:0;">
           ${statusPill}
-          <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:6px;">${e.question.slice(0,55)}…</span>
+          <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:6px;">${previewText}${(e.question || '').length > 55 ? '…' : ''}</span>
         </div>
         <div style="flex-shrink:0;margin-left:8px;">${dayPills}</div>
       </div>
@@ -7773,6 +7820,7 @@ function hideAllWindows() {
   // Also close full-screen overlay screens so they don't float above everything
   document.getElementById('drc-rev-screen').style.display = 'none';
   document.getElementById('srs-revision-screen').style.display = 'none';
+  document.getElementById('drcycle-screen').style.display = 'none';
 }
 function showHome() {
   hideAllWindows();
@@ -10134,8 +10182,10 @@ document.getElementById('save-all-parsed-btn').addEventListener('click', () => {
   if (!parsedQuestions.length) return;
   const bank = getQB();
   let saved = 0;
+  let missingAns = 0;
   parsedQuestions.forEach(q => {
     if (!q.question.trim()) return;
+    if (!q.correct) missingAns++;
     bank.push({
       id: genQBId(),
       question: q.question.trim(),
@@ -10149,6 +10199,7 @@ document.getElementById('save-all-parsed-btn').addEventListener('click', () => {
     });
     saved++;
   });
+  if (missingAns > 0 && !confirm(`⚠ ${missingAns} question${missingAns>1?'s have':' has'} no correct answer set. They will always mark responses as wrong in mocks.\n\nSave anyway?`)) return;
   saveQB(bank);
   document.getElementById('paste-input').value = '';
   parsedQuestions = [];
@@ -10976,26 +11027,35 @@ function repairDRCycleDoneFlags() {
       if (m) m.style.display = 'none';
     });
     if (!wasOpen) {
+      // Make visible but off-screen first so browser can measure real dimensions
+      menu.style.visibility = 'hidden';
       menu.style.display = 'block';
       // For dashboard fixed dropdown: position relative to button via getBoundingClientRect
+      // Use rAF so browser has done one reflow and offsetHeight/offsetWidth are real
       if (scope === 'db') {
         const btn = document.querySelector('#db-profile-wrap .profile-icon-btn');
         if (btn) {
-          const r = btn.getBoundingClientRect();
-          const menuH = menu.offsetHeight || 180;
-          // Open upward if enough space, else downward
-          const spaceAbove = r.top;
-          const spaceBelow = window.innerHeight - r.bottom;
-          if (spaceAbove > menuH + 12 || spaceAbove > spaceBelow) {
-            menu.style.top  = (r.top - menuH - 8) + 'px';
-          } else {
-            menu.style.top  = (r.bottom + 8) + 'px';
-          }
-          // Align right edge with button right edge, clamp to viewport
-          let left = r.right - (menu.offsetWidth || 180);
-          left = Math.max(8, Math.min(left, window.innerWidth - (menu.offsetWidth || 180) - 8));
-          menu.style.left = left + 'px';
+          requestAnimationFrame(() => {
+            const r = btn.getBoundingClientRect();
+            const menuH = menu.offsetHeight;
+            const menuW = menu.offsetWidth;
+            // Open upward if enough space below is insufficient, else downward
+            const spaceBelow = window.innerHeight - r.bottom;
+            if (spaceBelow < menuH + 12) {
+              menu.style.top = Math.max(8, r.top - menuH - 8) + 'px';
+            } else {
+              menu.style.top = (r.bottom + 8) + 'px';
+            }
+            // Align right edge with button right edge, clamp within viewport
+            let left = r.right - menuW;
+            left = Math.max(8, Math.min(left, window.innerWidth - menuW - 8));
+            menu.style.left = left + 'px';
+            // Now reveal
+            menu.style.visibility = 'visible';
+          });
         }
+      } else {
+        menu.style.visibility = 'visible';
       }
     }
   };
@@ -11265,6 +11325,9 @@ document.addEventListener('keydown', function(e) {
   const rmValid  = typeof rmState !== 'undefined' && rmState;
   if (rmActive && rmValid && rmState.questions && !rmState.finished && !rmState.paused) {
     if (key === 'ArrowRight') {
+      // Instant mode: only advance after an answer is selected (mirrors UI behaviour)
+      const currentAns = rmState.answers[rmState.currentIdx];
+      if (rmState.mode === 'instant' && (!currentAns || currentAns.selected === null)) return;
       e.preventDefault();
       rmNextQ();
     } else if (key === 'ArrowLeft') {

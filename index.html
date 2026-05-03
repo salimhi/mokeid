@@ -2537,6 +2537,38 @@ body.pip-mode #exam-popup {
   }
 }
 
+/* ── Saved Mocks Screen ─────────────────────────────────────────────── */
+#saved-mocks-screen { display:none; position:fixed; inset:0; z-index:9990; background:var(--bg); overflow-y:auto; -webkit-overflow-scrolling:touch; animation:fadeUp 0.2s ease; }
+#saved-mocks-screen-inner { max-width:680px; margin:0 auto; padding:20px 16px 100px; }
+.sm-topbar { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.sm-topbar-title { font-size:17px; font-weight:700; color:var(--text); flex:1; }
+.sm-topbar-count { font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; background:rgba(108,142,245,0.15); color:var(--accent); }
+.sm-section-title { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin:18px 0 10px; }
+.sm-empty { text-align:center; padding:48px 20px; color:var(--text-muted); font-size:14px; }
+.sm-empty-icon { font-size:36px; margin-bottom:10px; }
+.sm-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; position:relative; transition:border-color 0.15s; }
+.sm-card:hover { border-color:var(--accent); }
+.sm-card.rm-type  { border-left:3px solid var(--accent); }
+.sm-card.popup-type { border-left:3px solid var(--teal); }
+.sm-card-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.sm-card-icon { font-size:22px; flex-shrink:0; margin-top:1px; }
+.sm-card-info { flex:1; min-width:0; }
+.sm-card-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sm-card-unit { font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sm-meta-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.sm-pill { font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); }
+.sm-pill.accent { background:rgba(108,142,245,0.12); color:var(--accent); border-color:rgba(108,142,245,0.2); }
+.sm-pill.teal   { background:rgba(45,212,191,0.12);  color:var(--teal);   border-color:rgba(45,212,191,0.2); }
+.sm-pill.amber  { background:var(--amber-dim); color:var(--amber); border-color:rgba(251,191,36,0.25); }
+.sm-actions { display:flex; gap:8px; align-items:center; }
+.sm-resume-btn { flex:1; background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; transition:opacity 0.15s; min-height:42px; touch-action:manipulation; }
+.sm-resume-btn:hover { opacity:0.88; }
+.sm-delete-btn { background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13px; cursor:pointer; transition:background 0.15s,color 0.15s; min-height:42px; touch-action:manipulation; }
+.sm-delete-btn:hover { background:var(--red-dim); color:var(--red); border-color:var(--red); }
+@supports (padding-bottom:env(safe-area-inset-bottom)) {
+  #saved-mocks-screen-inner { padding-bottom:calc(100px + env(safe-area-inset-bottom)) !important; }
+}
+
 /* ── Phone portrait (≤ 480px): extra tweaks ── */
 @media (max-width: 480px) {
 
@@ -4054,6 +4086,7 @@ body.light-theme .rm-drcycle-btn:disabled {
         <button class="pd-item" onclick="landingGo('dashboard');closeProfileMenu()">📊 Dashboard</button>
         <button class="pd-item" onclick="landingGo('dashboard');openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
         <button class="pd-item" onclick="landingGo('dashboard');toggleHistoryView();closeProfileMenu()">🗃 History</button>
+        <button class="pd-item" onclick="landingGo('dashboard');openSavedMocksScreen();closeProfileMenu()">📂 Saved Mocks</button>
       </div>
     </div>
   </div>
@@ -4141,6 +4174,7 @@ body.light-theme .rm-drcycle-btn:disabled {
           <button class="pd-item" onclick="showHome();closeProfileMenu()">📊 Dashboard</button>
           <button class="pd-item" onclick="openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
           <button class="pd-item" onclick="toggleHistoryView();closeProfileMenu()">🗃 History</button>
+          <button class="pd-item" onclick="openSavedMocksScreen();closeProfileMenu()">📂 Saved Mocks</button>
         </div>
       </div>
       <button id="pip-btn" class="icon-btn" style="display:none;">⊞ PiP Mode</button>
@@ -7855,6 +7889,7 @@ function hideAllWindows() {
   // Also close full-screen overlay screens so they don't float above everything
   document.getElementById('drc-rev-screen').style.display = 'none';
   document.getElementById('srs-revision-screen').style.display = 'none';
+  document.getElementById('saved-mocks-screen').style.display = 'none';
   document.getElementById('drcycle-screen').style.display = 'none';
 }
 function showHome() {
@@ -8715,9 +8750,7 @@ function exportHistoryPDF() {
   <button onclick="window.close()" style="background:#f3f4f6; color:#374151; border:1px solid #d1d5db; padding:12px 20px; font-size:14px; border-radius:8px; cursor:pointer;">✕ Close</button>
   <p style="font-size:11px; color:#9ca3af; margin-top:10px;">In the print dialog, choose <b>Save as PDF</b> as the destination.</p>
 </div>
-
-</body>
-</html>`);
+`);
   printWin.document.close();
   printWin.focus();
 }
@@ -9794,9 +9827,11 @@ document.getElementById('review-clear-btn').addEventListener('click', () => {
 function initRMSavedCard() {
   const existing = document.getElementById('rm-resume-card');
   const saved = localStorage.getItem(RM_SAVED_KEY);
+  const dismissed = localStorage.getItem('rm_saved_mock_dismissed');
 
-  // If no saved mock — remove card if it exists
-  if (!saved) {
+  // If no saved mock, or user dismissed the dashboard card — don't show it
+  // (data still lives in rm_saved_mock and is accessible from Saved Mocks page)
+  if (!saved || dismissed) {
     if (existing) existing.remove();
     return;
   }
@@ -9865,12 +9900,13 @@ function rmResumeMock() {
 }
 
 function rmDismissResume() {
-  localStorage.removeItem(RM_SAVED_KEY);
-  localStorage.setItem('rm_saved_mock_dismissed', '1'); // tombstone so fbPull won't restore
+  // Only hide the dashboard resume card — data stays intact in rm_saved_mock
+  // so the user can still find and resume it from Profile → Saved Mocks page.
+  // Use the dismissed tombstone only to suppress the card, NOT to delete the save.
+  localStorage.setItem('rm_saved_mock_dismissed', '1');
   const card = document.getElementById('rm-resume-card');
   if (card) card.remove();
-  // Push null savedMock to Firebase so other devices clear the card too
-  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
+  // Do NOT delete RM_SAVED_KEY or push — the save must remain accessible
 }
 
 // \u2500\u2500 Unit chip event for live avail update \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -11161,6 +11197,184 @@ function repairDRCycleDoneFlags() {
 })();
 // ═══════════════════════════════════════════════════════════
 
+
+// ── Saved Mocks Screen ────────────────────────────────────────────────
+function openSavedMocksScreen() {
+  hideAllWindows();
+  const screen = document.getElementById('saved-mocks-screen');
+  screen.style.display = 'block';
+  renderSavedMocksScreen();
+}
+
+function closeSavedMocksScreen() {
+  document.getElementById('saved-mocks-screen').style.display = 'none';
+  showHome();
+}
+
+function renderSavedMocksScreen() {
+  const body   = document.getElementById('sm-body');
+  const countEl = document.getElementById('sm-total-count');
+  if (!body) return;
+
+  // --- Collect Real Mock in-progress save ---
+  const rmSaved = [];
+  try {
+    const raw = localStorage.getItem('rm_saved_mock');
+    if (raw) {
+      const data = JSON.parse(raw);
+      const st = data.state;
+      if (st && !st.finished) {
+        const pct = Math.round(((st.currentIdx) / st.questions.length) * 100);
+        const answered = st.answers ? st.answers.filter(a => a.selected !== null).length : 0;
+        const skipped  = st.answers ? st.answers.filter(a => a.skipped).length : 0;
+        const savedDate = data.savedAt || '—';
+        rmSaved.push({
+          _type: 'rm',
+          _id: 'rm_saved_mock',
+          name: st.mockName || 'Real Mock',
+          unit: st.mockUnit || '—',
+          mode: st.mode === 'instant' ? 'Instant Feedback' : 'Single Stretch',
+          progress: `Q${st.currentIdx + 1} / ${st.questions.length}`,
+          pct,
+          answered,
+          skipped,
+          timeSpent: smFormatTime(st.totalTime || 0),
+          savedAt: savedDate,
+          icon: '📋',
+        });
+      }
+    }
+  } catch(e) { localStorage.removeItem('rm_saved_mock'); }
+
+  // --- Collect popup savedMocks ---
+  const popupSaved = [];
+  try {
+    const raw = JSON.parse(localStorage.getItem('savedMocks') || '[]');
+    raw.forEach((s, idx) => {
+      const answered = (s.answers || []).length;
+      const pct = s.currentQ && s.totalQ ? Math.round((s.currentQ / s.totalQ) * 100) : null;
+      popupSaved.push({
+        _type: 'popup',
+        _id: s._id || String(idx),
+        name: s.mockName || 'Mock',
+        unit: s.mockUnit || '—',
+        mode: 'Quick Mock',
+        progress: `Q${s.currentQ} reached`,
+        pct,
+        answered,
+        skipped: 0,
+        timeSpent: smFormatTime(s.totalTime || 0),
+        savedAt: s.savedAt || '—',
+        icon: '📝',
+      });
+    });
+  } catch(e) {}
+
+  const total = rmSaved.length + popupSaved.length;
+  countEl.textContent = total;
+
+  if (total === 0) {
+    body.innerHTML = `
+      <div class="sm-empty">
+        <div class="sm-empty-icon">📭</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px;">No saved mocks</div>
+        <div>Start a mock and save progress to find it here.</div>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+
+  if (rmSaved.length > 0) {
+    html += `<div class="sm-section-title">Real Mock</div>`;
+    rmSaved.forEach(s => { html += smCardHTML(s); });
+  }
+
+  if (popupSaved.length > 0) {
+    html += `<div class="sm-section-title">Quick Mocks</div>`;
+    popupSaved.forEach(s => { html += smCardHTML(s); });
+  }
+
+  body.innerHTML = html;
+}
+
+function smCardHTML(s) {
+  const modePill = s.mode === 'Instant Feedback'
+    ? `<span class="sm-pill accent">${s.mode}</span>`
+    : s.mode === 'Single Stretch'
+    ? `<span class="sm-pill teal">${s.mode}</span>`
+    : `<span class="sm-pill">${s.mode}</span>`;
+
+  const pctPill = s.pct !== null
+    ? `<span class="sm-pill amber">${s.pct}% done</span>`
+    : '';
+
+  const unitShort = (s.unit || '').length > 50 ? s.unit.slice(0, 48) + '…' : s.unit;
+
+  return `
+    <div class="sm-card ${s._type === 'rm' ? 'rm-type' : 'popup-type'}">
+      <div class="sm-card-header">
+        <div class="sm-card-icon">${s.icon}</div>
+        <div class="sm-card-info">
+          <div class="sm-card-name">${s.name}</div>
+          <div class="sm-card-unit">${unitShort}</div>
+        </div>
+      </div>
+      <div class="sm-meta-row">
+        ${modePill}
+        ${pctPill}
+        <span class="sm-pill">📍 ${s.progress}</span>
+        <span class="sm-pill">✏️ ${s.answered} answered</span>
+        ${s.skipped ? `<span class="sm-pill">⏭ ${s.skipped} skipped</span>` : ''}
+        <span class="sm-pill">⏱ ${s.timeSpent}</span>
+        <span class="sm-pill">🕒 Saved ${s.savedAt}</span>
+      </div>
+      <div class="sm-actions">
+        <button class="sm-resume-btn" onclick="smResume('${s._type}','${s._id}')">▶ Resume</button>
+        <button class="sm-delete-btn" onclick="smDelete('${s._type}','${s._id}',this)">🗑</button>
+      </div>
+    </div>`;
+}
+
+function smFormatTime(seconds) {
+  if (!seconds || seconds < 1) return '—';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
+function smResume(type, id) {
+  document.getElementById('saved-mocks-screen').style.display = 'none';
+  if (type === 'rm') {
+    rmResumeMock();
+  } else {
+    resumeSavedMock(id);
+    showHome();
+  }
+}
+
+function smDelete(type, id, btn) {
+  const name = btn.closest('.sm-card').querySelector('.sm-card-name').textContent;
+  if (!confirm(`Remove "${name}"?\nThis cannot be undone.`)) return;
+  if (type === 'rm') {
+    // Full delete from Saved Mocks page — removes data AND tombstones the dashboard card
+    localStorage.removeItem('rm_saved_mock');
+    localStorage.removeItem('rm_saved_mock_dismissed');
+    // Remove dashboard resume card if visible
+    const rc = document.getElementById('rm-resume-card');
+    if (rc) rc.remove();
+    if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
+  } else {
+    let saved = JSON.parse(localStorage.getItem('savedMocks') || '[]');
+    const realIdx = saved.findIndex(s => s._id === id || String(saved.indexOf(s)) === id);
+    if (realIdx > -1) saved.splice(realIdx, 1);
+    localStorage.setItem('savedMocks', JSON.stringify(saved));
+    loadSavedMocksUI();
+  }
+  renderSavedMocksScreen();
+}
+// ── /Saved Mocks Screen ───────────────────────────────────────────────
+
 window.onload = () => {
   repairStorage();
   repairDRCycleDoneFlags();
@@ -11433,5 +11647,18 @@ document.addEventListener('keydown', function(e) {
   }
 });
 </script>
+
+<!-- SAVED MOCKS SCREEN -->
+<div id="saved-mocks-screen">
+  <div id="saved-mocks-screen-inner">
+    <div class="sm-topbar">
+      <button onclick="closeSavedMocksScreen()" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;touch-action:manipulation;">← Back</button>
+      <div class="sm-topbar-title">📂 Saved Mocks</div>
+      <span class="sm-topbar-count" id="sm-total-count">0</span>
+    </div>
+    <div id="sm-body"></div>
+  </div>
+</div>
+<!-- /SAVED MOCKS SCREEN -->
 </body>
 </html>

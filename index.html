@@ -33,7 +33,7 @@
   function refreshUI() {
     ['migrateLegacyDates','renderCalendar','updateSummaryCard','updateUnitStatsCard',
      'updateOverallDashboardCard','rmUpdateQBCount','renderReviewBtn','loadSavedMocksUI',
-     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard','renderDRHomeCard','renderDRCycleBadge','renderDRProgressBar'
+     'renderSRSHomeCard','renderMistakeSummary','initRMSavedCard','renderDRHomeCard','renderDRCycleBadge','renderDRProgressBar','renderDRCoverageCard'
     ].forEach(fn => { if (typeof window[fn] === 'function') window[fn](); });
   }
 
@@ -4289,9 +4289,18 @@ body.light-theme .rm-drcycle-btn:disabled {
 
     <!-- DR COVERAGE CARD -->
     <div id="dr-coverage-card" class="card full-card" style="display:block;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
 
-        <!-- Left: big % + label -->
+      <!-- Card header with slide toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div id="dr-cov-label" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Total Coverage</div>
+          <div id="dr-cov-sublabel" style="font-size:10px;color:var(--text-muted);margin-top:1px;">DR + Real Mock + DRC combined</div>
+        </div>
+        <button onclick="drCoverageSlide()" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;touch-action:manipulation;transition:background 0.15s;" title="Toggle DR Cycle coverage view">›</button>
+      </div>
+
+      <!-- Arc + count row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:16px;">
           <div style="position:relative;width:64px;height:64px;flex-shrink:0;">
             <svg viewBox="0 0 64 64" width="64" height="64" style="transform:rotate(-90deg);">
@@ -4308,16 +4317,16 @@ body.light-theme .rm-drcycle-btn:disabled {
             </div>
           </div>
           <div>
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:3px;">DR Coverage</div>
             <div id="dr-coverage-count" style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text);line-height:1;">0 <span style="font-size:12px;font-weight:500;color:var(--text-muted);">/ 0 tagged</span></div>
             <div id="dr-coverage-fresh" style="font-size:11px;color:var(--green);margin-top:3px;">— fresh remaining</div>
+            <!-- Breakdown pills shown in total view -->
+            <div id="dr-cov-breakdown" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;"></div>
           </div>
         </div>
-
         <!-- Right: per-unit mini bars -->
         <div id="dr-coverage-units" style="flex:1;min-width:180px;max-width:480px;display:flex;flex-direction:column;gap:5px;"></div>
-
       </div>
+
     </div>
     <div id="unit-stats-window" class="card full-card" style="display:block;">
       <div class="card-header">
@@ -5856,49 +5865,119 @@ function drGenerate(forcedUnit = null) {
 }
 
 // ── DR Coverage Card ─────────────────────────────────────────
+// 0 = total coverage view, 1 = DR cycle coverage view
+let _drCovView = 0;
+
+function drCoverageSlide() {
+  _drCovView = _drCovView === 0 ? 1 : 0;
+  renderDRCoverageCard();
+}
+
 function renderDRCoverageCard() {
-  const bank     = getQB();
-  const attended = JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]');
-  const attendedSet = new Set(attended);
+  const bank       = getQB();
+  const drAtt      = new Set(JSON.parse(localStorage.getItem('mockiq_dr_attended') || '[]'));
+  const rmAtt      = new Set(JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]'));
+  const cycle      = getDRCycle();
+  const drcIds     = new Set(Object.keys(cycle));
 
-  const total   = bank.length;
-  const tagged  = bank.filter(q => attendedSet.has(q.id)).length;
-  const fresh   = total - tagged;
-  const pct     = total > 0 ? Math.round((tagged / total) * 100) : 0;
+  // Combined set for Total Coverage view
+  const totalSet   = new Set([...drAtt, ...rmAtt, ...drcIds]);
 
-  // Arc: circumference = 2π×26 ≈ 163.4
   const arc     = document.getElementById('dr-coverage-arc');
   const pctEl   = document.getElementById('dr-coverage-pct');
   const countEl = document.getElementById('dr-coverage-count');
   const freshEl = document.getElementById('dr-coverage-fresh');
   const unitsEl = document.getElementById('dr-coverage-units');
+  const labelEl = document.getElementById('dr-cov-label');
+  const subEl   = document.getElementById('dr-cov-sublabel');
+  const brkEl   = document.getElementById('dr-cov-breakdown');
   if (!arc) return;
 
-  arc.setAttribute('stroke-dashoffset', (163.4 * (1 - pct / 100)).toFixed(1));
-  // Color arc by coverage level
-  arc.setAttribute('stroke', pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--accent)' : 'var(--amber)');
-  pctEl.textContent  = pct + '%';
-  pctEl.style.color  = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--text)' : 'var(--amber)';
-  countEl.innerHTML  = `${tagged} <span style="font-size:12px;font-weight:500;color:var(--text-muted);">/ ${total} tagged</span>`;
-  freshEl.textContent = fresh > 0 ? `${fresh} fresh question${fresh !== 1 ? 's' : ''} remaining` : '✓ All questions covered!';
-  freshEl.style.color = fresh > 0 ? 'var(--green)' : 'var(--text-muted)';
+  const total   = bank.length;
 
-  // Per-unit breakdown
-  const units = [...new Set(bank.map(q => q.unit).filter(Boolean))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
-  unitsEl.innerHTML = units.map(unit => {
-    const uTotal  = bank.filter(q => q.unit === unit).length;
-    const uTagged = bank.filter(q => q.unit === unit && attendedSet.has(q.id)).length;
-    const uPct    = uTotal > 0 ? Math.round((uTagged / uTotal) * 100) : 0;
-    const barColor = uPct >= 80 ? 'var(--green)' : uPct >= 40 ? 'var(--accent)' : 'var(--amber)';
-    return `
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:56px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="${unit}">${unit}</div>
-        <div style="flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
-          <div style="width:${uPct}%;height:100%;background:${barColor};border-radius:99px;transition:width 0.6s ease;"></div>
-        </div>
-        <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:48px;text-align:right;">${uTagged}/${uTotal}</div>
-      </div>`;
-  }).join('');
+  if (_drCovView === 0) {
+    // ── Total Coverage ──────────────────────────────────────────────
+    const tagged = bank.filter(q => totalSet.has(q.id)).length;
+    const fresh  = total - tagged;
+    const pct    = total > 0 ? Math.round((tagged / total) * 100) : 0;
+
+    if (labelEl) labelEl.textContent = 'Total Coverage';
+    if (subEl)   subEl.textContent   = 'DR + Real Mock + DRC combined';
+
+    arc.setAttribute('stroke-dashoffset', (163.4 * (1 - pct / 100)).toFixed(1));
+    arc.setAttribute('stroke', pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--accent)' : 'var(--amber)');
+    pctEl.textContent = pct + '%';
+    pctEl.style.color = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--text)' : 'var(--amber)';
+    countEl.innerHTML = `${tagged} <span style="font-size:12px;font-weight:500;color:var(--text-muted);">/ ${total} tagged</span>`;
+    freshEl.textContent = fresh > 0 ? `${fresh} fresh remaining` : '✓ All questions covered!';
+    freshEl.style.color = fresh > 0 ? 'var(--text-muted)' : 'var(--green)';
+
+    // Source breakdown pills
+    const drOnly  = bank.filter(q => drAtt.has(q.id)).length;
+    const rmOnly  = bank.filter(q => rmAtt.has(q.id)).length;
+    const drcOnly = bank.filter(q => drcIds.has(q.id)).length;
+    if (brkEl) brkEl.innerHTML = [
+      drOnly  ? `<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(108,142,245,0.12);color:var(--accent);border:1px solid rgba(108,142,245,0.2);">DR ${drOnly}</span>` : '',
+      rmOnly  ? `<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(155,114,245,0.12);color:#9b72f5;border:1px solid rgba(155,114,245,0.2);">RM ${rmOnly}</span>` : '',
+      drcOnly ? `<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(45,212,191,0.12);color:var(--teal);border:1px solid rgba(45,212,191,0.2);">DRC ${drcOnly}</span>` : '',
+    ].join('');
+
+    // Per-unit bars — combined set
+    const units = [...new Set(bank.map(q => q.unit).filter(Boolean))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+    unitsEl.innerHTML = units.map(unit => {
+      const uTotal  = bank.filter(q => q.unit === unit).length;
+      const uTagged = bank.filter(q => q.unit === unit && totalSet.has(q.id)).length;
+      const uPct    = uTotal > 0 ? Math.round((uTagged / uTotal) * 100) : 0;
+      const barColor = uPct >= 80 ? 'var(--green)' : uPct >= 40 ? 'var(--accent)' : 'var(--amber)';
+      return `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:56px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="${unit}">${unit}</div>
+          <div style="flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+            <div style="width:${uPct}%;height:100%;background:${barColor};border-radius:99px;transition:width 0.6s ease;"></div>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:48px;text-align:right;">${uTagged}/${uTotal}</div>
+        </div>`;
+    }).join('');
+
+  } else {
+    // ── DR Cycle Coverage ───────────────────────────────────────────
+    const tagged = bank.filter(q => drcIds.has(q.id)).length;
+    const done   = Object.values(cycle).filter(e => e._isDone || (e.scheduledDays||[1,3,5,10]).every(d => (e.completedDays||[]).includes(d))).length;
+    const active = tagged - done;
+    const fresh  = total - tagged;
+    const pct    = total > 0 ? Math.round((tagged / total) * 100) : 0;
+
+    if (labelEl) labelEl.textContent = 'DR Cycle Coverage';
+    if (subEl)   subEl.textContent   = `${active} active · ${done} completed`;
+
+    arc.setAttribute('stroke-dashoffset', (163.4 * (1 - pct / 100)).toFixed(1));
+    arc.setAttribute('stroke', 'var(--teal)');
+    pctEl.textContent = pct + '%';
+    pctEl.style.color = 'var(--teal)';
+    countEl.innerHTML = `${tagged} <span style="font-size:12px;font-weight:500;color:var(--text-muted);">/ ${total} in cycle</span>`;
+    freshEl.textContent = fresh > 0 ? `${fresh} not yet added to DRC` : '✓ All questions in DR Cycle!';
+    freshEl.style.color = fresh > 0 ? 'var(--text-muted)' : 'var(--teal)';
+
+    if (brkEl) brkEl.innerHTML =
+      `<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(45,212,191,0.12);color:var(--teal);border:1px solid rgba(45,212,191,0.2);">✓ Done ${done}</span>` +
+      `<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:rgba(108,142,245,0.12);color:var(--accent);border:1px solid rgba(108,142,245,0.2);">⏳ Active ${active}</span>`;
+
+    // Per-unit bars — DRC set only
+    const units = [...new Set(bank.map(q => q.unit).filter(Boolean))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+    unitsEl.innerHTML = units.map(unit => {
+      const uTotal  = bank.filter(q => q.unit === unit).length;
+      const uTagged = bank.filter(q => q.unit === unit && drcIds.has(q.id)).length;
+      const uPct    = uTotal > 0 ? Math.round((uTagged / uTotal) * 100) : 0;
+      return `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:56px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="${unit}">${unit}</div>
+          <div style="flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+            <div style="width:${uPct}%;height:100%;background:var(--teal);border-radius:99px;transition:width 0.6s ease;"></div>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;width:48px;text-align:right;">${uTagged}/${uTotal}</div>
+        </div>`;
+    }).join('');
+  }
 }
 
 function renderDRHomeCard() {

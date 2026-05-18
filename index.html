@@ -67,6 +67,7 @@
         drCycle:         JSON.parse(localStorage.getItem('mockiq_dr_cycle')        || '{}'),
         drAttended:      JSON.parse(localStorage.getItem('mockiq_dr_attended')     || '[]'),
         rmAttended:      JSON.parse(localStorage.getItem('mockiq_rm_attended')     || '[]'),
+        mockReviews:     JSON.parse(localStorage.getItem('mockiq_mock_reviews')    || '[]'),
         lastPush:        new Date().toISOString()
       };
       const res = await fetchWT(DB_URL, {
@@ -271,6 +272,18 @@
         const localRMAtt = JSON.parse(localStorage.getItem('mockiq_rm_attended') || '[]');
         const merged = [...new Set([...localRMAtt, ...remote.rmAttended])];
         localStorage.setItem('mockiq_rm_attended', JSON.stringify(merged));
+      }
+
+      // Mock Reviews merge — remote is authoritative (deletions must propagate)
+      // Remote list is the base; local-only entries (saved while offline) are added on top.
+      // This ensures deletions on any device propagate correctly after sync.
+      if (Array.isArray(remote.mockReviews)) {
+        const localMR   = JSON.parse(localStorage.getItem('mockiq_mock_reviews') || '[]');
+        const remoteIds = new Set(remote.mockReviews.map(r => r._id));
+        // Keep local entries that remote doesn't know about yet (saved offline)
+        const localOnly = localMR.filter(r => !remoteIds.has(r._id));
+        const merged    = [...remote.mockReviews, ...localOnly];
+        localStorage.setItem('mockiq_mock_reviews', JSON.stringify(merged));
       }
 
       const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -2569,6 +2582,30 @@ body.pip-mode #exam-popup {
   #saved-mocks-screen-inner { padding-bottom:calc(100px + env(safe-area-inset-bottom)) !important; }
 }
 
+/* ── Mock Reviews Screen ─────────────────────────────────────────────── */
+#mock-reviews-screen { display:none; position:fixed; inset:0; z-index:9991; background:var(--bg); overflow-y:auto; -webkit-overflow-scrolling:touch; animation:fadeUp 0.2s ease; }
+#mock-reviews-inner  { max-width:680px; margin:0 auto; padding:20px 16px 100px; }
+.mr-topbar { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.mr-topbar-title { font-size:17px; font-weight:700; color:var(--text); flex:1; }
+.mr-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:border-color 0.15s; position:relative; touch-action:manipulation; }
+.mr-card:hover { border-color:var(--accent); }
+.mr-card-icon { font-size:24px; flex-shrink:0; }
+.mr-card-info { flex:1; min-width:0; }
+.mr-card-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mr-card-meta { font-size:11px; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:6px; }
+.mr-card-pill { padding:2px 8px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); font-weight:600; }
+.mr-card-pill.green { background:var(--green-dim); color:var(--green); border-color:transparent; }
+.mr-card-pill.red   { background:var(--red-dim);   color:var(--red);   border-color:transparent; }
+.mr-card-pill.amber { background:var(--amber-dim); color:var(--amber); border-color:transparent; }
+.mr-card-pill.accent{ background:rgba(108,142,245,0.12); color:var(--accent); border-color:rgba(108,142,245,0.2); }
+.mr-del-btn { background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer; padding:6px; border-radius:6px; flex-shrink:0; touch-action:manipulation; transition:color 0.15s,background 0.15s; }
+.mr-del-btn:hover { color:var(--red); background:var(--red-dim); }
+.mr-empty { text-align:center; padding:48px 20px; color:var(--text-muted); font-size:14px; }
+.mr-empty-icon { font-size:36px; margin-bottom:10px; }
+@supports (padding-bottom:env(safe-area-inset-bottom)) {
+  #mock-reviews-inner { padding-bottom:calc(100px + env(safe-area-inset-bottom)) !important; }
+}
+
 /* ── Phone portrait (≤ 480px): extra tweaks ── */
 @media (max-width: 480px) {
 
@@ -4086,6 +4123,8 @@ body.light-theme .rm-drcycle-btn:disabled {
         <button class="pd-item" onclick="landingGo('dashboard');closeProfileMenu()">📊 Dashboard</button>
         <button class="pd-item" onclick="landingGo('dashboard');openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
         <button class="pd-item" onclick="landingGo('dashboard');toggleHistoryView();closeProfileMenu()">🗃 History</button>
+        <button class="pd-item" id="pd-review-btn-lp" onclick="landingGo('dashboard');openReviewScreen();closeProfileMenu()">🔖 Review</button>
+        <button class="pd-item" onclick="landingGo('dashboard');openMockReviewsScreen();closeProfileMenu()">📋 Mock Reviews</button>
         <button class="pd-item" onclick="landingGo('dashboard');openSavedMocksScreen();closeProfileMenu()">📂 Saved Mocks</button>
       </div>
     </div>
@@ -4174,6 +4213,8 @@ body.light-theme .rm-drcycle-btn:disabled {
           <button class="pd-item" onclick="showHome();closeProfileMenu()">📊 Dashboard</button>
           <button class="pd-item" onclick="openAdminPanel();closeProfileMenu()">⚙️ Admin</button>
           <button class="pd-item" onclick="toggleHistoryView();closeProfileMenu()">🗃 History</button>
+          <button class="pd-item" id="pd-review-btn-db" onclick="openReviewScreen();closeProfileMenu()">🔖 Review</button>
+          <button class="pd-item" onclick="openMockReviewsScreen();closeProfileMenu()">📋 Mock Reviews</button>
           <button class="pd-item" onclick="openSavedMocksScreen();closeProfileMenu()">📂 Saved Mocks</button>
         </div>
       </div>
@@ -4639,6 +4680,7 @@ body.light-theme .rm-drcycle-btn:disabled {
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;text-align:center;" id="rm-score-formula"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
         <button class="btn btn-teal" id="rm-answers-btn" style="flex:1;max-width:220px;">📋 Review Answers</button>
+        <button class="btn" id="rm-save-review-btn" style="flex:1;max-width:220px;background:var(--surface-2);border:1px solid var(--border);">💾 Save Review</button>
         <button class="btn btn-teal" id="rm-review-after-btn" style="flex:1;max-width:220px;">🔖 Saved Reviews</button>
         <button class="btn" id="rm-pdf-btn" style="flex:1;max-width:220px;background:var(--surface-2);border:1px solid var(--border);">📄 Download Report</button>
         <button class="btn btn-primary" id="rm-new-mock-btn" style="flex:1;max-width:220px;margin-top:0;">New Mock →</button>
@@ -5814,8 +5856,19 @@ function arExplainGPT(btn) {
 }
 
 document.getElementById('rm-answer-review-back').addEventListener('click', () => {
-  document.getElementById('rm-answer-review-screen').style.display = 'none';
+  const screen = document.getElementById('rm-answer-review-screen');
+  screen.style.display = 'none';
+  // If opened from Mock Reviews list, return there; else do nothing (result screen still visible)
+  if (screen.dataset.fromReviews === '1') {
+    screen.dataset.fromReviews = '';
+    _activeSavedReview = null;
+    document.getElementById('mock-reviews-screen').style.display = 'block';
+    renderMockReviewsList();
+  }
 });
+
+// Save Review button on result screen
+document.getElementById('rm-save-review-btn').addEventListener('click', saveMockReview);
 
 // ─── DAILY REVISION ──────────────────────────────────────────
 const DR_KEY = 'mockiq_daily_revision';
@@ -7969,6 +8022,7 @@ function hideAllWindows() {
   document.getElementById('drc-rev-screen').style.display = 'none';
   document.getElementById('srs-revision-screen').style.display = 'none';
   document.getElementById('saved-mocks-screen').style.display = 'none';
+  document.getElementById('mock-reviews-screen').style.display = 'none';
   document.getElementById('drcycle-screen').style.display = 'none';
 }
 function showHome() {
@@ -9046,8 +9100,17 @@ document.getElementById('review-btn').addEventListener('click', openReviewScreen
 function renderReviewBtn() {
   const all = JSON.parse(localStorage.getItem(RM_REVIEW_KEY) || '[]');
   const marked = all.filter(q => !q.deleted);
+  const badge = marked.length
+    ? ` <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>`
+    : '';
+  // Dashboard floating button (legacy — kept hidden, count badge still useful)
   const btn = document.getElementById('review-btn');
-  if (btn) btn.innerHTML = `🔖 Review${marked.length ? ` <span style="background:#f59e0b;color:#000;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">${marked.length}</span>` : ''}`;
+  if (btn) btn.innerHTML = `🔖 Review${badge}`;
+  // Profile menu buttons in both menus
+  ['pd-review-btn-db', 'pd-review-btn-lp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = `🔖 Review${badge}`;
+  });
 }
 
 let rmState = {
@@ -10664,6 +10727,7 @@ function repairStorage() {
     mockiq_mistakes:       { type: 'array',  default: [] },
     mockiq_dr_attended:    { type: 'array',  default: [] },
     mockiq_rm_attended:    { type: 'array',  default: [] },
+    mockiq_mock_reviews:   { type: 'array',  default: [] },
     savedMocks:            { type: 'array',  default: [] },
     mockiq_srs:            { type: 'object', default: {} },
     mockiq_dr_cycle:       { type: 'object', default: {} },
@@ -11454,8 +11518,246 @@ function smDelete(type, id, btn) {
 }
 // ── /Saved Mocks Screen ───────────────────────────────────────────────
 
+
+// ── Mock Reviews ─────────────────────────────────────────────────────────
+const MR_KEY        = 'mockiq_mock_reviews';
+const MR_MAX_DAYS   = 5;   // auto-delete reviews older than this many days
+const MR_STALE_MS   = MR_MAX_DAYS * 24 * 60 * 60 * 1000;
+
+function getMockReviews() {
+  return JSON.parse(localStorage.getItem(MR_KEY) || '[]');
+}
+function saveMockReviews(arr) {
+  localStorage.setItem(MR_KEY, JSON.stringify(arr));
+  if (typeof window.fbSchedulePush === 'function') window.fbSchedulePush();
+}
+
+// Auto-purge reviews older than MR_MAX_DAYS days
+function purgeStaleMockReviews() {
+  const now  = Date.now();
+  const list = getMockReviews();
+  const fresh = list.filter(r => (now - (r.savedAt || 0)) < MR_STALE_MS);
+  if (fresh.length !== list.length) saveMockReviews(fresh);
+}
+
+// Save current rmState as a mock review entry
+function saveMockReview() {
+  if (!rmState || !rmState.questions || !rmState.questions.length) return;
+
+  // Auto-purge stale before saving
+  purgeStaleMockReviews();
+
+  const scoredCount = (rmState.mode === 'instant')
+    ? rmState.currentIdx + 1
+    : rmState.questions.length;
+
+  const questions = rmState.questions.slice(0, scoredCount);
+  const answers   = rmState.answers.slice(0, scoredCount);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  answers.forEach((ans, i) => {
+    const q = questions[i];
+    if (!ans || !ans.selected) skipped++;
+    else if (ans.selected === q.correct) correct++;
+    else wrong++;
+  });
+
+  const review = {
+    _id:       'mr_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    savedAt:   Date.now(),
+    mockName:  rmState.mockName  || 'Unnamed Mock',
+    mockUnit:  rmState.mockUnit  || '—',
+    mode:      rmState.mode,
+    totalQ:    questions.length,
+    correct,
+    wrong,
+    skipped,
+    score:     questions.length > 0 ? +(((correct - wrong * 0.33) / questions.length) * 100).toFixed(1) : 0,
+    totalTime: rmState.totalTime || 0,
+    questions,
+    answers,
+  };
+
+  const list = getMockReviews();
+  list.unshift(review); // newest first
+  saveMockReviews(list);
+
+  // Visual feedback on button
+  const btn = document.getElementById('rm-save-review-btn');
+  if (btn) {
+    btn.textContent = '✓ Saved!';
+    btn.style.color = 'var(--green)';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = '💾 Save Review';
+      btn.style.color = '';
+      btn.disabled = false;
+    }, 2000);
+  }
+}
+
+// Open mock reviews list screen
+function openMockReviewsScreen() {
+  purgeStaleMockReviews();
+  hideAllWindows();
+  document.getElementById('mock-reviews-screen').style.display = 'block';
+  renderMockReviewsList();
+}
+
+function closeMockReviewsScreen() {
+  document.getElementById('mock-reviews-screen').style.display = 'none';
+  showHome();
+}
+
+function renderMockReviewsList() {
+  const list  = getMockReviews();
+  const badge = document.getElementById('mr-count-badge');
+  const body  = document.getElementById('mr-list');
+  if (!body) return;
+  if (badge) badge.textContent = list.length;
+
+  if (!list.length) {
+    body.innerHTML = `
+      <div class="mr-empty">
+        <div class="mr-empty-icon">📭</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px;">No saved mock reviews</div>
+        <div>After finishing a mock tap "💾 Save Review" on the result screen.</div>
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = list.map(r => {
+    const date   = new Date(r.savedAt);
+    const dateStr = date.toLocaleDateString([], {day:'2-digit', month:'short', year:'numeric'});
+    const timeStr = date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const modeLabel = r.mode === 'instant' ? 'Instant' : 'Stretch';
+    const scoreCls  = r.score >= 60 ? 'green' : r.score >= 40 ? 'amber' : 'red';
+    const unitShort = (r.mockUnit || '').length > 40 ? r.mockUnit.slice(0,38) + '…' : (r.mockUnit || '—');
+    const staleMs   = MR_STALE_MS - (Date.now() - r.savedAt);
+    const daysLeft  = Math.ceil(staleMs / (24*60*60*1000));
+    return `
+      <div class="mr-card" onclick="openSavedMockReview('${r._id}')">
+        <div class="mr-card-icon">📋</div>
+        <div class="mr-card-info">
+          <div class="mr-card-name">${r.mockName}</div>
+          <div class="mr-card-meta">
+            <span class="mr-card-pill ${scoreCls}">${r.score}%</span>
+            <span class="mr-card-pill">${r.totalQ}Q</span>
+            <span class="mr-card-pill accent">${modeLabel}</span>
+            <span class="mr-card-pill">✓${r.correct} ✗${r.wrong} —${r.skipped}</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${unitShort} &nbsp;·&nbsp; ${dateStr} ${timeStr} &nbsp;·&nbsp; ${daysLeft}d left</div>
+        </div>
+        <button class="mr-del-btn" onclick="event.stopPropagation();deleteMockReview('${r._id}')" title="Delete this review">🗑</button>
+      </div>`;
+  }).join('');
+}
+
+function deleteMockReview(id) {
+  const list = getMockReviews();
+  const entry = list.find(r => r._id === id);
+  if (!entry) return;
+  if (!confirm('Delete "' + entry.mockName + '" review?\nThis cannot be undone.')) return;
+  const updated = list.filter(r => r._id !== id);
+  saveMockReviews(updated);
+  renderMockReviewsList();
+}
+
+// Open a saved review in the answer review screen
+// Stores the active review data so arAddToDRCycle can access questions
+let _activeSavedReview = null;
+
+function openSavedMockReview(id) {
+  const list = getMockReviews();
+  const r    = list.find(rv => rv._id === id);
+  if (!r) return;
+
+  _activeSavedReview = r;
+
+  // Hide reviews list, show answer review screen
+  document.getElementById('mock-reviews-screen').style.display = 'none';
+  const screen = document.getElementById('rm-answer-review-screen');
+  screen.style.display = 'block';
+
+  // Set header
+  document.getElementById('rm-answer-review-sub').textContent =
+    r.mockName + ' · ' + r.mockUnit + ' · Saved ' +
+    new Date(r.savedAt).toLocaleDateString([], {day:'2-digit', month:'short', year:'numeric'});
+
+  // Counters
+  document.getElementById('ar-correct-count').textContent = '✓ ' + r.correct;
+  document.getElementById('ar-wrong-count').textContent   = '✗ ' + r.wrong;
+  document.getElementById('ar-skip-count').textContent    = '— ' + r.skipped;
+
+  // Build cards — same as rmShowAnswerReview but from saved data
+  const list2   = document.getElementById('rm-answer-review-list');
+  list2.innerHTML = '';
+
+  r.questions.forEach((q, i) => {
+    const ans    = r.answers[i] || {};
+    const sel    = ans.selected || null;
+    const isOk   = sel && sel === q.correct;
+    const isSkip = !sel;
+    const statusCls   = isSkip ? 'skipped' : (isOk ? 'correct' : 'wrong');
+    const statusLabel = isSkip ? '— Skipped' : (isOk ? '✓ Correct' : '✗ Wrong');
+    const cardCls     = isSkip ? 'ar-skipped' : (isOk ? 'ar-correct' : 'ar-wrong');
+
+    const optsHtml = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l => {
+      let cls = 'ar-opt', tag = '';
+      if (l === q.correct)         { cls += ' correct';    tag = '<span class="ar-opt-tag">Correct</span>'; }
+      else if (l === sel && !isOk) { cls += ' user-wrong'; tag = '<span class="ar-opt-tag">Your Answer</span>'; }
+      return `<div class="${cls}"><span class="ar-opt-ltr">${l}.</span><span style="flex:1;">${q.options[l]}</span>${tag}</div>`;
+    }).join('');
+
+    const justHtml = q.justification
+      ? `<div class="ar-just"><b>Explanation:</b> ${q.justification}</div>` : '';
+
+    const card = document.createElement('div');
+    card.className = `ar-card ${cardCls}`;
+    card.innerHTML = `
+      <div class="ar-header" onclick="this.nextElementSibling.classList.toggle('open')">
+        <span class="ar-qnum">Q${i+1}</span>
+        <span style="font-size:13px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.question.slice(0,65)}${q.question.length>65?'…':''}</span>
+        <span class="ar-badge ${statusCls}">${statusLabel}</span>
+      </div>
+      <div class="ar-body">
+        <div class="ar-qtext">${escHtml(q.question)}</div>
+        ${optsHtml}
+        ${justHtml}
+        <div class="ar-explain-row">
+          <button class="ar-explain-btn gemini" onclick="arExplainGemini(this)" data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}" title="Open in Gemini">✦ Open in Gemini</button>
+          <button class="ar-explain-btn gpt"    onclick="arExplainGPT(this)"    data-q="${encodeURIComponent(q.question)}" data-correct="${q.correct}" data-opts="${encodeURIComponent(JSON.stringify(q.options))}">↗ Open in ChatGPT</button>
+        </div>
+        <div class="rm-drcycle-btn-wrap" id="svr-drc-wrap-${i}" style="margin-top:8px;">
+          ${isInDRCycle(q.id)
+            ? `<button class="rm-drcycle-btn in-cycle" disabled>✓ In DR Cycle</button>`
+            : `<button class="rm-drcycle-btn" onclick="svrAddToDRCycle(this,'${q.id}',${i})">➕ Add to DR Cycle</button>`
+          }
+        </div>
+      </div>`;
+    list2.appendChild(card);
+  });
+
+  // Mark back button to return to reviews list
+  screen.dataset.fromReviews = '1';
+}
+
+// Add to DR Cycle from saved review screen
+function svrAddToDRCycle(btn, qId, cardIdx) {
+  const r = _activeSavedReview;
+  if (!r) return;
+  const q = r.questions.find(q => q.id === qId);
+  if (!q || isInDRCycle(qId)) return;
+  if (addToDRCycleManually(q)) {
+    const wrap = document.getElementById('svr-drc-wrap-' + cardIdx);
+    if (wrap) wrap.innerHTML = `<button class="rm-drcycle-btn in-cycle" disabled>✓ In DR Cycle</button>`;
+  }
+}
+// ── /Mock Reviews ─────────────────────────────────────────────────────────
+
 window.onload = () => {
   repairStorage();
+  purgeStaleMockReviews();
   repairDRCycleDoneFlags();
   migrateLegacyDates();
   showHome();
@@ -11528,10 +11830,10 @@ window.onload = () => {
   }
   // ─────────────────────────────────────────────────────────────
 
-  // ── 30-second idle → auto-return to landing ──────────────
+  // ── 5-minute idle → auto-return to landing ──────────────
   (function() {
-    const IDLE_MS   = 30_000;
-    const WARN_MS   = 5_000;   // show warning 5s before redirect
+    const IDLE_MS   = 300_000;  // 5 min
+    const WARN_MS   = 10_000;   // show warning 10s before redirect
     let idleTimer   = null;
     let warnTimer   = null;
     let warnEl      = null;
@@ -11726,6 +12028,19 @@ document.addEventListener('keydown', function(e) {
   }
 });
 </script>
+
+<!-- MOCK REVIEWS SCREEN -->
+<div id="mock-reviews-screen">
+  <div id="mock-reviews-inner">
+    <div class="mr-topbar">
+      <button onclick="closeMockReviewsScreen()" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;touch-action:manipulation;">← Back</button>
+      <div class="mr-topbar-title">📋 Mock Reviews</div>
+      <span id="mr-count-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(108,142,245,0.15);color:var(--accent);">0</span>
+    </div>
+    <div id="mr-list"></div>
+  </div>
+</div>
+<!-- /MOCK REVIEWS SCREEN -->
 
 <!-- SAVED MOCKS SCREEN -->
 <div id="saved-mocks-screen">

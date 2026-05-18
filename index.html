@@ -5834,7 +5834,7 @@ function arBuildPrompt(btn) {
   const opts = JSON.parse(decodeURIComponent(btn.dataset.opts));
   const optText = ['A','B','C','D'].filter(l => opts[l])
     .map(l => `${l}. ${opts[l]}${l === corr ? ' ✓' : ''}`).join('\n');
-  return `This is a fisheries exam question. Please explain clearly why the correct answer is correct, and briefly why the other options are wrong.\n\nQuestion:\n${q}\n\nOptions:\n${optText}\n\nCorrect Answer: ${corr}. ${opts[corr] || ''}\n\nPlease give a clear, concise explanation suitable for exam preparation.`;
+  return `This is a fisheries exam question. Please explain clearly why the correct answer is correct, and briefly why the other options are wrong.\n\nQuestion:\n${q}\n\nOptions:\n${optText}\n\nCorrect Answer: ${corr}. ${opts[corr] || ''}\n\nPlease give a clear, concise explanation suitable for exam preparation.\n\nImportant: First verify whether the option marked as correct above is actually correct — input errors are possible where the wrong option was tagged as the answer. Clearly state whether you agree or disagree with the marked correct answer before proceeding with your explanation.`;
 }
 
 function arExplainGemini(btn) {
@@ -5880,7 +5880,7 @@ function saveDR(d) {
 }
 
 function drBuildPrompt(q) {
-  return `You are an expert mentor for Kerala Fisheries PSC exam.\nExplain the following MCQ in a highly exam-oriented way:\n\nQuestion:\n${q.question}\n\nOptions:\nA) ${q.options.A||''}\nB) ${q.options.B||''}\nC) ${q.options.C||''}\nD) ${q.options.D||''}\n\nCorrect Answer:\n${q.correct}) ${q.options[q.correct]||''}\n\nDo the following:\n1. Give the correct answer with a precise explanation.\n2. Eliminate all wrong options with reasoning.\n3. Explain the underlying concept in simple language.\n4. Add key facts, values, and points important for PSC exams.\n5. Give 2–3 similar possible MCQs that can be asked from this topic.\n6. Mention common traps or confusing points.\n7. Add a memory trick if possible.\n8. Keep it crisp, structured, and revision-friendly.`;
+  return `You are an expert mentor for Kerala Fisheries PSC exam.\nExplain the following MCQ in a highly exam-oriented way:\n\nQuestion:\n${q.question}\n\nOptions:\nA) ${q.options.A||''}\nB) ${q.options.B||''}\nC) ${q.options.C||''}\nD) ${q.options.D||''}\n\nCorrect Answer:\n${q.correct}) ${q.options[q.correct]||''}\n\nDo the following:\n0. First verify whether the marked correct answer is actually correct — input errors are possible. Clearly state whether you agree or disagree with the marked answer before proceeding.\n1. Give the correct answer with a precise explanation.\n2. Eliminate all wrong options with reasoning.\n3. Explain the underlying concept in simple language.\n4. Add key facts, values, and points important for PSC exams.\n5. Give 2–3 similar possible MCQs that can be asked from this topic.\n6. Mention common traps or confusing points.\n7. Add a memory trick if possible.\n8. Keep it crisp, structured, and revision-friendly.`;
 }
 
 function drGenerate(forcedUnit = null) {

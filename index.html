@@ -5703,127 +5703,240 @@ function rmGenerateReport() {
     else if (ans.selected === q.correct) correct++;
     else wrong++;
   });
-  const rawScore   = correct - (wrong * 0.33);
-  const totalQ     = scoredCount;
-  const finalScore = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
-  const m = Math.floor(st.totalTime / 60), s = st.totalTime % 60;
-  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const rawScore    = correct - (wrong * 0.33);
+  const totalQ      = scoredCount;
+  const attempted   = correct + wrong;
+  const accuracy    = attempted > 0 ? ((correct / attempted) * 100).toFixed(1) : '—';
+  const attemptRate = totalQ > 0 ? (((attempted) / totalQ) * 100).toFixed(1) : '0';
+  const finalScore  = Math.max(0, (rawScore / totalQ) * 100).toFixed(1);
+  const PSC_CUTOFF  = 50;
+  const marksShort  = Math.max(0, PSC_CUTOFF - parseFloat(finalScore)).toFixed(1);
+  const wrongToRight= wrong > 0 ? Math.ceil((PSC_CUTOFF * totalQ / 100 - correct + wrong * 0.33) / 1.33) : 0;
+  const mT = Math.floor(st.totalTime / 60), sT = st.totalTime % 60;
+  const timeStr = String(mT).padStart(2,'0') + ':' + String(sT).padStart(2,'0');
   const now = new Date().toLocaleString();
 
-  // Categorise questions
-  const wrongQs   = [];
-  const skippedQs = [];
-  const correctQs = [];
-  attendedQs.forEach((q, i) => {
-    const ans = attendedAns[i] || {};
-    if (!ans.selected) skippedQs.push({ q, ans });
-    else if (ans.selected === q.correct) correctQs.push({ q, ans });
-    else wrongQs.push({ q, ans });
-  });
+  const fmtTime = sec => {
+    if (!sec || sec < 1) return '—';
+    return sec >= 60 ? Math.floor(sec/60) + 'm ' + (sec%60) + 's' : sec + 's';
+  };
 
-  const esc = s => (s || '').toString()
+  const esc = x => (x || '').toString()
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  // Build wrong/skipped question HTML (with options + what user chose)
-  function buildQCard(item, idx, type) {
-    const { q, ans } = item;
-    const opts = ['A','B','C','D'].filter(l => q.options && q.options[l]).map(l => {
-      let bg = '#f9f9f9', color = '#333', fw = 'normal', marker = '';
-      if (l === q.correct) { bg = '#d4edda'; color = '#155724'; fw = '700'; marker = ' ✓ Correct'; }
-      else if (l === ans.selected && l !== q.correct) { bg = '#f8d7da'; color = '#721c24'; fw = '600'; marker = ' ✗ Your Answer'; }
-      return `<div style="padding:6px 10px;margin:4px 0;border-radius:5px;background:${bg};color:${color};font-weight:${fw};font-size:13px;">
-        <b>${l}.</b> ${esc(q.options[l])}${marker}
-      </div>`;
+  // Categorise
+  const wrongQs = [], skippedQs = [], correctQs = [];
+  attendedQs.forEach((q, i) => {
+    const ans = attendedAns[i] || {};
+    if (!ans.selected) skippedQs.push({ q, ans, origIdx: i });
+    else if (ans.selected === q.correct) correctQs.push({ q, ans, origIdx: i });
+    else wrongQs.push({ q, ans, origIdx: i });
+  });
+
+  // Unit-wise breakdown
+  const unitMap = {};
+  attendedQs.forEach((q, i) => {
+    const u = q.unit || 'Unknown';
+    if (!unitMap[u]) unitMap[u] = { correct:0, wrong:0, skipped:0, total:0 };
+    unitMap[u].total++;
+    const ans = attendedAns[i] || {};
+    if (!ans.selected) unitMap[u].skipped++;
+    else if (ans.selected === q.correct) unitMap[u].correct++;
+    else unitMap[u].wrong++;
+  });
+  const unitRows = Object.entries(unitMap)
+    .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
+    .map(([u, d]) => {
+      const acc = d.correct+d.wrong > 0 ? ((d.correct/(d.correct+d.wrong))*100).toFixed(0)+'%' : '—';
+      const strength = d.correct/d.total >= 0.7 ? '✅ Strong' : d.correct/d.total >= 0.4 ? '⚠ Average' : '❌ Weak';
+      return '<tr><td style="padding:7px 10px;border:1px solid #dee2e6;font-size:12px;">'+esc(u)+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;font-size:12px;">'+d.total+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#155724;font-weight:700;font-size:12px;">'+d.correct+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#721c24;font-weight:700;font-size:12px;">'+d.wrong+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#856404;font-size:12px;">'+d.skipped+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;font-size:12px;">'+acc+'</td>'
+        +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;font-size:12px;">'+strength+'</td></tr>';
     }).join('');
-    const justHtml = q.justification ? `<div style="margin-top:8px;padding:8px 12px;background:#e8f0fe;border-left:3px solid #3b6bca;font-size:12px;color:#1a3a6b;border-radius:0 5px 5px 0;"><b>Explanation:</b> ${esc(q.justification)}</div>` : '';
-    const tag = type === 'skipped' ? '<span style="background:#fff3cd;color:#856404;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">SKIPPED</span>'
-                                   : '<span style="background:#f8d7da;color:#721c24;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">WRONG</span>';
-    return `<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:14px;overflow:hidden;">
-      <div style="background:#f8f9fa;padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #dee2e6;">
-        <span style="font-weight:700;color:#555;font-size:13px;">Q${idx + 1}</span>
-        <span style="font-size:11px;color:#888;">${esc(q.unit)} · ${esc(q.difficulty || 'medium')}</span>
-        ${tag}
-      </div>
-      <div style="padding:12px 14px;">
-        <div style="font-size:14px;font-weight:600;color:#222;margin-bottom:10px;line-height:1.6;">${esc(q.question)}</div>
-        ${opts}
-        ${justHtml}
-      </div>
-    </div>`;
+
+  // Difficulty breakdown
+  const diffMap = {
+    easy:   {correct:0,wrong:0,skipped:0,total:0},
+    medium: {correct:0,wrong:0,skipped:0,total:0},
+    hard:   {correct:0,wrong:0,skipped:0,total:0}
+  };
+  attendedQs.forEach((q, i) => {
+    const d = (q.difficulty||'medium').toLowerCase();
+    const key = diffMap[d] ? d : 'medium';
+    diffMap[key].total++;
+    const ans = attendedAns[i] || {};
+    if (!ans.selected) diffMap[key].skipped++;
+    else if (ans.selected === q.correct) diffMap[key].correct++;
+    else diffMap[key].wrong++;
+  });
+  const diffRows = ['easy','medium','hard'].map(d => {
+    const v = diffMap[d];
+    if (!v.total) return '';
+    const acc = v.correct+v.wrong > 0 ? ((v.correct/(v.correct+v.wrong))*100).toFixed(0)+'%' : '—';
+    const label = d==='easy'?'🟢 Easy':d==='medium'?'🟡 Medium':'🔴 Hard';
+    return '<tr><td style="padding:7px 10px;border:1px solid #dee2e6;font-size:12px;font-weight:600;">'+label+'</td>'
+      +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;font-size:12px;">'+v.total+'</td>'
+      +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#155724;font-weight:700;font-size:12px;">'+v.correct+'</td>'
+      +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#721c24;font-weight:700;font-size:12px;">'+v.wrong+'</td>'
+      +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;color:#856404;font-size:12px;">'+v.skipped+'</td>'
+      +'<td style="padding:7px 10px;border:1px solid #dee2e6;text-align:center;font-size:12px;">'+acc+'</td></tr>';
+  }).join('');
+
+  // Time analysis
+  const timesWithData = attendedQs.map((q,i) => ({
+    q, ans: attendedAns[i]||{}, t: (attendedAns[i]||{}).timeSpent||0, i
+  })).filter(x => x.t > 0);
+  const fastestCorrect = timesWithData.filter(x=>x.ans.selected===x.q.correct).sort((a,b)=>a.t-b.t)[0];
+  const slowestWrong   = timesWithData.filter(x=>x.ans.selected&&x.ans.selected!==x.q.correct).sort((a,b)=>b.t-a.t)[0];
+  const top3Slowest    = [...timesWithData].sort((a,b)=>b.t-a.t).slice(0,3);
+  const avgT = totalQ > 0 ? fmtTime(Math.round(st.totalTime/totalQ)) : '—';
+  const timeInsights = '<div style="background:#f8f9fa;border-radius:8px;padding:14px;margin-bottom:14px;font-size:13px;">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">'
+    +'<div><b>Total Time</b><br>'+timeStr+'</div>'
+    +'<div><b>Avg/Question</b><br>'+avgT+'</div>'
+    +'<div><b>Attempt Rate</b><br>'+attemptRate+'%</div>'
+    +'</div>'
+    +(fastestCorrect?'<div style="margin-top:10px;color:#155724;"><b>⚡ Fastest Correct:</b> Q'+(fastestCorrect.i+1)+' in '+fmtTime(fastestCorrect.t)+'</div>':'')
+    +(slowestWrong?'<div style="margin-top:6px;color:#721c24;"><b>🐢 Slowest Wrong:</b> Q'+(slowestWrong.i+1)+' in '+fmtTime(slowestWrong.t)+' — possible time-pressure error</div>':'')
+    +(top3Slowest.length?'<div style="margin-top:6px;color:#555;"><b>⏱ Top 3 time-consuming:</b> '+top3Slowest.map(x=>'Q'+(x.i+1)+' ('+fmtTime(x.t)+')').join(' · ')+'</div>':'')
+    +'</div>';
+
+  // AI Prompt block
+  const unitSummaryText = Object.entries(unitMap).map(([u,d])=>u+': '+d.correct+'C/'+d.wrong+'W/'+d.skipped+'S').join(', ');
+  const diffSummaryText = ['easy','medium','hard'].filter(d=>diffMap[d].total>0).map(d=>d+': '+diffMap[d].correct+'C/'+diffMap[d].wrong+'W').join(', ');
+  const aiPromptText = `MockIQ Exam Analysis Request
+
+Mock: ${st.mockName} | Mode: ${st.mode==='instant'?'Instant Feedback':'Single Stretch'}
+Units: ${st.mockUnit}
+Date: ${now}
+
+SCORE SUMMARY:
+Total Questions: ${totalQ} | Correct: ${correct} | Wrong: ${wrong} | Skipped: ${skipped}
+Raw Score: ${rawScore.toFixed(2)} | Final Score: ${finalScore}/100 | Result: ${parseFloat(finalScore)>=50?'PASS':'FAIL'}
+Accuracy (attempted only): ${accuracy}% | Attempt Rate: ${attemptRate}%
+${parseFloat(finalScore)<PSC_CUTOFF?'Marks short of cutoff ('+PSC_CUTOFF+'): '+marksShort+' | Wrong to correct for cutoff: '+wrongToRight:'Above cutoff — focus on consistency'}
+Total Time: ${timeStr} | Avg per Q: ${avgT}
+
+UNIT-WISE: ${unitSummaryText}
+DIFFICULTY: ${diffSummaryText}
+${fastestCorrect?'Fastest correct: Q'+(fastestCorrect.i+1)+' ('+fmtTime(fastestCorrect.t)+')':''}
+${slowestWrong?'Slowest wrong: Q'+(slowestWrong.i+1)+' ('+fmtTime(slowestWrong.t)+')':''}
+
+Please analyze this mock performance and provide:
+1. Overall assessment and key strengths/weaknesses
+2. Unit-wise analysis — which units need most attention
+3. Difficulty pattern — does performance drop at higher difficulty
+4. Time management insights — any time-pressure patterns
+5. Priority action plan for improvement
+6. Target prediction for next mock with current trajectory`;
+
+  // Question card builders
+  function buildQCard(item, type) {
+    const { q, ans, origIdx } = item;
+    const timeTag = ans.timeSpent > 0
+      ? '<span style="background:#e8f0fe;color:#1a3a6b;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600;">⏱ '+fmtTime(ans.timeSpent)+'</span>'
+      : '';
+    const opts = ['A','B','C','D'].filter(l=>q.options&&q.options[l]).map(l=>{
+      let bg='#f9f9f9',color='#333',fw='normal',marker='';
+      if(l===q.correct){bg='#d4edda';color='#155724';fw='700';marker=' ✓ Correct';}
+      else if(l===ans.selected&&l!==q.correct){bg='#f8d7da';color='#721c24';fw='600';marker=' ✗ Your Answer';}
+      return '<div style="padding:6px 10px;margin:4px 0;border-radius:5px;background:'+bg+';color:'+color+';font-weight:'+fw+';font-size:13px;"><b>'+l+'.</b> '+esc(q.options[l])+marker+'</div>';
+    }).join('');
+    const justHtml = q.justification
+      ? '<div style="margin-top:8px;padding:8px 12px;background:#e8f0fe;border-left:3px solid #3b6bca;font-size:12px;color:#1a3a6b;border-radius:0 5px 5px 0;"><b>Explanation:</b> '+esc(q.justification)+'</div>'
+      : '';
+    const tag = type==='skipped'
+      ? '<span style="background:#fff3cd;color:#856404;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">SKIPPED</span>'
+      : '<span style="background:#f8d7da;color:#721c24;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">WRONG</span>';
+    return '<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:14px;overflow:hidden;">'
+      +'<div style="background:#f8f9fa;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid #dee2e6;">'
+      +'<span style="font-weight:700;color:#555;font-size:13px;">Q'+(origIdx+1)+'</span>'
+      +'<span style="font-size:11px;color:#888;">'+esc(q.unit)+' · '+esc(q.difficulty||'medium')+'</span>'
+      +tag+' '+timeTag
+      +'</div><div style="padding:12px 14px;">'
+      +'<div style="font-size:14px;font-weight:600;color:#222;margin-bottom:10px;line-height:1.6;">'+esc(q.question)+'</div>'
+      +opts+justHtml+'</div></div>';
   }
 
-  // Correct questions — just question text, no options
-  function buildCorrectCard(item, idx) {
-    const { q } = item;
-    return `<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:8px;overflow:hidden;">
-      <div style="background:#f8f9fa;padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #dee2e6;">
-        <span style="font-weight:700;color:#555;font-size:13px;">Q${idx + 1}</span>
-        <span style="font-size:11px;color:#888;">${esc(q.unit)}</span>
-        <span style="background:#d4edda;color:#155724;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">CORRECT</span>
-      </div>
-      <div style="padding:10px 14px;font-size:13px;color:#333;line-height:1.6;">${esc(q.question)}</div>
-    </div>`;
+  function buildCorrectCard(item) {
+    const { q, ans, origIdx } = item;
+    const timeTag = ans.timeSpent > 0
+      ? '<span style="background:#e8f0fe;color:#1a3a6b;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600;">⏱ '+fmtTime(ans.timeSpent)+'</span>'
+      : '';
+    return '<div style="border:1px solid #dee2e6;border-radius:8px;margin-bottom:8px;overflow:hidden;">'
+      +'<div style="background:#f8f9fa;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid #dee2e6;">'
+      +'<span style="font-weight:700;color:#555;font-size:13px;">Q'+(origIdx+1)+'</span>'
+      +'<span style="font-size:11px;color:#888;">'+esc(q.unit)+'</span>'
+      +'<span style="background:#d4edda;color:#155724;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:700;">CORRECT</span>'
+      +timeTag+'</div>'
+      +'<div style="padding:10px 14px;font-size:13px;color:#333;line-height:1.6;">'+esc(q.question)+'</div>'
+      +'</div>';
   }
 
-  const wrongHtml   = wrongQs.map((item, i)   => buildQCard(item, i, 'wrong')).join('');
-  const skippedHtml = skippedQs.map((item, i) => buildQCard(item, i, 'skipped')).join('');
-  const correctHtml = correctQs.map((item, i) => buildCorrectCard(item, i)).join('');
+  const wrongHtml   = wrongQs.map(item   => buildQCard(item,'wrong')).join('');
+  const skippedHtml = skippedQs.map(item => buildQCard(item,'skipped')).join('');
+  const correctHtml = correctQs.map(item => buildCorrectCard(item)).join('');
 
   const scoreColor = parseFloat(finalScore) >= 50 ? '#155724' : '#721c24';
   const scoreBg    = parseFloat(finalScore) >= 50 ? '#d4edda' : '#f8d7da';
 
-  const html = `<!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8">
-<title>MockIQ Report — ${esc(st.mockName)}</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 30px 20px; color: #222; }
-  h1 { color: #1a3a6b; border-bottom: 2px solid #1a3a6b; padding-bottom: 10px; }
-  h2 { color: #1a3a6b; margin-top: 30px; border-left: 4px solid #1a3a6b; padding-left: 10px; }
-  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
-  .stat-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 14px; text-align: center; }
-  .stat-val { font-size: 26px; font-weight: 700; }
-  .stat-lbl { font-size: 12px; color: #666; margin-top: 4px; }
-  .score-hero { text-align:center; background:${scoreBg}; border-radius:12px; padding:20px; margin:20px 0; }
-  .score-big { font-size: 52px; font-weight: 800; color: ${scoreColor}; }
-  .meta { font-size: 12px; color: #888; margin-top: 4px; }
-  @media print { body { padding: 10px; } }
-</style>
-</head><body>
-<h1>📊 MockIQ Exam Report</h1>
-<div class="meta">Generated: ${now}</div>
-<div class="meta">Mock: <b>${esc(st.mockName)}</b> &nbsp;·&nbsp; Units: ${esc(st.mockUnit)} &nbsp;·&nbsp; Mode: ${st.mode === 'instant' ? 'Instant Feedback' : 'Single Stretch'}</div>
-
-<div class="score-hero">
-  <div class="score-big">${finalScore}<span style="font-size:24px;">/100</span></div>
-  <div style="font-size:14px;color:${scoreColor};font-weight:600;">${parseFloat(finalScore) >= 50 ? 'PASS' : 'FAIL'}</div>
-  <div class="meta" style="margin-top:8px;">Formula: (${correct} × 1) − (${wrong} × 0.33) = ${rawScore.toFixed(2)} raw → ${finalScore}/100</div>
-</div>
-
-<div class="summary-grid">
-  <div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">${totalQ}</div><div class="stat-lbl">Questions Attended</div></div>
-  <div class="stat-box"><div class="stat-val" style="color:#155724;">${correct}</div><div class="stat-lbl">Correct</div></div>
-  <div class="stat-box"><div class="stat-val" style="color:#721c24;">${wrong}</div><div class="stat-lbl">Wrong</div></div>
-  <div class="stat-box"><div class="stat-val" style="color:#856404;">${skipped}</div><div class="stat-lbl">Skipped</div></div>
-  <div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">${timeStr}</div><div class="stat-lbl">Total Time</div></div>
-  <div class="stat-box"><div class="stat-val" style="color:#555;">${totalQ > 0 ? Math.round(st.totalTime / totalQ) : 0}s</div><div class="stat-lbl">Avg per Question</div></div>
-</div>
-
-${wrongQs.length ? `<h2>✗ Wrong Answers (${wrongQs.length})</h2>${wrongHtml}` : '<h2 style="color:#155724;">✓ No Wrong Answers!</h2>'}
-${skippedQs.length ? `<h2>— Skipped Questions (${skippedQs.length})</h2>${skippedHtml}` : ''}
-${correctQs.length ? `<h2>✓ Correct Answers (${correctQs.length})</h2>${correctHtml}` : ''}
-
-<div style="margin-top:30px;padding:14px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#888;text-align:center;">
-  MockIQ \u00b7 Fisheries Exam Preparation \u00b7 Use browser Print \u2192 Save as PDF to download
-</div>
-</body></html>` + '<scr' + `ipt>window.onload=()=>window.print();</scr` + `ipt>`;
-
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>MockIQ Report — '+esc(st.mockName)+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto;padding:30px 20px;color:#222;}'
+    +'h1{color:#1a3a6b;border-bottom:2px solid #1a3a6b;padding-bottom:10px;}'
+    +'h2{color:#1a3a6b;margin-top:30px;border-left:4px solid #1a3a6b;padding-left:10px;}'
+    +'.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}'
+    +'.stat-box{background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:14px;text-align:center;}'
+    +'.stat-val{font-size:26px;font-weight:700;}.stat-lbl{font-size:12px;color:#666;margin-top:4px;}'
+    +'.score-hero{text-align:center;background:'+scoreBg+';border-radius:12px;padding:20px;margin:20px 0;}'
+    +'.score-big{font-size:52px;font-weight:800;color:'+scoreColor+';}'
+    +'.meta{font-size:12px;color:#888;margin-top:4px;}'
+    +'table{width:100%;border-collapse:collapse;margin:12px 0;}'
+    +'th{background:#1a3a6b;color:#fff;padding:8px 10px;font-size:12px;text-align:left;}'
+    +'th:not(:first-child){text-align:center;}'
+    +'pre{background:#f1f3f8;border:1px solid #dee2e6;border-radius:8px;padding:16px;font-size:11px;white-space:pre-wrap;word-break:break-word;color:#222;margin:12px 0;}'
+    +'@media print{body{padding:10px;}pre{font-size:10px;}}</style></head><body>'
+    +'<h1>📊 MockIQ Exam Report</h1>'
+    +'<div class="meta">Generated: '+now+'</div>'
+    +'<div class="meta">Mock: <b>'+esc(st.mockName)+'</b> &nbsp;·&nbsp; Units: '+esc(st.mockUnit)+' &nbsp;·&nbsp; Mode: '+(st.mode==='instant'?'Instant Feedback':'Single Stretch')+'</div>'
+    +'<div class="score-hero"><div class="score-big">'+finalScore+'<span style="font-size:24px;">/100</span></div>'
+    +'<div style="font-size:14px;color:'+scoreColor+';font-weight:600;">'+(parseFloat(finalScore)>=50?'PASS':'FAIL')+'</div>'
+    +'<div class="meta" style="margin-top:8px;">Formula: ('+correct+' × 1) − ('+wrong+' × 0.33) = '+rawScore.toFixed(2)+' raw → '+finalScore+'/100</div>'
+    +(parseFloat(finalScore)<PSC_CUTOFF?'<div class="meta" style="margin-top:4px;color:#721c24;font-weight:600;">'+marksShort+' marks short of cutoff · Fix '+wrongToRight+' wrong → correct to reach '+PSC_CUTOFF+'</div>':'<div class="meta" style="margin-top:4px;color:#155724;font-weight:600;">✓ Above PSC cutoff of '+PSC_CUTOFF+'</div>')
+    +'</div>'
+    +'<div class="summary-grid">'
+    +'<div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">'+totalQ+'</div><div class="stat-lbl">Questions Attended</div></div>'
+    +'<div class="stat-box"><div class="stat-val" style="color:#155724;">'+correct+'</div><div class="stat-lbl">Correct</div></div>'
+    +'<div class="stat-box"><div class="stat-val" style="color:#721c24;">'+wrong+'</div><div class="stat-lbl">Wrong</div></div>'
+    +'<div class="stat-box"><div class="stat-val" style="color:#856404;">'+skipped+'</div><div class="stat-lbl">Skipped</div></div>'
+    +'<div class="stat-box"><div class="stat-val" style="color:#1a3a6b;">'+timeStr+'</div><div class="stat-lbl">Total Time</div></div>'
+    +'<div class="stat-box"><div class="stat-val" style="color:#555;">'+accuracy+'%</div><div class="stat-lbl">Accuracy (attempted)</div></div>'
+    +'</div>'
+    +'<h2>📋 Unit-wise Performance</h2>'
+    +'<table><tr><th>Unit</th><th>Total</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Accuracy</th><th>Assessment</th></tr>'
+    +unitRows+'</table>'
+    +'<h2>🎯 Difficulty Breakdown</h2>'
+    +'<table><tr><th>Difficulty</th><th>Total</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Accuracy</th></tr>'
+    +diffRows+'</table>'
+    +'<h2>⏱ Time Analysis</h2>'+timeInsights
+    +'<h2>🤖 AI Analysis Prompt</h2>'
+    +'<p style="font-size:12px;color:#888;margin-bottom:6px;">Copy the block below and paste into ChatGPT or Gemini for a detailed performance analysis:</p>'
+    +'<pre>'+aiPromptText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
+    +(wrongQs.length?'<h2>✗ Wrong Answers ('+wrongQs.length+')</h2>'+wrongHtml:'<h2 style="color:#155724;">✓ No Wrong Answers!</h2>')
+    +(skippedQs.length?'<h2>— Skipped Questions ('+skippedQs.length+')</h2>'+skippedHtml:'')
+    +(correctQs.length?'<h2>✓ Correct Answers ('+correctQs.length+')</h2>'+correctHtml:'')
+    +'<div style="margin-top:30px;padding:14px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#888;text-align:center;">'
+    +'MockIQ · Fisheries Exam Preparation · Use browser Print → Save as PDF to download'
+    +'</div></body></html>'
+    + '<scr' + 'ipt>window.onload=()=>window.print();</scr' + 'ipt>';
 
   const blob = new Blob([html], { type: 'text/html' });
   const url  = URL.createObjectURL(blob);
   const win  = window.open(url, '_blank');
-  // Revoke after 60s — ephemeral, not stored
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  if (!win) alert('Please allow popups to download the report.');
 }
 
 // ── AI Explain functions ─────────────────────────────────
@@ -9127,6 +9240,7 @@ let rmState = {
   finished: false,
 };
 let rmQTimer = null, rmTotalTimer = null, rmPauseTimer = null;
+let rmQStopwatchStart = null; // tracks when current question rendering started
 
 // \u2500\u2500 Update QB count display on homepage \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function rmUpdateQBCount() {
@@ -9368,7 +9482,7 @@ function rmLaunch(questions, units, count) {
     mode: rmState.mode,
     questions,
     currentIdx: 0,
-    answers: new Array(questions.length).fill(null).map(() => ({ selected: null, skipped: false, reviewed: false })),
+    answers: new Array(questions.length).fill(null).map(() => ({ selected: null, skipped: false, reviewed: false, timeSpent: 0 })),
     timeLeft: 60,
     totalTime: 0,
     paused: false,
@@ -9398,6 +9512,11 @@ function rmLaunch(questions, units, count) {
 function rmRenderQuestion() {
   const q = rmState.questions[rmState.currentIdx];
   const ans = rmState.answers[rmState.currentIdx];
+  // Start stopwatch for this question
+  // In instant mode: only start if question not already answered (not frozen)
+  if (rmState.mode === 'stretch' || !ans._timeFrozen) {
+    rmStopwatchStart();
+  }
   const total = rmState.questions.length;
   const idx = rmState.currentIdx;
   const mode = rmState.mode;
@@ -9502,6 +9621,8 @@ function rmSelectOption(letter) {
   if (rmState.paused) return;
   ans.selected = letter;
   ans.skipped = false;
+  // Freeze question time at moment of answer in instant mode
+  if (rmState.mode === 'instant') rmStopwatchFreeze(rmState.currentIdx);
   rmRenderQuestion();
   // In instant mode: stop both timers while user reads feedback + explain buttons
   if (rmState.mode === 'instant') {
@@ -9519,12 +9640,17 @@ function rmSkipQ() {
   if (rmState.paused) return;
   const ans = rmState.answers[rmState.currentIdx];
   if (rmState.mode === 'instant' && ans.selected !== null) return; // already answered
+  // In instant mode: freeze time on skip (skipped questions CAN be revisited and time added)
+  // So we stop the clock now but do NOT freeze — revisit will add more time
+  if (rmState.mode === 'instant') rmStopwatchStop(rmState.currentIdx);
   ans.selected = null; ans.skipped = true;
   rmNextQ();
 }
 
 function rmNextQ() {
   if (rmState.paused) return;
+  // Stop stopwatch for the question being left
+  rmStopwatchStop(rmState.currentIdx);
   const isLast = rmState.currentIdx === rmState.questions.length - 1;
   if (rmState.mode === 'instant') {
     // Restart total timer (was paused while user read feedback/explain)
@@ -9555,6 +9681,8 @@ function rmNextQ() {
 function rmPrevQ() {
   if (rmState.paused) return;
   if (rmState.currentIdx === 0) return;
+  // Stop stopwatch for the question being left
+  rmStopwatchStop(rmState.currentIdx);
   rmState.currentIdx--;
   rmResetQTimer();
   rmRenderQuestion();
@@ -9610,7 +9738,12 @@ function rmResetQTimer() {
 function rmAutoAdvance() {
   // Time up for this question — mark as skipped and move on
   const ans = rmState.answers[rmState.currentIdx];
-  if (ans.selected === null) ans.skipped = true;
+  if (ans.selected === null) {
+    ans.skipped = true;
+    rmStopwatchStop(rmState.currentIdx); // save time, not frozen (skipped can be revisited)
+  } else {
+    rmStopwatchFreeze(rmState.currentIdx); // answered — freeze time
+  }
   // In instant mode at last question, timer expiry ends the exam
   if (rmState.mode === 'instant' && rmState.currentIdx === rmState.questions.length - 1) {
     rmFinish();
@@ -9619,9 +9752,47 @@ function rmAutoAdvance() {
   rmNextQ();
 }
 
+// ── Per-question stopwatch helpers ──────────────────────────────────────
+// Called when a question becomes active — starts the stopwatch
+function rmStopwatchStart() {
+  rmQStopwatchStart = Date.now();
+}
+
+// Called when leaving a question — accumulates elapsed time into ans.timeSpent
+// In instant mode: frozen after answer/skip (shouldAdd=false when returning to answered Q)
+function rmStopwatchStop(idx) {
+  if (rmQStopwatchStart === null) return;
+  const elapsed = Math.round((Date.now() - rmQStopwatchStart) / 1000);
+  rmQStopwatchStart = null;
+  if (!rmState.answers[idx]) return;
+  const ans = rmState.answers[idx];
+  if (rmState.mode === 'instant') {
+    // Only accumulate if question is still open (not answered and not locked-skipped)
+    // answered questions: timeSpent already frozen at moment of answer
+    // skipped questions: accumulate each revisit (still unanswered, user may answer this time)
+    if (ans._timeFrozen) return; // frozen — don't add revisit time
+  }
+  ans.timeSpent = (ans.timeSpent || 0) + elapsed;
+}
+
+// Freeze time on a question (called when answered or auto-advanced in instant mode)
+function rmStopwatchFreeze(idx) {
+  rmStopwatchStop(idx); // save current elapsed first
+  if (rmState.answers[idx]) rmState.answers[idx]._timeFrozen = true;
+}
+
 // \u2500\u2500 Pause / Resume \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 document.getElementById('rm-pause-btn').addEventListener('click', rmTogglePause);
 function rmTogglePause() {
+  if (!rmState.paused) {
+    // Pausing — stop the stopwatch to exclude pause duration from question time
+    rmStopwatchStop(rmState.currentIdx);
+  } else {
+    // Resuming — restart the stopwatch for the current question
+    // Only restart if question is still open (not frozen)
+    const ans = rmState.answers[rmState.currentIdx];
+    if (!ans || !ans._timeFrozen) rmStopwatchStart();
+  }
   rmState.paused = !rmState.paused;
   const btn = document.getElementById('rm-pause-btn');
   const badge = document.getElementById('rm-paused-badge');
@@ -9697,6 +9868,8 @@ document.getElementById('rm-close-btn').addEventListener('click', () => {
 
 // \u2500\u2500 Finish mock \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function rmFinish() {
+  // Stop stopwatch for the last question before finishing
+  rmStopwatchStop(rmState.currentIdx);
   clearInterval(rmQTimer); clearInterval(rmTotalTimer);
   rmQTimer = null; rmTotalTimer = null;
   rmState.finished = true;
